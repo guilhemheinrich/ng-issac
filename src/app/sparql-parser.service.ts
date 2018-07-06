@@ -107,3 +107,10 @@ export interface Prefix {
   uri: string;
 }
 
+// export class Prefix {
+//   prefix: string;
+//   uri:string;
+
+//   constructor() {}
+// }
+

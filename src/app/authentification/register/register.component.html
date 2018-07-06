@@ -1,7 +1,4 @@
 <div class="container">
-
-
-
   <form #userFrom="ngForm" (ngSubmit)="onSubmit()">
 
     <div class="form-group">
@@ -23,7 +20,7 @@
       <div [hidden]="email.valid || email.untouched" class="alert alert-danger" >
         Invalid email !
       </div>      
-      <div [hidden]="email.valid || email.untouched" class="alert alert-danger" id="email-checker" >
+      <div [hidden]="email.valid || email.untouched" class="alert alert-danger" #emailChecker >
         Email Already in Use !
       </div>
 

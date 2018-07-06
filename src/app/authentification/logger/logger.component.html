@@ -1,0 +1,19 @@
+<!-- <div  *ngIf="logged; then loggedTemplate; else registerLogTemplate;"></div>
+<ng-template #loggedTemplate [hidden]="logged">
+Logged
+
+</ng-template> -->
+
+<!-- <ng-template #registerLogTemplate [hidden]="!logged">
+    <li class="nav-item">
+        <a routerLink="/authentification/register" class="nav-link">Register</a>
+      </li>
+    <li class="nav-item">
+        <a routerLink="/authentification/login" class="nav-link" >Login</a>
+    </li>
+
+</ng-template> -->
+
+<button type="button" (click)="onLogout();">Click Me!</button>
+<div [hidden]="!logged"> Logged</div>
+<div [hidden]="logged"> Not Logged</div>

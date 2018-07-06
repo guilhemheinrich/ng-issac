@@ -10,12 +10,18 @@ import { AppRoutingModule } from './/app-routing.module';
 
 import { LocalStorageModule } from 'angular-2-local-storage';
 import { RegisterComponent } from './authentification/register/register.component';
+import { LoginComponent } from './authentification/login/login.component';
+import { LoggerComponent } from './authentification/logger/logger.component';
+
+
 
 @NgModule({
   declarations: [
     AppComponent,
     NavbarComponent,
-    RegisterComponent
+    RegisterComponent,
+    LoginComponent,
+    LoggerComponent
   ],
   imports: [
     BrowserModule,

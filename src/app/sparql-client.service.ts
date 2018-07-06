@@ -160,28 +160,13 @@ export class SparqlClientService {
     {
       let body = new HttpParams()
     .set('update', update)
-    // .set('password', password);
-    // let body = {
-    //   "query" : query,
-    // }
-    // let finalOptions = {
-    //   "headers" : {
-    //     "Content-Type" : "application/x-www-form-urlencoded",
-    //     "Accept" : "application/json"
-    //   } 
-    // }
+
     let finalOptions = {
       headers: new HttpHeaders()
         .set('Content-Type', 'application/x-www-form-urlencoded')
         .set('Accept', 'application/json')
     }
-    // if (usingGraphUri) {
-    //   body.set("using-graph-uri", usingGraphUri);
-    //   body["using-graph-uri"] = usingGraphUri;
-    // }
-    // if (usingNamedGraphUri) {
-    //   body["using-named-graph-uri"] = usingNamedGraphUri;
-    // }
+    
     console.log(body);
     console.log(finalOptions);
 

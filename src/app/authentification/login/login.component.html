@@ -1,0 +1,20 @@
+<div class="container">
+  <form #userFrom="ngForm" (ngSubmit)="onSubmit()">
+
+    <div class="form-group">
+      <label> Email:
+        <input [(ngModel)]="user.email" placeholder="Email" class="form-control" required email type="email" name="email" #email="ngModel"
+        />
+      </label>
+
+
+    </div>
+
+    <div class="form-group">
+      <label> Password:
+        <input [(ngModel)]="user.password" placeholder="Password" class="form-control" required name="password" #password="ngModel"/>
+      </label>
+    </div>
+    <button type="submit" class="btn btn-success" [disabled]="!userFrom.form.valid">Login</button>
+  </form>
+</div>

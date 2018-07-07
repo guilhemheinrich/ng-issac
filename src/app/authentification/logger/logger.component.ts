@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { LocalStorageService } from 'angular-2-local-storage';
-
+import { Component, OnInit, Input } from '@angular/core';
+import { LogService } from '../log.service';
+import { User, LoggedUser } from '../user';
 
 @Component({
   selector: 'app-logger',
@@ -12,45 +11,32 @@ import { LocalStorageService } from 'angular-2-local-storage';
 export class LoggerComponent implements OnInit {
 
   logged = false;
-  loggedSubject: Observable<boolean>;
+  @Input()
+  loggedUser: LoggedUser;
   constructor(
-    private localStorageService: LocalStorageService
+    private logService: LogService,
   ) { 
-    // this.loggedSubject = new Observable((
-    //   {
-    //     next : x => return this.localStorageService.get('user') == null,
-    //     error: err => console.error('Observer got an error: ' + err),
-    //     complete: () => console.log('Observer got a complete notification'),
-    //   }
-    // ));
 
+    this.logService.log$.subscribe(
+      value => {
+         console.log('log is ' + (value != null));
+         this.loggedUser = value;
+         this.logged = value != null;
+      });
   }
 
   ngOnInit() {
-    this.logged = this.localStorageService.get('user') == null;
+    console.log(this.logService);
+    console.log(this.logService.log$);
+
   }
 
   onLogout() {
     this.logged = false;
-    this.localStorageService.set('user', null);
+    // this.localStorageService.set('user', null);
+    this.logService.logout();
     console.log(this.logged);
   }
 
 
-
-  test() {
-    console.log("inside test");
-    // Create simple observable that emits three values
-    let myObservable = of(1, 2, 3);
-    
-    // Create observer object
-    let myObserver = {
-      next: x => console.log('Observer got a next value: ' + x),
-      error: err => console.error('Observer got an error: ' + err),
-      complete: () => console.log('Observer got a complete notification'),
-    };
-    
-    myObservable.subscribe(myObserver);
-
-  }
 }

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { SparqlClientService } from '../../sparql-client.service';
-import { SparqlParserService, Prefix, GraphDefinition, QueryType } from '../../sparql-parser.service';
+import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import {GlobalVariables, hash32} from '../../configuration';
-import { LocalStorageService } from 'angular-2-local-storage';
+import { LogService } from '../log.service';
 
 import { User, LoggedUser } from '../user';
 
@@ -18,8 +18,14 @@ export class LoginComponent implements OnInit {
   constructor(    
     private sparqlClient: SparqlClientService,
     private sparqlParser: SparqlParserService,
-    private localStorageService: LocalStorageService
-  ) {
+    private logService: LogService
+  ) { 
+    this.logService.log$.subscribe(
+      value => {
+         console.log('log is ' + value);
+         console.log('log is ' + (value != null));
+      }
+ );
     this.sparqlClient.sparqlEndpoint = 'http://localhost:8890/sparql';
    }
 
@@ -52,22 +58,16 @@ export class LoginComponent implements OnInit {
       prefix_agent:${hashedEmail} foaf:nick ?nickname .
       `
     ]);
-
-    console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response => 
       {
         if (response.results.bindings.length !== 1) {
-          console.log('i dont');
         } else {
           this.loggedUser.username = response.results.bindings[0].nickname.value;
           this.loggedUser.email = this.user.email;
           this.loggedUser.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_agent.uri + hashedEmail;
-          this.localStorageService.set('user', this.loggedUser);
-          console.log('i do');
-          console.log(this.loggedUser);
+          this.logService.login(this.loggedUser);
         }
-        console.log(response);
       }));
   }
 

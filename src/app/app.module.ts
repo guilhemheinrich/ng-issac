@@ -12,6 +12,9 @@ import { LocalStorageModule } from 'angular-2-local-storage';
 import { RegisterComponent } from './authentification/register/register.component';
 import { LoginComponent } from './authentification/login/login.component';
 import { LoggerComponent } from './authentification/logger/logger.component';
+import { IndexComponent } from './processus/index/index.component';
+import { EditComponent } from './processus/edit/edit.component';
+import { ViewComponent } from './processus/view/view.component';
 
 
 
@@ -21,7 +24,10 @@ import { LoggerComponent } from './authentification/logger/logger.component';
     NavbarComponent,
     RegisterComponent,
     LoginComponent,
-    LoggerComponent
+    LoggerComponent,
+    IndexComponent,
+    EditComponent,
+    ViewComponent
   ],
   imports: [
     BrowserModule,

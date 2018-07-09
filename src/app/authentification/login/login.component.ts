@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
          console.log('log is ' + (value != null));
       }
  );
-    this.sparqlClient.sparqlEndpoint = 'http://localhost:8890/sparql';
+    this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
    }
 
   ngOnInit() {

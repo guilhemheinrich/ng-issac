@@ -18,7 +18,7 @@ export class RegisterComponent implements OnInit {
     private sparqlClient: SparqlClientService,
     private sparqlParser: SparqlParserService
   ) {
-    this.sparqlClient.sparqlEndpoint = 'http://localhost:8890/sparql';
+    this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
   }
 
   ngOnInit() {
@@ -27,7 +27,7 @@ export class RegisterComponent implements OnInit {
   emailAlreadyInUse(): Observable<any> {
     this.sparqlParser.clear();
     this.sparqlParser.queryType = QueryType.ASK;
-    this.sparqlParser.prefixes = [{prefix: "foaf",uri: "http://xmlns.com/foaf/0.1/" }];
+    this.sparqlParser.prefixes = [GlobalVariables.ONTOLOGY_PREFIX.foaf];
     this.sparqlParser.graphDefinition = new GraphDefinition([`?uri foaf:mbox [ rdf:value \"${this.user.email}\"^^xsd:string ] .\n`]);
     let askQuery = this.sparqlParser.toString();
     console.log(askQuery);

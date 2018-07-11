@@ -18,13 +18,15 @@ export class Action {
     public agentLabel: string;
     public roles: string[];
 
-    static readonly root: string = 'issac:Role';
-    constructor(options: IAction
+    static readonly root: string = 'Role';
+    constructor(options?: IAction
        ) {
-        this.uri          = options.uri         ;
-        this.agentUri     = options.agentUri    ;
-        this.agentLabel   = options.agentLabel  ;
-        this.roles        = options.roles       ;
+           if (options) {
+               this.uri          = options.uri         ;
+               this.agentUri     = options.agentUri    ;
+               this.agentLabel   = options.agentLabel  ;
+               this.roles        = options.roles       ;
+           }
 
     };
 }
@@ -38,18 +40,18 @@ export interface IAction {
 }
 
 export class Input extends Action {
-    static readonly root: string  = 'issac:Input';
+    static readonly root: string  = 'Input';
     constructor(
-        options: IAction
+        options?: IAction
     ){
         super(options);
 
     };
 }
 export class Output extends Action {
-    static readonly root:string  = 'issac:Output';
+    static readonly root:string  = 'Output';
     constructor(
-        options: IAction
+        options?: IAction
     ){
         super(options);
 

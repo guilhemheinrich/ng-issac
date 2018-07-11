@@ -2,12 +2,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RegisterComponent } from './authentification/register/register.component';
 import { LoginComponent } from './authentification/login/login.component';
-import { LoggerComponent } from './authentification/logger/logger.component';
+import { EditComponent } from './processus/edit/edit.component';
 import { HttpClientModule } from '@angular/common/http'; 
 
 const routes: Routes = [
   { path: 'authentification/register', component: RegisterComponent },
   { path: 'authentification/login', component: LoginComponent },
+  { path: 'processus/edit', component: EditComponent },
   
 ];
 

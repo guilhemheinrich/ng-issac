@@ -94,6 +94,7 @@ export class GraphDefinition {
     }
     if (this.graphDefinitions) {
       this.graphDefinitions.forEach(graphDefinition => {
+        out_string += 'UNION ';
         out_string += graphDefinition.toString() + ` \n`;
       });
     }

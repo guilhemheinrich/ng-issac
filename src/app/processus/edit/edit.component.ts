@@ -4,6 +4,7 @@ import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32 } from '../../configuration';
 import * as $ from 'jquery';
+import * as _ from 'underscore';
 import { autocomplete } from 'node_modules/jquery-autocomplete/jquery.autocomplete.js';
 @Component({
   selector: 'app-edit',
@@ -15,6 +16,11 @@ export class EditComponent implements OnInit {
 
   action: Action = new Action();
   processus: Processus;
+
+  // For the autocomplete delay, in millisecond
+  typingTimer: any;
+  typingTimeout: number = 1000;
+
   @ViewChild('modal') modal: ElementRef;
   @ViewChild('inputAgentLabel') inputAgentLabel: ElementRef;
   private currentFocus: number;
@@ -27,23 +33,18 @@ export class EditComponent implements OnInit {
   }
 
   ngOnInit() {
-    var closeAutoComplete = this.closeAllLists;
-    document.addEventListener("click", function (e) {
-      // console.log('here');
-      // closeAutoComplete(e.target);
-
-    });
   }
 
   @HostListener('document:click', ['$event'])
-  closeModal(event?: Event) {
-    console.log('here in close modal');
+  globalListener(event:Event)
+  {
     if (event && event.target == this.modal.nativeElement) {
-      this.modal.nativeElement.style.display = "none";
+      this.closeModal();
     }
-    if (!event) {
-      this.modal.nativeElement.style.display = "none";
-    }
+    this.closeAllLists();
+  }
+  closeModal() {
+    this.modal.nativeElement.style.display = "none";
   }
 
   openModal(type: string) {
@@ -68,7 +69,7 @@ export class EditComponent implements OnInit {
     this.sparqlParser.graphPattern = new GraphDefinition([
       `
       ?uri skos:prefLabel ?label .
-      FILTER regex(STR(?label), \" . ${input} . \", \"i\") . 
+      FILTER regex(STR(?label), \"${input}\", \"i\") . 
       FILTER (lang(?label) = 'en') .
       `
     ]);
@@ -79,6 +80,14 @@ export class EditComponent implements OnInit {
       {
         console.log(response);
       }));
+  }
+
+  delayedAutocomplete()
+  {
+    if (this.typingTimer < this.typingTimeout) {
+      window.clearTimeout(this.typingTimer);
+    }
+    this.typingTimer = window.setTimeout(()=>{this.autocomplete()}, this.typingTimeout);
   }
 
   autocomplete() {
@@ -118,7 +127,7 @@ export class EditComponent implements OnInit {
     //     a.appendChild(b);
     //   }
     // }
-  };
+  }
 
   addActive(x) {
     /*a function to classify an item as "active":*/

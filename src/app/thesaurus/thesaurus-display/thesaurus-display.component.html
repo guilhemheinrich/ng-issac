@@ -1,0 +1,10 @@
+<div *ngIf="searchField" >
+
+  {{searchField}}
+  <ul>
+    <li *ngFor="let thesaurusEntry of thesaurusEntries ;">
+      {{ thesaurusEntry.id.name }}
+      {{ thesaurusEntry.parent.name }}
+    </li>
+  </ul>
+</div>

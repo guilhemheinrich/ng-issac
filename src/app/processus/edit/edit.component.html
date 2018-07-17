@@ -16,7 +16,7 @@
                 <div class="form-group">
                     <label> Agent Label:
                         <input [(ngModel)]="action.agentLabel" placeholder="Agent Label" class="form-control" required name="agentLabel" #agentLabel="ngModel"
-                        (input)="autocomplete();" #inputAgentLabel/>
+                         #inputAgentLabel/>
                     </label>
                 </div>
 
@@ -27,6 +27,7 @@
                     </label>
                 </div>
             </form>
+            <app-thesaurus-display [searchField]="action.agentLabel"></app-thesaurus-display>
         </div>
         <div class="modal-footer">
             <h3>Modal Footer</h3>

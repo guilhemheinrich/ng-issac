@@ -16,6 +16,7 @@ import { IndexComponent } from './processus/index/index.component';
 import { EditComponent } from './processus/edit/edit.component';
 import { ViewComponent } from './processus/view/view.component';
 import { ThesaurusDisplayComponent } from './thesaurus/thesaurus-display/thesaurus-display.component';
+import { MermaidComponent } from './mermaid/mermaid.component';
 
 
 
@@ -29,7 +30,8 @@ import { ThesaurusDisplayComponent } from './thesaurus/thesaurus-display/thesaur
     IndexComponent,
     EditComponent,
     ViewComponent,
-    ThesaurusDisplayComponent
+    ThesaurusDisplayComponent,
+    MermaidComponent
   ],
   imports: [
     BrowserModule,

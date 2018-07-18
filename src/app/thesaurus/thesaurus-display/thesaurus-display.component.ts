@@ -3,6 +3,8 @@ import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32 } from '../../configuration';
 import {ThesaurusEntry, uniqueIdentifier} from '../thesaurusEntry';
+import * as mermaid from 'mermaid';
+// import mermaidAPI from 'mermaid/mermaidAPI';
 
 
 @Component({
@@ -16,6 +18,8 @@ export class ThesaurusDisplayComponent implements OnInit {
   // mapThesaurusEntries: {uri:string, thesaurusEntry: ThesaurusEntry} = <{uri:string, thesaurusEntry: ThesaurusEntry}>{};
   mapThesaurusEntries: {[uri:string] : ThesaurusEntry} = {};
   thesaurusEntries: ThesaurusEntry[] = <ThesaurusEntry[]>[] ;
+
+  graphDefinition: string = '';
 
 
   // For the autocomplete delay, in millisecond
@@ -41,7 +45,9 @@ export class ThesaurusDisplayComponent implements OnInit {
     if (this.typingTimer < this.typingTimeout) {
       window.clearTimeout(this.typingTimer);
     }
-    this.typingTimer = window.setTimeout(() => { this.autocomplete() }, this.typingTimeout);
+    if (this.searchField && this.searchField.length >= 3) {
+      this.typingTimer = window.setTimeout(() => { this.autocomplete() }, this.typingTimeout);
+    }
   }
 
 
@@ -54,16 +60,18 @@ export class ThesaurusDisplayComponent implements OnInit {
     }));
   };
 
-  onClickUri(uri: string)
+  onClickUri(identifier: uniqueIdentifier)
   {
-    var result = this.searchUri(uri);
+    var result = this.searchUri(identifier.uri);
     result.subscribe((response => {
       if (response['results']['bindings']) {
-        console.log(response['results']['bindings']);
+        // console.log(response['results']['bindings']);
+        this.computeGraphDefinition(identifier, response['results']['bindings']);
       }
     }))
   }
 
+  
 
   search(input: string) {
     this.sparqlParser.clear();
@@ -200,7 +208,41 @@ console.log (this.sparqlParser.toString());
     this.thesaurusEntries = Object.values(this.mapThesaurusEntries);
   }
 
-  
+  computeGraphDefinition(identifier: uniqueIdentifier, bindings: Array<any>)
+  {
+    let thesaurusEntry = new ThesaurusEntry({
+      id: identifier
+    })
+    // Not really satisfying method ..
+    var uriChilds = <string[]>[];
+    var uriSiblings = <string[]>[];
+    thesaurusEntry.childs =  <uniqueIdentifier[]>[];
+    thesaurusEntry.siblings =  <uniqueIdentifier[]>[];
+    // Filling
+    bindings.map(entry => {
+
+      if (entry.uriNarrower && 
+        !uriChilds.includes(entry.uriNarrower.value)) {
+          thesaurusEntry.childs.push(<uniqueIdentifier>{ name: entry.labelNarrower.value, uri: entry.uriNarrower.value});
+          uriChilds.push(entry.uriNarrower.value);
+      }
+      if (entry.labelSibling &&
+        !uriSiblings.includes(entry.uriSibling.value) &&
+        entry.uriSibling.value != identifier.uri) {
+          thesaurusEntry.siblings.push(<uniqueIdentifier>{ name: entry.labelSibling.value, uri: entry.uriSibling.value});
+          uriSiblings.push(entry.uriSibling.value);
+      }
+      // if (entry.labelBroader &&
+      //   !thesaurusEntry[entry.uri.value].parent) {
+      //     thesaurusEntry.parent = <uniqueIdentifier>{ name: entry.labelBroader.value, uri: entry.uriBroader.value};
+      // }
+    })
+    console.log(thesaurusEntry);
+    // this.graphDefinition = `
+    //   GRAPH LR;\n
+    // `
+    // bindings[0]
+  }
 
 
 

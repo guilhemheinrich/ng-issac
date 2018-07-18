@@ -1,0 +1,39 @@
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table {
+    /* padding-bottom: 100px;
+    margin-bottom: 200px; */
+    /* max-height: calc(100vh - 210px); */
+}
+
+th, td {
+    padding: 10px;
+}
+
+td:hover {
+    background-color: aquamarine;
+}
+
+tr:nth-child(even) {background: #CCC}
+tr:nth-child(odd) {background: #FFF}
+
+.scrollable-div {
+    max-height: calc(100vh - 210px);
+    /* padding-bottom: 175px; */
+    overflow-y: auto;
+}
+
+/* https://stackoverflow.com/questions/2637696/how-to-place-div-side-by-side */
+.container{
+    display: flex;
+}
+.fixed{
+    width: 200px;
+}
+.flex-item{
+    flex-grow: 1;
+}
+

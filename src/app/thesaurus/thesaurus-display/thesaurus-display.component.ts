@@ -46,8 +46,24 @@ export class ThesaurusDisplayComponent implements OnInit {
 
 
   autocomplete() {
-    var arr = this.search(this.searchField);
+    var result = this.search(this.searchField);
+    result.subscribe((response => {
+      if (response['results']['bindings']) {
+        this._parseResults(response['results']['bindings']);
+      }
+    }));
   };
+
+  onClickUri(uri: string)
+  {
+    var result = this.searchUri(uri);
+    result.subscribe((response => {
+      if (response['results']['bindings']) {
+        console.log(response['results']['bindings']);
+      }
+    }))
+  }
+
 
   search(input: string) {
     this.sparqlParser.clear();
@@ -62,12 +78,67 @@ export class ThesaurusDisplayComponent implements OnInit {
         ?uri skos:prefLabel|skos:altLabel ?label .
         FILTER regex(STR(?label), \"${input}\", \"i\") . 
         FILTER (lang(?label) = 'en') .
+        OPTIONAL {
+          ?uri skos:broader ?uriBroader .
+          ?uriBroader skos:prefLabel ?labelBroader
+        }
+        `
+    ]);
+    // Too heavy for general search !
+
+    // searchQueryLabel.triplesContent.push(
+    //   `
+    //   OPTIONAL {
+    //     ?uri skos:narrower ?uriNarrower .
+    //     ?uriNarrower skos:prefLabel ?labelNarrower.
+    //     FILTER (lang(?labelNarrower) = 'en') .
+    //   }
+    //     `
+    // );
+    // searchQueryLabel.triplesContent.push(
+    //   `
+    //   OPTIONAL {
+    //     ?uri skos:broader ?uriBroader .
+    //     ?uriBroader skos:prefLabel ?labelBroader.
+    //     FILTER (lang(?labelBroader) = 'en') .
+    //     OPTIONAL {
+    //       ?uriBroader skos:narrower ?uriSibling .
+    //       ?uriSibling skos:prefLabel ?labelSibling.
+    //       FILTER (lang(?labelSibling) = 'en') .
+    //     }
+    //   }
+    //     `
+    // );
+
+    this.sparqlParser.graphPattern = searchQueryLabel;
+// console.log (this.sparqlParser.toString());
+    let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
+    return result;
+
+  }
+
+  searchUri(uri: string)
+  {
+    this.sparqlParser.clear();
+    this.sparqlParser.queryType = QueryType.QUERY;
+    this.sparqlParser.prefixes = [
+      GlobalVariables.ONTOLOGY_PREFIX.foaf,
+      GlobalVariables.ONTOLOGY_PREFIX.issac,
+      GlobalVariables.ONTOLOGY_PREFIX.skos,
+    ];
+    var searchQueryLabel = new GraphDefinition([
+      `
+        <${uri}> skos:prefLabel|skos:altLabel ?label .
+        OPTIONAL {
+          <${uri}> skos:broader ?uriBroader .
+          ?uriBroader skos:prefLabel ?labelBroader
+        }
         `
     ]);
     searchQueryLabel.triplesContent.push(
       `
       OPTIONAL {
-        ?uri skos:narrower ?uriNarrower .
+        <${uri}> skos:narrower ?uriNarrower .
         ?uriNarrower skos:prefLabel ?labelNarrower.
         FILTER (lang(?labelNarrower) = 'en') .
       }
@@ -76,7 +147,7 @@ export class ThesaurusDisplayComponent implements OnInit {
     searchQueryLabel.triplesContent.push(
       `
       OPTIONAL {
-        ?uri skos:broader ?uriBroader .
+        <${uri}> skos:broader ?uriBroader .
         ?uriBroader skos:prefLabel ?labelBroader.
         FILTER (lang(?labelBroader) = 'en') .
         OPTIONAL {
@@ -89,63 +160,48 @@ export class ThesaurusDisplayComponent implements OnInit {
     );
 
     this.sparqlParser.graphPattern = searchQueryLabel;
-
-
-    console.log(this.sparqlParser.toString());
+console.log (this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
-    result.subscribe((response => {
-      if (response['results']['bindings']) {
-        // console.log(response['results']['bindings']);
-        this._parseResults(response['results']['bindings']);
-      }
-    }));
+    return result;
   }
 
   private _parseResults(bindings: Array<any>)
   {
     // Initialisation
+    this.mapThesaurusEntries = {};
     bindings.forEach(entry => {
-      // console.log(this);
-      // console.log(entry.uri);
       if (!this.mapThesaurusEntries[entry.uri.value]) {
       this.mapThesaurusEntries[entry.uri.value] = new ThesaurusEntry(
           {
             id: {name: entry.label.value, uri: entry.uri.value},
-            childs         : <uniqueIdentifier[]>[],
-            siblings       : <uniqueIdentifier[]>[],
+            // childs         : <uniqueIdentifier[]>[],
+            // siblings       : <uniqueIdentifier[]>[],
           }
         );
       }
     });
-    // console.log(this.mapThesaurusEntries);
     // Filling
     bindings.map(entry => {
-      // console.log(this.mapThesaurusEntries[entry.uri.value]);
-      // this.mapThesaurusEntries[entry.uri].pushIfNotExist('synonyms', entry.);
-      if (entry.labelNarrower && 
-        !this.mapThesaurusEntries[entry.uri.value].childs.includes(<uniqueIdentifier>{ name: entry.labelNarrower.value, uri: entry.uriNarrower.value})) {
-          this.mapThesaurusEntries[entry.uri.value].childs.push(<uniqueIdentifier>{ name: entry.labelNarrower.value, uri: entry.uriNarrower.value});
-          // console.log('Do things');
-        // console.log(<uniqueIdentifier>{ name: entry.labelNarrower.value, uri: entry.uriNarrower.value});
-        // console.log(this.mapThesaurusEntries[entry.uri.value]);
-        // this.mapThesaurusEntries[entry.uri.value].pushIfNotExist('childs'  , <uniqueIdentifier>{ name: entry.labelNarrower.value, uri: entry.uriNarrower.value});
-      }
-      if (entry.labelSibling &&
-        !this.mapThesaurusEntries[entry.uri.value].siblings.includes(<uniqueIdentifier>{ name: entry.labelSibling.value, uri: entry.uriSibling.value})) {
-          this.mapThesaurusEntries[entry.uri.value].siblings.push(<uniqueIdentifier>{ name: entry.labelSibling.value, uri: entry.uriSibling.value});
-          // console.log(this.mapThesaurusEntries[entry.uri.value]);
-        // this.mapThesaurusEntries[entry.uri.value].pushIfNotExist('siblings', <uniqueIdentifier>{ name: entry.labelSibling.value, uri: entry.uriSibling.value});
-      }
+
+      // if (entry.labelNarrower && 
+      //   !this.mapThesaurusEntries[entry.uri.value].childs.includes(<uniqueIdentifier>{ name: entry.labelNarrower.value, uri: entry.uriNarrower.value})) {
+      //     this.mapThesaurusEntries[entry.uri.value].childs.push(<uniqueIdentifier>{ name: entry.labelNarrower.value, uri: entry.uriNarrower.value});
+      // }
+      // if (entry.labelSibling &&
+      //   !this.mapThesaurusEntries[entry.uri.value].siblings.includes(<uniqueIdentifier>{ name: entry.labelSibling.value, uri: entry.uriSibling.value})) {
+      //     this.mapThesaurusEntries[entry.uri.value].siblings.push(<uniqueIdentifier>{ name: entry.labelSibling.value, uri: entry.uriSibling.value});
+      // }
       if (entry.labelBroader &&
         !this.mapThesaurusEntries[entry.uri.value].parent) {
           this.mapThesaurusEntries[entry.uri.value].parent = <uniqueIdentifier>{ name: entry.labelBroader.value, uri: entry.uriBroader.value};
-        // this.mapThesaurusEntries[entry.uri.value].pushIfNotExist('parent'  , <uniqueIdentifier>{ name: entry.labelBroader.value, uri: entry.uriBroader.value});
       }
     })
 
     this.thesaurusEntries = Object.values(this.mapThesaurusEntries);
-
-    // console.log(values);
-    // console.log(this);
   }
+
+  
+
+
+
 }

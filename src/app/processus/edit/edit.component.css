@@ -6,7 +6,12 @@
 }
 
 /* Modal Body */
-.modal-body {padding: 2px 16px;}
+.modal-body {
+  padding: 2px 16px;
+  /* display:block; */
+  height:700px;
+  overflow: hidden;
+}
 
 /* Modal Footer */
 .modal-footer {

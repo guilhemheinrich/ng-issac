@@ -15,19 +15,21 @@
             <form #processusForm="ngForm" >
                 <div class="form-group">
                     <label> Agent Label:
-                        <input [(ngModel)]="action.agentLabel" placeholder="Agent Label" class="form-control" required name="agentLabel" #agentLabel="ngModel"
-                         #inputAgentLabel/>
+                        {{action.agent.name}}
+                        <!-- <input [(ngModel)]="action.agentLabel" placeholder="Agent Label" class="form-control" required name="agentLabel" #agentLabel="ngModel"
+                         #inputAgentLabel/> -->
                     </label>
                 </div>
 
                 <div class="form-group">
                     <label> Uri:
-                        <input [(ngModel)]="action.uri" placeholder="Agent Uri" class="form-control" readonly="true" name="agentUri" #agentUri="ngModel"
-                        />
+                            {{action.agent.uri}}
+                        <!-- <input [(ngModel)]="action.uri" placeholder="Agent Uri" class="form-control" readonly="true" name="agentUri" #agentUri="ngModel"
+                        /> -->
                     </label>
                 </div>
             </form>
-            <app-thesaurus-display [searchField]="action.agentLabel"></app-thesaurus-display>
+            <app-thesaurus-display ></app-thesaurus-display>
         </div>
         <div class="modal-footer">
             <h3>Modal Footer</h3>

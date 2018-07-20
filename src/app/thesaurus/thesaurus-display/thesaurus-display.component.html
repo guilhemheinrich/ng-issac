@@ -1,44 +1,25 @@
-<div *ngIf="searchField" style="position: relative">
-  <!-- <div class="container ">
-      <div class="fixed ">
-        Hello
-      </div>
-
-
-  </div> -->
-  <!-- <app-mermaid></app-mermaid> -->
-  <div class="scrollable-div" style="position:relative; height:500px; width:50%">
+<div  style="position: relative">
+    <div style="position:relative">
+      <input [(ngModel)]="searchField" placeholder="Search skos ontology ..." class="form-control" (input)="delayedAutocomplete()"
+      />
+      {{searchField}}
+    </div>
+  <br/>
+  <div class="scrollable-vertical" style="position:relative; height:300px; width:50%">
       <table style="width:100%">
           <tr>
             <th>Name</th>
             <th>Parent</th> 
           </tr>
           <tr *ngFor="let thesaurusEntry of thesaurusEntries ;">
-            <td (click)="onClickUri(thesaurusEntry.id)" style="cursor:pointer">{{ thesaurusEntry.id.name }}</td>
-            <td (click)="onClickUri(thesaurusEntry.parent)" style="cursor:pointer">{{ thesaurusEntry.parent.name }}</td> 
+            <td (click)="onClickIdentifier(thesaurusEntry.id)" class="thesaurus">{{ thesaurusEntry.id.name }}</td>
+            <td (click)="onClickIdentifier(thesaurusEntry.parent)" class="thesaurus">{{ thesaurusEntry.parent.name }}</td> 
           </tr>
         </table>
   </div>
-  <app-mermaid [graphDefinition]="searchField" style="position:absolute; right:15px;top:15px; width: 48%;"></app-mermaid>
-<!-- 
-  <div style="white-space:nowrap">
 
-      <div style="display: inline-block" >
-          <app-mermaid></app-mermaid>
-       </div>
-       <div style="display: inline-block" class="scrollable-div">
-          <table style="width:100%">
-              <tr>
-                <th>Name</th>
-                <th>Parent</th> 
-              </tr>
-              <tr *ngFor="let thesaurusEntry of thesaurusEntries ;">
-                <td>{{ thesaurusEntry.id.name }}</td>
-                <td>{{ thesaurusEntry.parent.name }}</td> 
-              </tr>
-            </table>
-       </div>
-  </div> -->
+
+  <app-mermaid [graphDefinition]="graphDefinition" [viewPortWidth]="" [viewPortHeight]="250" [preserveAspectRatio]="'xMinYMin'" style="position:relative;" ></app-mermaid>
 
 
 

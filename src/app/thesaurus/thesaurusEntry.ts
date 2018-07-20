@@ -1,9 +1,11 @@
+import { UniqueIdentifier } from '../configuration';
+
 export class ThesaurusEntry {
-    id: uniqueIdentifier
+    id: UniqueIdentifier
     synonyms?: string[];
-    parent: uniqueIdentifier;
-    childs: uniqueIdentifier[] = <uniqueIdentifier[]>[];
-    siblings: uniqueIdentifier[] = <uniqueIdentifier[]>[];
+    parent: UniqueIdentifier;
+    childs: UniqueIdentifier[] = <UniqueIdentifier[]>[];
+    siblings: UniqueIdentifier[] = <UniqueIdentifier[]>[];
     description? :string;
 
     constructor(IThesaurusEntry? :ThesaurusEntryInterface) {
@@ -16,28 +18,16 @@ export class ThesaurusEntry {
             this.description    = IThesaurusEntry.description;
         }
     }
-
-    // pushIfNotExist(attribute: string, value: uniqueIdentifier) {
-    //         console.log(this)
-    //         console.log(this[attribute]);
-    //         console.log(value);
-    //         if (!(<uniqueIdentifier[]>this[attribute]).includes(value)) {
-    //         //     // this[attribute].push(value);
-    //         }
-    // }
 }
 
 export interface ThesaurusEntryInterface {
-    id: uniqueIdentifier;
+    id: UniqueIdentifier;
     synonyms?: string[];
-    parent?: uniqueIdentifier;
-    childs?: uniqueIdentifier[];
-    siblings?: uniqueIdentifier[];
+    parent?: UniqueIdentifier;
+    childs?: UniqueIdentifier[];
+    siblings?: UniqueIdentifier[];
     description? :string;
 }
 
-export class uniqueIdentifier {
-    uri: string;
-    name: string;
-}
+
 

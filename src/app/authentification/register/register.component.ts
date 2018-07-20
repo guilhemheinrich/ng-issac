@@ -30,7 +30,7 @@ export class RegisterComponent implements OnInit {
     this.sparqlParser.prefixes = [GlobalVariables.ONTOLOGY_PREFIX.foaf];
     this.sparqlParser.graphDefinition = new GraphDefinition([`?uri foaf:mbox [ rdf:value \"${this.user.email}\"^^xsd:string ] .\n`]);
     let askQuery = this.sparqlParser.toString();
-    console.log(askQuery);
+
     return this.sparqlClient.queryByGet(askQuery);
   }
 
@@ -68,7 +68,6 @@ export class RegisterComponent implements OnInit {
 
       let result = this.sparqlClient.updateByUrlEncodedPost(this.sparqlParser.toString());
       result.subscribe((response => console.log(response)));
-      // console.log(this.sparqlParser.toString());
       console.log("Submitted !");
     } else {
       console.log(this.emailInput.nativeElement.hidden = false);

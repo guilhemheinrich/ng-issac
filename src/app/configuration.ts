@@ -43,3 +43,8 @@ export function hash32(stringToEncode : string)
 	}
 	return hash;
 }
+
+export class UniqueIdentifier {
+    uri: string = "";
+    name: string = "";
+}

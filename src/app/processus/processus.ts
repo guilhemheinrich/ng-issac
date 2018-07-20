@@ -1,5 +1,5 @@
 
-import {GlobalVariables} from '../configuration';
+import {UniqueIdentifier} from '../configuration';
 
 export class Processus {
     uri: string;
@@ -13,19 +13,17 @@ export class Processus {
 
 export class Action {
 
-    public uri: string;
-    public agentUri: string;
-    public agentLabel: string;
-    public roles: string[];
+    uri: string;
+    agent: UniqueIdentifier;
+    roles: string[];
 
     static readonly root: string = 'Role';
     constructor(options?: IAction
        ) {
            if (options) {
-               this.uri          = options.uri         ;
-               this.agentUri     = options.agentUri    ;
-               this.agentLabel   = options.agentLabel  ;
-               this.roles        = options.roles       ;
+               this.uri       = options.uri  ;
+               this.agent     = options.agent;
+               this.roles     = options.roles;
            }
 
     };
@@ -33,8 +31,7 @@ export class Action {
 
 export interface IAction {
     uri: string;
-    agentUri: string;
-    agentLabel: string;
+    agent: UniqueIdentifier;
     roles: string[];
 
 }

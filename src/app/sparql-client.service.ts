@@ -94,8 +94,8 @@ export class SparqlClientService {
     if (namedGraphUri) {
       body["named-graph-uri"] = namedGraphUri;
     }
-    console.log(body);
-    console.log(finalOptions);
+    // console.log(body);
+    // console.log(finalOptions);
 
     let results = this.http.post(this.sparqlEndpoint,body.toString(), finalOptions);
     return results;
@@ -133,9 +133,9 @@ export class SparqlClientService {
     if (namedGraphUri) {
       finalOptions["params"]["named-graph-uri"] = namedGraphUri;
     }
-    console.log(finalOptions);
-    console.log(body);
-    console.log(finalOptions);
+    // console.log(finalOptions);
+    // console.log(body);
+    // console.log(finalOptions);
 
     let results = this.http.post(this.sparqlEndpoint, body.toString(), finalOptions);
     return results;
@@ -167,8 +167,8 @@ export class SparqlClientService {
         .set('Accept', 'application/json')
     }
     
-    console.log(body);
-    console.log(finalOptions);
+    // console.log(body);
+    // console.log(finalOptions);
 
     let results = this.http.post(this.sparqlEndpoint,body.toString(), finalOptions);
     return results;
@@ -187,7 +187,7 @@ export class SparqlClientService {
       }
     };
     let results = this.http.get(dbpediaUrl, options);
-    console.log(results);
+    // console.log(results);
     return results;
 
   }

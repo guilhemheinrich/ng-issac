@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, OnChanges, ViewChild, ElementRef} from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, OnChanges, ViewChild, ElementRef} from '@angular/core';
 import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32 } from '../../configuration';
@@ -20,7 +20,9 @@ export class ThesaurusDisplayComponent implements OnInit {
   @ViewChild('searchInput')
   searchInput: ElementRef;
   @Output()
-  result: UniqueIdentifier;
+  result = new EventEmitter<UniqueIdentifier>();
+
+
   mapThesaurusEntries: {[uri:string] : ThesaurusEntry} = {};
   thesaurusEntries: ThesaurusEntry[] = <ThesaurusEntry[]>[] ;
   thesaurusEntry: ThesaurusEntry;
@@ -70,6 +72,7 @@ export class ThesaurusDisplayComponent implements OnInit {
 
   onClickIdentifier(identifier: UniqueIdentifier)
   {
+    this.result.emit(identifier);
     var result = this.searchUri(identifier.uri);
     result.subscribe((response => {
       if (response['results']['bindings']) {

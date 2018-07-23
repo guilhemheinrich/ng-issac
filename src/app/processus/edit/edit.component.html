@@ -12,27 +12,32 @@
             <span class="close" (click)="closeModal();">&times;</span>
         </div>
         <div class="modal-body">
-            <form #processusForm="ngForm" >
+            <form #processusForm="ngForm">
                 <div class="form-group">
                     <label> Agent Label:
-                        {{action.agent.name}}
-                        <!-- <input [(ngModel)]="action.agentLabel" placeholder="Agent Label" class="form-control" required name="agentLabel" #agentLabel="ngModel"
-                         #inputAgentLabel/> -->
+                        <br/>
+                            <input [(ngModel)]="action.agent.name" placeholder="Agent Label" class="form-control" required name="agentLabel" #agentLabel="ngModel"
+                            #inputAgentLabel readonly="true"/>
                     </label>
                 </div>
 
                 <div class="form-group">
                     <label> Uri:
+                        <b>
                             {{action.agent.uri}}
+                        </b>
                         <!-- <input [(ngModel)]="action.uri" placeholder="Agent Uri" class="form-control" readonly="true" name="agentUri" #agentUri="ngModel"
                         /> -->
                     </label>
                 </div>
+                <button type="submit" value="Validate Agent" (click)="onSubmitAgent()">Validate Agent</button>
             </form>
-            <app-thesaurus-display ></app-thesaurus-display>
+            <app-thesaurus-display (result)="onThesaurusResult($event)" ></app-thesaurus-display>
         </div>
         <div class="modal-footer">
             <h3>Modal Footer</h3>
         </div>
     </div>
 </div>
+
+<app-view [processus]="processus"></app-view>

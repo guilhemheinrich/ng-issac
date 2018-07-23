@@ -36,12 +36,13 @@ export class MermaidComponent implements OnInit {
   }
 
   ngOnChanges() {
+    console.log('on Changes mermaid');
     this.renderMermaid();
   }
 
   renderMermaid()
   {
-    // console.log('i changed !');
+    
   // Skip if there is no graph
     if (!this.graphDefinition) return;
     this.mermaidContainer.nativeElement.innerHTML = this.graphDefinition;

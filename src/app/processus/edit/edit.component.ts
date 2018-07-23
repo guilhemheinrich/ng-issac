@@ -1,21 +1,25 @@
-import { HostListener, Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import {  HostListener, Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { Processus, Action, Input, Output } from '../processus';
 import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
+import { LogService } from '../../authentification/log.service';
+import { User, LoggedUser } from '../../authentification/user';
 import * as $ from 'jquery';
 import * as _ from 'underscore';
 import { autocomplete } from 'node_modules/jquery-autocomplete/jquery.autocomplete.js';
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
-  styleUrls: ['./edit.component.css'],
+  styleUrls: ['./edit.component.css']
 
 })
 export class EditComponent implements OnInit {
+  user = new LoggedUser;
 
   action: Action = new Action();
-  processus: Processus;
+  processus: Processus = new Processus();
+  change: boolean = false;
 
 
   // For the autocomplete delay, in millisecond
@@ -24,18 +28,35 @@ export class EditComponent implements OnInit {
 
   @ViewChild('modal') modal: ElementRef;
   @ViewChild('inputAgentLabel') inputAgentLabel: ElementRef;
-  private currentFocus: number;
 
   constructor(
     private sparqlClient: SparqlClientService,
     private sparqlParser: SparqlParserService,
+    private logService: LogService,
   ) {
+    this.logService.log$.subscribe(
+      value => {
+        if (value) {
+          this.user = value;
+        }
+         console.log('log is ' + value);
+         console.log('log is ' + (value != null));
+      }
+    );
     this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
   }
 
   ngOnInit() {
     this.action.agent = new UniqueIdentifier();
+    this.processus.owner = [this.user.uri];
   }
+
+  ngOnChanges() {
+    if (this.user == null) {
+      console.log('Handle not connection');
+    }
+  }
+
 
   @HostListener('document:click', ['$event'])
   globalListener(event:Event)
@@ -55,47 +76,35 @@ export class EditComponent implements OnInit {
       this.action = new Output();
     }
     this.action.agent = new UniqueIdentifier();
-    console.log(this.action.agent);
     this.modal.nativeElement.style.display = "block";
-    this.currentFocus = null;
   }
 
-  search(input: string) {
-    this.sparqlParser.clear();
-    this.sparqlParser.queryType = QueryType.QUERY;
-    this.sparqlParser.prefixes = [
-      GlobalVariables.ONTOLOGY_PREFIX.foaf,
-      GlobalVariables.ONTOLOGY_PREFIX.issac,
-      GlobalVariables.ONTOLOGY_PREFIX.skos,
-    ];
-    this.sparqlParser.graphPattern = new GraphDefinition([
-      `
-      ?uri skos:prefLabel ?label .
-      FILTER regex(STR(?label), \"${input}\", \"i\") . 
-      FILTER (lang(?label) = 'en') .
-      `
-    ]);
-
-    // console.log(this.sparqlParser.toString());
-    let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
-    result.subscribe((response => 
-      {
-        // console.log(response);
-      }));
-  }
-
-  delayedAutocomplete()
+  onThesaurusResult(thesaurusIdentifier: UniqueIdentifier)
   {
-    if (this.typingTimer < this.typingTimeout) {
-      window.clearTimeout(this.typingTimer);
-    }
-    this.typingTimer = window.setTimeout(()=>{this.autocomplete()}, this.typingTimeout);
+    this.action.agent.name = thesaurusIdentifier.name;
+    this.action.agent.uri = thesaurusIdentifier.uri;
   }
 
-  autocomplete() {
-    // console.log(this.action.agentLabel);
-    var parentNode = this.inputAgentLabel.nativeElement;
-    // var arr = this.search(this.action.agentLabel);
+  onSubmitAgent()
+  {
+    console.log('inSubmitAgent');
+    if (this.action.agent.uri === "") return;
+    // Change reference to trigger ngOnChanges
+    let oldProcessus = this.processus;
+    this.processus = new Processus(oldProcessus);
+    switch (this.action.constructor.name) {
+      case 'Input':
+        this.processus.inputs.push(this.action);
+        break;
+      case 'Output':
+        this.processus.outputs.push(this.action);
+        break;
+      default:
+        console.log('in default');
+    }
+    this.closeModal();
+    console.log(this.processus);
   }
+
 
 }

@@ -33,7 +33,7 @@ export class ThesaurusDisplayComponent implements OnInit {
 
   // For the autocomplete delay, in millisecond
   typingTimer: any;
-  typingTimeout: number = 1000;
+  typingTimeout: number = 500;
 
   constructor(
     private sparqlClient: SparqlClientService,

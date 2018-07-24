@@ -18,7 +18,7 @@ export class SparqlParserService {
 
   clear(): void {
     this.prefixes = undefined;
-    this.graph= undefined;
+    this.graph = undefined;
     this.queryType = QueryType.QUERY;
     this.select = [" * "];
     this.graphDefinition = undefined;
@@ -67,12 +67,12 @@ export enum QueryType {
 }
 
 export class GraphDefinition {
-  triplesContent: string[];
+  triplesContent: string[] = [''];
   graphDefinitions?: GraphDefinition[];
   namedGraph?: string;
 
   constructor(
-    triplesContent: string[],
+    triplesContent?: string[],
     graphDefinitions?: GraphDefinition[],
     namedGraph?: string
   ) {
@@ -82,6 +82,21 @@ export class GraphDefinition {
     }
     if (namedGraph) {
       this.namedGraph = namedGraph;
+    }
+  }
+
+  merge(otherGraphDefinition: GraphDefinition) {
+    // Doesn't handle multiple named graph, if relevant, yet
+
+    if (otherGraphDefinition.triplesContent) {
+      otherGraphDefinition.triplesContent.forEach((triple) => {
+        this.triplesContent.push(triple);
+      });
+    }
+    if (otherGraphDefinition.graphDefinitions) {
+      otherGraphDefinition.graphDefinitions.forEach((graphDefinition) => {
+        this.graphDefinitions.push(graphDefinition);
+      });
     }
   }
 
@@ -102,6 +117,7 @@ export class GraphDefinition {
     return out_string;
   }
 }
+
 
 export interface Prefix {
   prefix: string;

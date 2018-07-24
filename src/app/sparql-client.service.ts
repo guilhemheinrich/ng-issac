@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { GlobalVariables } from './configuration';
 
 import { Observable } from 'rxjs';
 
@@ -10,7 +11,7 @@ import { Observable } from 'rxjs';
 // Format the result to json
 export class SparqlClientService {
 
-  public sparqlEndpoint: string;
+  public sparqlEndpoint: string = GlobalVariables.TRIPLESTORE.dsn;
 
   constructor(private http: HttpClient) { }
 

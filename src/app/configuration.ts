@@ -24,8 +24,8 @@ export const GlobalVariables = Object.freeze({
         // 'prefix_action' : 'http://ECPP_models/action/',
         // 'context_administration' : 'http://ECPP_administration/agent/set/',''
         // 'prefix_agent' : 'http://ECPP_administration/agent/id/',
-        'context_processus_added'   : {prefix : 'context_processus_added', uri : 'http://ECPP_models/processus/added' },
-        'prefix_processus'          : {prefix : 'prefix_processus'       , uri : 'http://ECPP_models/process/' },
+        'context_processus_added'   : {prefix : 'context_processus_added', uri : 'http://ECPP_models/processus_added/set/' },
+        'prefix_processus'          : {prefix : 'prefix_processus'       , uri : 'http://ECPP_models/process/id/' },
         'prefix_action'             : {prefix : 'prefix_action'          , uri : 'http://ECPP_models/action/' },
         'context_administration'    : {prefix : 'context_administration' , uri : 'http://ECPP_administration/agent/set/' },
         'prefix_agent'              : {prefix : 'prefix_agent'           , uri : 'http://ECPP_administration/agent/id/' },

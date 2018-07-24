@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { LogService } from '../log.service';
-import { User, LoggedUser } from '../user';
+import { LoggedUser } from '../user';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-logger',
@@ -15,6 +16,7 @@ export class LoggerComponent implements OnInit {
   loggedUser: LoggedUser;
   constructor(
     private logService: LogService,
+    private router: Router
   ) { 
 
     this.logService.log$.subscribe(
@@ -25,13 +27,12 @@ export class LoggerComponent implements OnInit {
   }
 
   ngOnInit() {
-
-
   }
 
   onLogout() {
     this.logged = false;
     this.logService.logout();
+    this.router.navigate(['/']);  
   }
 
 

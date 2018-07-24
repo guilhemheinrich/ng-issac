@@ -1,26 +1,34 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { LoggedUser } from './user';
+import {Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LogService {
-  logged: boolean;
+  isLoggedIn: boolean = false;
   loggedUser: LoggedUser = null;
+  // store the URL so we can redirect after logging in
+  redirectUrl: string;
   public log$: BehaviorSubject<LoggedUser> = new BehaviorSubject<LoggedUser>(null);
 
-  constructor() { }
+  constructor(
+    private router: Router
+  ) { }
 
   login(user){
     this.loggedUser = user;
-    this.logged = true;
+    this.isLoggedIn = true;
+    if (this.redirectUrl) {
+      this.router.navigate([this.redirectUrl]);
+    }
     this.log$.next(this.loggedUser);
   }
 
   logout(){
     this.loggedUser = null;
-    this.logged = false;
+    this.isLoggedIn = false;
     this.log$.next(this.loggedUser);
   }
 }

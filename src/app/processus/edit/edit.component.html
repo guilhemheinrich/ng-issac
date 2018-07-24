@@ -2,22 +2,49 @@
 <button (click)="openModal('input');">New Input</button>
 <button (click)="openModal('output');">New Output</button>
 
+<form #processusForm="ngForm">
+    <div class="form-group">
+        <label>
+            Processus Name
+        </label>
+        <input [(ngModel)]="processus.name" placeholder="Processus' name" class="form-control" required #processusName="ngModel"
+            name="processusName" (input)="onNameChange()" />
+    </div>
+    <br/>
+    <div class="form-group">
+        <label>
+            Description
+        </label>
+        <br/>
+        <textarea style="height:200px; width:100%" [(ngModel)]="processus.description" placeholder="Anything you want to comment about this processus"
+            #processusDescription name="processusDescription"></textarea>
+    </div>
 
+    <button type="submit" value="Validate Processus" (click)="onSubmitProcessus()" [disabled]="!processusForm.form.valid">Validate Processus</button>
+</form>
 <!-- The Modal -->
 <div id="myModal" class="modal" #modal>
     <!-- Modal content -->
     <div class="modal-content">
         <div class="modal-header">
-            <h2>{{action.constructor.name}}</h2>
+            <!-- <h2>{{action.constructor.name}}</h2> -->
             <span class="close" (click)="closeModal();">&times;</span>
         </div>
         <div class="modal-body">
-            <form #processusForm="ngForm">
+            <form #actionForm="ngForm">
+                <div class="form-group">
+                    <label> Agent Type:
+                        <br/>
+                        <select [(ngModel)]="action.agent.type" placeholder="Agent Type" class="form-control" required name="agentType" #agentLabel="ngModel">
+                        <option *ngFor="let typeLabel of actionTypes;" value="{{ typeLabel.key }}"> {{ typeLabel.value }}</option>
+                        </select>
+                    </label>
+                </div>
                 <div class="form-group">
                     <label> Agent Label:
                         <br/>
-                            <input [(ngModel)]="action.agent.name" placeholder="Agent Label" class="form-control" required name="agentLabel" #agentLabel="ngModel"
-                            #inputAgentLabel readonly="true"/>
+                        <input [(ngModel)]="action.agent.name" placeholder="Agent Label" class="form-control" required name="agentLabel" #agentLabel="ngModel"
+                            #inputAgentLabel readonly="true" />
                     </label>
                 </div>
 
@@ -32,7 +59,7 @@
                 </div>
                 <button type="submit" value="Validate Agent" (click)="onSubmitAgent()">Validate Agent</button>
             </form>
-            <app-thesaurus-display (result)="onThesaurusResult($event)" ></app-thesaurus-display>
+            <app-thesaurus-display (result)="onThesaurusResult($event)"></app-thesaurus-display>
         </div>
         <div class="modal-footer">
             <h3>Modal Footer</h3>
@@ -40,4 +67,4 @@
     </div>
 </div>
 
-<app-view [processus]="processus"></app-view>
+<app-view [processus]="processus" #viewComponent></app-view>

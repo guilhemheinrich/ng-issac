@@ -1,5 +1,5 @@
 import { HostListener, Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
-import { Processus, Action, Input, Output } from '../processus';
+import { Processus, Action, Input, Output, IAction } from '../processus';
 import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
@@ -74,12 +74,8 @@ export class EditComponent implements OnInit {
     this.modal.nativeElement.style.display = "none";
   }
 
-  openModal(type: string) {
-    if (type === "input") {
-      this.action = new Input();
-    } else if (type === "output") {
-      this.action = new Output();
-    }
+  openModal() {
+    this.action = new Action();
     this.action.agent = new UniqueIdentifier();
     this.modal.nativeElement.style.display = "block";
   }
@@ -104,19 +100,43 @@ export class EditComponent implements OnInit {
   onSubmitAgent() {
     if (this.action.agent.uri === "") return;
     // Change reference to trigger ngOnChanges
+
     let oldProcessus = this.processus;
     this.processus = new Processus(oldProcessus);
-    switch (this.action.constructor.name) {
-      case 'Input':
-        this.processus.inputs.push(this.action);
+    // Perform deep copy
+    let actionInterface = <IAction>JSON.parse(JSON.stringify(this.action));
+
+    let checkIfActionInArray = (action: Action, actionArray: Action[]) => {
+      let checker = actionArray.some((element) => {
+        return action.agent.uri === element.agent.uri;
+      });
+      return !checker;
+    };
+
+    switch (this.action.type) {
+      case Action.types.INPUT:
+      // if (this.processus.inputs.some)
+        if (checkIfActionInArray(this.action, this.processus.inputs)) {
+          this.processus.inputs.push(new Input(actionInterface));
+        }
         break;
-      case 'Output':
-        this.processus.outputs.push(this.action);
+      case Action.types.OUTPUT:
+        if (checkIfActionInArray(this.action, this.processus.outputs)) {
+          this.processus.outputs.push(new Output(actionInterface));
+        }
+        break;
+      case Action.types.INOUT:
+        if (checkIfActionInArray(this.action, this.processus.inputs)) {
+          this.processus.inputs.push(new Input(actionInterface));
+        }
+        if (checkIfActionInArray(this.action, this.processus.outputs)) {
+          this.processus.outputs.push(new Output(actionInterface));
+        }
         break;
       default:
         console.log('in default');
     }
-    this.closeModal();
+
   }
 
 
@@ -154,7 +174,6 @@ export class EditComponent implements OnInit {
     // Add ad hoc verification ...
     this.delete();
     this.save();
-
-
   }
+
 }

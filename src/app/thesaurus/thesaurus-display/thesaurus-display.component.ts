@@ -1,9 +1,10 @@
-import { Component, OnInit, EventEmitter, Output, OnChanges, ViewChild, ElementRef} from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef} from '@angular/core';
 import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32 } from '../../configuration';
 import {ThesaurusEntry} from '../thesaurusEntry';
 import { UniqueIdentifier } from '../../configuration';
+// import { Input } from '../../processus/processus';
 // import { Output as pOutput } from '../../processus/processus';
 
 

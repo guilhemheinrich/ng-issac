@@ -1,6 +1,6 @@
 <!-- Trigger/Open The Modal -->
-<button (click)="openModal('input');">New Input</button>
-<button (click)="openModal('output');">New Output</button>
+<button (click)="openModal();">Add Agent</button>
+
 
 <form #processusForm="ngForm">
     <div class="form-group">
@@ -22,6 +22,8 @@
 
     <button type="submit" value="Validate Processus" (click)="onSubmitProcessus()" [disabled]="!processusForm.form.valid">Validate Processus</button>
 </form>
+
+
 <!-- The Modal -->
 <div id="myModal" class="modal" #modal>
     <!-- Modal content -->
@@ -35,8 +37,9 @@
                 <div class="form-group">
                     <label> Agent Type:
                         <br/>
-                        <select [(ngModel)]="action.agent.type" placeholder="Agent Type" class="form-control" required name="agentType" #agentLabel="ngModel">
-                        <option *ngFor="let typeLabel of actionTypes;" value="{{ typeLabel.key }}"> {{ typeLabel.value }}</option>
+                        <select [(ngModel)]="action.type" placeholder="Agent Type" class="form-control" required name="actionType"
+                         #agentLabel="ngModel">
+                        <option *ngFor="let typeLabel of actionTypes;" value="{{ typeLabel.value }}"> {{ typeLabel.key }}</option>
                         </select>
                     </label>
                 </div>
@@ -57,9 +60,9 @@
                         /> -->
                     </label>
                 </div>
-                <button type="submit" value="Validate Agent" (click)="onSubmitAgent()">Validate Agent</button>
+                <button type="submit" value="Validate Agent" (click)="onSubmitAgent()" [disabled]="!agentLabel.valid">Validate Agent</button>
             </form>
-            <app-thesaurus-display (result)="onThesaurusResult($event)"></app-thesaurus-display>
+            <app-thesaurus-display style="height:700px;width:100%;position:relative"  (result)="onThesaurusResult($event)"></app-thesaurus-display>
         </div>
         <div class="modal-footer">
             <h3>Modal Footer</h3>

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, EventEmitter, OnChanges, Output } from '@angular/core';
 import * as mermaid from 'mermaid';
 import * as $ from 'jquery';
 import { pipeBind1 } from '@angular/core/src/render3/pipe';
@@ -21,8 +21,12 @@ export class MermaidComponent implements OnInit {
   @Input()
   preserveAspectRatio: string = "";
 
+  @Output()
+  finishDrawing = new EventEmitter<any>();
+
   @ViewChild("mermaid") 
   mermaidContainer: ElementRef;
+
   constructor() { }
 
   ngOnInit() {
@@ -36,7 +40,6 @@ export class MermaidComponent implements OnInit {
   }
 
   ngOnChanges() {
-    console.log('on Changes mermaid');
     this.renderMermaid();
   }
 
@@ -78,6 +81,8 @@ export class MermaidComponent implements OnInit {
         svgGraph = svgGraph.slice(0, svgTagIndex + 4) + ` width="${this.viewPortWidth}"` + svgGraph.slice(svgTagIndex + 4);
       }
       this.mermaidContainer.nativeElement.innerHTML = svgGraph;
+      this.finishDrawing.emit(this.mermaidContainer);
+      // this.post_process_callback();
     }
     mermaid.mermaidAPI.render(this.graphId,this.graphDefinition, cb)
   }

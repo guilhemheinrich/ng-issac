@@ -56,10 +56,10 @@ export class Processus {
         let actions = (<Array<Action>>this.inputs).concat(<Array<Action>>this.outputs);
         actions.forEach((action) => 
     {
-        action.generateUri();
+        // action.generateUri();
         saveQuery.triplesContent.push(
             `
-            <${this.uri}> issac:hasAction <${action.uri}> .
+            <${this.uri}> issac:hasAction 
             `
         );
         saveQuery.merge(action.parseDefinition());
@@ -71,10 +71,10 @@ export class Processus {
     generateUri() {
         let hashedFingerprint = this.name;
         this.inputs.forEach(input => {
-            hashedFingerprint += input.uri;
+            hashedFingerprint += input.agent.uri;
         });
         this.outputs.forEach(output => {
-            hashedFingerprint += output.uri;
+            hashedFingerprint += output.agent.uri;
         });
         // Add time to avoid a set of possible collision relying purely on processus attributes
         hashedFingerprint += (new Date()).getTime();
@@ -84,45 +84,47 @@ export class Processus {
 
 }
 
-
+export enum ActionType {
+    INPUT = "Input",
+    OUTPUT = "Output",
+    INOUT = "Both"
+}
 export class Action {
 
-    uri: string;
+    // uri: string;
     agent: UniqueIdentifier;
     roles: string[];
 
-    static readonly types = {
-        INPUT : 'Input',
-        OUTPUT : 'Output',
-        INOUT : 'Inout'
-    };
     
 
     static readonly requiredPrefixes: Prefix[] = [
         GlobalVariables.ONTOLOGY_PREFIX.issac,
     ]
 
-    readonly type: string;
+    type: ActionType;
     constructor(options?: IAction
     ) {
         if (options) {
-            this.uri = options.uri;
+            // this.uri = options.uri;
             this.agent = options.agent;
             this.roles = options.roles;
+            this.type = options.type;
         }
-        this.type = 'Role';
+        // this.type = 'Role';
     };
 
     parseDefinition()
     {
-        if (this.uri === "" || !this.uri) {
-            this.generateUri();
-        }
+        // if (this.uri === "" || !this.uri) {
+        //     this.generateUri();
+        // }
 
         var saveQuery = new GraphDefinition([
             `
-            <${this.uri}> issac:hasAgentType <${this.agent.uri}> .\n
-            <${this.uri}> issac:hasActionType "${this.type}" .\n
+            [
+                issac:hasAgentType <${this.agent.uri}> .\n
+                issac:hasActionType "${this.type}" .\n
+            ]
             `
         ]);
         // this.roles.forEach(role => {
@@ -135,51 +137,51 @@ export class Action {
         return saveQuery;
     }
 
-    generateUri() {
-        let hashedFingerprint = '';
-        this.roles.forEach(role => {
-            hashedFingerprint += role;
-        });
-        hashedFingerprint += this.agent.uri;
-        this.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_action.uri + hash32(hashedFingerprint)
-    }
+    // generateUri() {
+    //     let hashedFingerprint = '';
+    //     this.roles.forEach(role => {
+    //         hashedFingerprint += role;
+    //     });
+    //     hashedFingerprint += this.agent.uri;
+    //     this.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_action.uri + hash32(hashedFingerprint)
+    // }
 }
 
 export interface IAction {
-    uri: string;
-    agent: UniqueIdentifier;
-    roles: string[];
-
+    // uri?: string;
+    agent?: UniqueIdentifier;
+    roles?: string[];
+    type?: ActionType;
 }
 
 export class Input extends Action {
-    readonly type: string = Action.types.INPUT;
+    type: ActionType = ActionType.INPUT;
     roles = ['issac:Input'];
     constructor(
         options?: IAction
     ) {
         super(options);
-        this.type = Action.types.INPUT;
+        this.type = ActionType.INPUT;
     };
 }
 export class Output extends Action {
-    readonly type: string = Action.types.OUTPUT;
+    type: ActionType = ActionType.OUTPUT;
     roles = ['issac:Output'];
     constructor(
         options?: IAction
     ) {
         super(options);
-        this.type = Action.types.OUTPUT;
+        this.type = ActionType.OUTPUT;
     };
 }
 
 export class InOut extends Action {
-    readonly type: string = Action.types.INOUT;
+    type: ActionType = ActionType.INOUT;
     roles = ['issac:Output', 'issac:Input'];
     constructor(
         options?: IAction
     ) {
         super(options);
-        this.type = Action.types.INOUT;
+        this.type = ActionType.INOUT;
     };
 }

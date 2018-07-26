@@ -18,6 +18,8 @@ export class ThesaurusDisplayComponent implements OnInit {
 
   searchField: string;
 
+  // @Input()
+  // currentIdentifier: UniqueIdentifier;
   @ViewChild('searchInput')
   searchInput: ElementRef;
   @Output()
@@ -73,18 +75,17 @@ export class ThesaurusDisplayComponent implements OnInit {
 
   onClickIdentifier(identifier: UniqueIdentifier)
   {
+    // if (!identifier.uri) return;
     this.result.emit(identifier);
     var result = this.searchUri(identifier.uri);
     result.subscribe((response => {
       if (response['results']['bindings']) {
         this.computeGraphDefinition(identifier, response['results']['bindings']);
-        // We need to delay for the mermaid component to render the svg graph
-        window.setTimeout(() => this._postProcess(), 200);
       }
     }))
   }
 
-  private _postProcess()
+  private _postProcess(eventContent: any)
   {
     // Add click event
     if (this.thesaurusEntry.parent) {

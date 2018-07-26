@@ -1,11 +1,12 @@
 import { HostListener, Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
-import { Processus, Action, Input, Output, IAction } from '../processus';
+import { Processus, Action, Input, Output, IAction, ActionType } from '../processus';
 import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 import { LogService } from '../../authentification/log.service';
 import { LoggedUser } from '../../authentification/user';
 import { ViewComponent } from '../view/view.component';
+import { ActionDisplayComponent } from '../action/display/display.component';
 import * as $ from 'jquery';
 import * as _ from 'underscore';
 import { autocomplete } from 'node_modules/jquery-autocomplete/jquery.autocomplete.js';
@@ -31,15 +32,20 @@ export class EditComponent implements OnInit {
   @ViewChild('modal') modal: ElementRef;
   // @ViewChild('inputAgentLabel') inputAgentLabel: ElementRef;
   @ViewChild('viewComponent') viewComponent: ViewComponent;
+  @ViewChild('actionComponent') actionComponent: ActionDisplayComponent;
 
   constructor(
     private sparqlClient: SparqlClientService,
     private sparqlParser: SparqlParserService,
     private logService: LogService,
   ) {
-    var values = Object.keys(Action.types).map((key) => {
-      this.actionTypes.push({ 'key': key, 'value': Action.types[key] });
-    });
+    // var values = Object.keys(Action.types).map((key) => {
+    //   this.actionTypes.push({ 'key': key, 'value': Action.types[key] });
+    // });
+
+    let options = Object.values(ActionType);
+    this.actionTypes = options;
+
     this.logService.log$.subscribe(
       value => {
         if (value) {
@@ -53,6 +59,10 @@ export class EditComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(`
+    On Init ! 
+    Don't forget to properly clean old processus data
+    when editing an already existing one`);
     this.action.agent = new UniqueIdentifier();
     this.processus.owners = [this.user.uri];
   }
@@ -64,26 +74,26 @@ export class EditComponent implements OnInit {
   }
 
 
-  @HostListener('document:click', ['$event'])
-  globalListener(event: Event) {
-    if (event && event.target == this.modal.nativeElement) {
-      this.closeModal();
-    }
-  }
-  closeModal() {
-    this.modal.nativeElement.style.display = "none";
-  }
+  // @HostListener('document:click', ['$event'])
+  // globalListener(event: Event) {
+  //   if (event && event.target == this.modal.nativeElement) {
+  //     this.closeModal();
+  //   }
+  // }
+  // closeModal() {
+  //   this.modal.nativeElement.style.display = "none";
+  // }
 
-  openModal() {
-    this.action = new Action();
-    this.action.agent = new UniqueIdentifier();
-    this.modal.nativeElement.style.display = "block";
-  }
+  // openModal() {
+  //   this.action = new Action();
+  //   this.action.agent = new UniqueIdentifier();
+  //   this.modal.nativeElement.style.display = "block";
+  // }
 
-  onThesaurusResult(thesaurusIdentifier: UniqueIdentifier) {
-    this.action.agent.name = thesaurusIdentifier.name;
-    this.action.agent.uri = thesaurusIdentifier.uri;
-  }
+  // onThesaurusResult(thesaurusIdentifier: UniqueIdentifier) {
+  //   this.action.agent.name = thesaurusIdentifier.name;
+  //   this.action.agent.uri = thesaurusIdentifier.uri;
+  // }
 
   onNameChange() {
     if (this.typingTimer < this.typingTimeout) {
@@ -97,12 +107,14 @@ export class EditComponent implements OnInit {
     }
   }
 
-  onSubmitAgent() {
-    if (this.action.agent.uri === "") return;
-    // Change reference to trigger ngOnChanges
-
+  handleSubmittedAction($action: [Action, Action]) {
     let oldProcessus = this.processus;
     this.processus = new Processus(oldProcessus);
+    let oldAction = $action[0];
+    this.action = $action[1];
+    // console.log($action);
+    this.deleteOldActionFromProcessus(oldAction);
+    // console.log($action);
     // Perform deep copy
     let actionInterface = <IAction>JSON.parse(JSON.stringify(this.action));
 
@@ -112,20 +124,18 @@ export class EditComponent implements OnInit {
       });
       return !checker;
     };
-
     switch (this.action.type) {
-      case Action.types.INPUT:
-      // if (this.processus.inputs.some)
+      case ActionType.INPUT:
         if (checkIfActionInArray(this.action, this.processus.inputs)) {
           this.processus.inputs.push(new Input(actionInterface));
         }
         break;
-      case Action.types.OUTPUT:
+      case ActionType.OUTPUT:
         if (checkIfActionInArray(this.action, this.processus.outputs)) {
           this.processus.outputs.push(new Output(actionInterface));
         }
         break;
-      case Action.types.INOUT:
+      case ActionType.INOUT:
         if (checkIfActionInArray(this.action, this.processus.inputs)) {
           this.processus.inputs.push(new Input(actionInterface));
         }
@@ -136,10 +146,17 @@ export class EditComponent implements OnInit {
       default:
         console.log('in default');
     }
-
+      // console.log(this.processus.inputs);
+      // console.log(this.processus.outputs);
   }
 
-
+  openActionPanel() {
+    this.action = new Action();
+    this.action.agent = new UniqueIdentifier();
+    this.action.type = ActionType.INPUT;
+    this.actionComponent.openModal();
+  }
+ 
   save() {
     this.sparqlParser.clear();
     this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
@@ -174,6 +191,46 @@ export class EditComponent implements OnInit {
     // Add ad hoc verification ...
     this.delete();
     this.save();
+  }
+
+  deleteOldActionFromProcessus(oldAction: Action)
+  {
+    if (!oldAction) return;
+    let newActions: Action[] = [];
+    switch(oldAction.type) {
+      case ActionType.INPUT:
+      this.processus.inputs.forEach((input) => {
+        if (input.agent.uri != oldAction.agent.uri) {
+          newActions.push(input);
+        }
+      });
+      this.processus.inputs = newActions;
+      break;
+      case ActionType.OUTPUT:
+      this.processus.outputs.forEach((output) => {
+        if (output.agent.uri != oldAction.agent.uri) {
+          newActions.push(output);
+        }
+      });
+      this.processus.outputs = newActions;
+      break;
+      case ActionType.INOUT:
+      this.processus.inputs.forEach((input) => {
+        if (input.agent.uri != oldAction.agent.uri) {
+          newActions.push(input);
+        }
+      });
+      this.processus.inputs = newActions;
+      newActions = [];
+      this.processus.outputs.forEach((output) => {
+        if (output.agent.uri != oldAction.agent.uri) {
+          newActions.push(output);
+        }
+      });
+      this.processus.outputs = newActions;
+      break;
+    }
+    oldAction = null;
   }
 
 }

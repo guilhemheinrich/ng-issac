@@ -1,7 +1,7 @@
 <!-- Trigger/Open The Modal -->
-<button (click)="openModal();">Add Agent</button>
+<button (click)="openActionPanel();">Add Agent</button>
 
-
+<app-display [action]="action" (outAction)="handleSubmittedAction($event)" [editable]="true" #actionComponent></app-display>
 <form #processusForm="ngForm">
     <div class="form-group">
         <label>
@@ -24,50 +24,5 @@
 </form>
 
 
-<!-- The Modal -->
-<div id="myModal" class="modal" #modal>
-    <!-- Modal content -->
-    <div class="modal-content">
-        <div class="modal-header">
-            <!-- <h2>{{action.constructor.name}}</h2> -->
-            <span class="close" (click)="closeModal();">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form #actionForm="ngForm">
-                <div class="form-group">
-                    <label> Agent Type:
-                        <br/>
-                        <select [(ngModel)]="action.type" placeholder="Agent Type" class="form-control" required name="actionType"
-                         #agentLabel="ngModel">
-                        <option *ngFor="let typeLabel of actionTypes;" value="{{ typeLabel.value }}"> {{ typeLabel.key }}</option>
-                        </select>
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label> Agent Label:
-                        <br/>
-                        <input [(ngModel)]="action.agent.name" placeholder="Agent Label" class="form-control" required name="agentLabel" #agentLabel="ngModel"
-                            #inputAgentLabel readonly="true" />
-                    </label>
-                </div>
 
-                <div class="form-group">
-                    <label> Uri:
-                        <b>
-                            {{action.agent.uri}}
-                        </b>
-                        <!-- <input [(ngModel)]="action.uri" placeholder="Agent Uri" class="form-control" readonly="true" name="agentUri" #agentUri="ngModel"
-                        /> -->
-                    </label>
-                </div>
-                <button type="submit" value="Validate Agent" (click)="onSubmitAgent()" [disabled]="!agentLabel.valid">Validate Agent</button>
-            </form>
-            <app-thesaurus-display style="height:700px;width:100%;position:relative"  (result)="onThesaurusResult($event)"></app-thesaurus-display>
-        </div>
-        <div class="modal-footer">
-            <h3>Modal Footer</h3>
-        </div>
-    </div>
-</div>
-
-<app-view [processus]="processus" #viewComponent></app-view>
+<app-view (emittedAction)="handleSubmittedAction($event)" [processus]="processus" [editable]="true" #viewComponent></app-view>

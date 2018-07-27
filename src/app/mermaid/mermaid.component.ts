@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, EventEmitter, OnChanges, Output } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, EventEmitter, OnChanges, Output, Injectable } from '@angular/core';
 import * as mermaid from 'mermaid';
 import * as $ from 'jquery';
 import { pipeBind1 } from '@angular/core/src/render3/pipe';
@@ -6,7 +6,7 @@ import { pipeBind1 } from '@angular/core/src/render3/pipe';
 @Component({
   selector: 'app-mermaid',
   templateUrl: './mermaid.component.html',
-  styleUrls: ['./mermaid.component.css']
+  styleUrls: ['./mermaid.component.css'],
 })
 export class MermaidComponent implements OnInit {
   @Input()
@@ -14,6 +14,8 @@ export class MermaidComponent implements OnInit {
 
   @Input()
   graphId: string="mermaidGraph";
+  @Input()
+  mermaidId: string="";
   @Input()
   viewPortHeight: string = "";
   @Input()
@@ -29,14 +31,18 @@ export class MermaidComponent implements OnInit {
 
   constructor() { }
 
+  ngOnDestroy() {
+    this.mermaidContainer.nativeElement.remove();
+  }
+
   ngOnInit() {
-    // this.renderMermaid();
     mermaid.mermaidAPI.initialize(
       {
         startOnLoad: true,
         useMaxWidth:false,
       }
     )
+    this.renderMermaid();
   }
 
   ngOnChanges() {
@@ -45,7 +51,8 @@ export class MermaidComponent implements OnInit {
 
   renderMermaid()
   {
-    
+  // console.log('in mermaid render');
+  // console.log(this.graphDefinition);
   // Skip if there is no graph
     if (!this.graphDefinition) return;
     this.mermaidContainer.nativeElement.innerHTML = this.graphDefinition;
@@ -81,10 +88,19 @@ export class MermaidComponent implements OnInit {
         svgGraph = svgGraph.slice(0, svgTagIndex + 4) + ` width="${this.viewPortWidth}"` + svgGraph.slice(svgTagIndex + 4);
       }
       this.mermaidContainer.nativeElement.innerHTML = svgGraph;
+  // console.log('in mermaid render');
+  //     console.log(svgGraph)
+      console.log(this.mermaidContainer);
+      console.log(this.mermaidId);
       this.finishDrawing.emit(this.mermaidContainer);
       // this.post_process_callback();
     }
-    mermaid.mermaidAPI.render(this.graphId,this.graphDefinition, cb)
+    mermaid.mermaidAPI.initialize(
+      {
+        startOnLoad: true,
+        useMaxWidth:false,
+      });
+    mermaid.mermaidAPI.render(this.graphId,this.graphDefinition, cb, this.mermaidContainer.nativeElement)
   }
 
 

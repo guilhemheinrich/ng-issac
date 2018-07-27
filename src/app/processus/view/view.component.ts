@@ -2,7 +2,7 @@ import { HostListener, Component, OnInit, Input, OnChanges, ViewChild, ElementRe
 import { Processus, Action, ActionType, IAction } from '../processus';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 import {ThesaurusDisplayComponent} from '../../thesaurus/thesaurus-display/thesaurus-display.component';
-import { ActionDisplayComponent } from '../action/display/display.component';
+import { ActionDisplayerService } from '../action/action-displayer.service';
 
 @Component({
   selector: 'app-view',
@@ -31,9 +31,10 @@ export class ViewComponent implements OnInit {
   @ViewChild('modal') 
   modal: ElementRef;
 
-  @ViewChild('actionComponent') actionComponent: ActionDisplayComponent;
 
-  constructor() {
+  constructor(
+    private actionDisplayerService: ActionDisplayerService
+  ) {
     let options = Object.values(ActionType);
     this.actionTypes = options;
    }
@@ -88,14 +89,13 @@ export class ViewComponent implements OnInit {
 
   onClickNode(agent: UniqueIdentifier, actionType: ActionType) {
 
-    this.action = new Action(<IAction>{
+    let action = new Action(<IAction>{
       agent: agent,
       type: actionType
     });
-    console.log('From view component, cliked action is :')
-    console.log(this.action);
-    this.actionComponent.openModal();
-    // this.openModal();
+    // console.log('From view component, cliked action is :')
+    // console.log(action);
+    this.actionDisplayerService.display(action);
     // this.thesaurus.onClickIdentifier(agent);
   }
 

@@ -2,6 +2,7 @@ import { Component, OnInit, Output, Input, EventEmitter, ElementRef, ViewChild, 
 import { Action, IAction, ActionType } from '../../processus';
 import { UniqueIdentifier } from '../../../configuration';
 import { ThesaurusDisplayComponent } from '../../../thesaurus/thesaurus-display/thesaurus-display.component';
+import {ActionDisplayerService} from '../action-displayer.service';
 
 @Component({
   selector: 'app-display',
@@ -9,6 +10,8 @@ import { ThesaurusDisplayComponent } from '../../../thesaurus/thesaurus-display/
   styleUrls: ['./display.component.css']
 })
 export class ActionDisplayComponent implements OnInit {
+
+
 
   @Input()
   action: Action;
@@ -29,14 +32,24 @@ export class ActionDisplayComponent implements OnInit {
   @ViewChild('modal') modal: ElementRef;
   @ViewChild('thesaurusComponent') thesaurusComponent: ThesaurusDisplayComponent;
 
-  constructor() { 
+  constructor(
+    private actionDisplayerService: ActionDisplayerService,
+  ) { 
     let options = Object.values(ActionType);
     this.actionTypes = options;
+
   }
 
   ngOnInit() {
+    this.actionDisplayerService.displayIn$.subscribe((action) =>
+    {
+      this.openModal(action);
+    });
   }
 
+  ngAfterViewInit() {
+    this.modal.nativeElement.style.display = "none";
+  }
   @HostListener('document:click', ['$event'])
   globalListener(event: Event) {
     if (event && event.target == this.modal.nativeElement) {
@@ -48,10 +61,12 @@ export class ActionDisplayComponent implements OnInit {
     this.oldAction = null;
   }
 
-  openModal() {
-    this.oldAction = new Action(this.action);
-    console.log('Action when opening the modal');
-    console.log(this.oldAction);
+  openModal(action?: Action) {
+    console.log('called open');
+    this.oldAction = new Action(<IAction>JSON.parse(JSON.stringify(action)));
+    this.action = new Action(<IAction>JSON.parse(JSON.stringify(action)));
+    // console.log('Action when opening the modal');
+    // console.log(this.oldAction);
     // if (this.action.agent && this.action.agent.uri) {
     //   // this.thesaurusComponent.onClickIdentifier(this.action.agent);
     //   var result = this.thesaurusComponent.searchUri(this.action.agent.uri);
@@ -75,14 +90,28 @@ export class ActionDisplayComponent implements OnInit {
 
   onSubmitAction()
   {
-    console.log('Action submitted : ');
-    console.log(this.action);
-    console.log('While old action were : ');
-    console.log(this.oldAction);
+    // console.log('Action submitted : ');
+    // console.log(this.action);
+    // console.log('While old action were : ');
+    // console.log(this.oldAction);
 
     if (this.action.agent.uri === "") return;
-    this.outAction.emit([this.oldAction, this.action]);
+    // this.outAction.emit([this.oldAction, this.action]);
+    this.actionDisplayerService.output(this.oldAction, this.action);
     this.oldAction = new Action(<IAction>JSON.parse(JSON.stringify(this.action)));
+  }
+
+  onReset()
+  {
+    this.action     = new Action();
+    this.oldAction  = new Action();
+  }
+
+  onDelete()
+  {
+    this.action     = new Action();
+    this.outAction.emit([this.oldAction, this.action]);
+    this.oldAction  = new Action();
   }
 
 }

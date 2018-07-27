@@ -104,6 +104,7 @@ export class Action {
     type: ActionType;
     constructor(options?: IAction
     ) {
+        this.agent = new UniqueIdentifier;
         if (options) {
             // this.uri = options.uri;
             this.agent = options.agent;

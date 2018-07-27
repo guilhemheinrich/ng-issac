@@ -1,5 +1,5 @@
 <!-- The Modal -->
-<div  id="myModal" class="modal" #modal >
+<div  id="myModal" class="modal" #modal style="display:none" >
   <!-- Modal content -->
   <div class="modal-content">
       <div class="modal-header">
@@ -7,7 +7,7 @@
           <span class="close" (click)="closeModal();">&times;</span>
       </div>
       <div class="modal-body">
-          <form *ngIf="action.type" #actionForm="ngForm">
+          <form #actionForm="ngForm">
               <div class="form-group">
                   <label> Agent Type:
                       <br/>
@@ -35,6 +35,8 @@
                   </label>
               </div>
               <button [hidden]="!editable" type="submit" value="Validate Agent" (click)="onSubmitAction()" [disabled]="!agentLabel.valid">Validate Agent</button>
+              <button [hidden]="!editable" value="Reset" (click)="onReset()" >Reset</button>
+              <button [hidden]="!editable" value="Delete" (click)="onDelete()" >Delete</button>
           </form>
           <app-thesaurus-display style="height:700px;width:100%;position:relative"  (result)="onThesaurusResult($event)" #thesaurusComponent></app-thesaurus-display>
       </div>

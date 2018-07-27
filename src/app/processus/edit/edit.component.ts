@@ -7,6 +7,7 @@ import { LogService } from '../../authentification/log.service';
 import { LoggedUser } from '../../authentification/user';
 import { ViewComponent } from '../view/view.component';
 import { ActionDisplayComponent } from '../action/display/display.component';
+import { ActionDisplayerService } from '../action/action-displayer.service';
 import * as $ from 'jquery';
 import * as _ from 'underscore';
 import { autocomplete } from 'node_modules/jquery-autocomplete/jquery.autocomplete.js';
@@ -38,6 +39,7 @@ export class EditComponent implements OnInit {
     private sparqlClient: SparqlClientService,
     private sparqlParser: SparqlParserService,
     private logService: LogService,
+    private actionDisplayerService: ActionDisplayerService,
   ) {
     // var values = Object.keys(Action.types).map((key) => {
     //   this.actionTypes.push({ 'key': key, 'value': Action.types[key] });
@@ -65,6 +67,10 @@ export class EditComponent implements OnInit {
     when editing an already existing one`);
     this.action.agent = new UniqueIdentifier();
     this.processus.owners = [this.user.uri];
+    this.actionDisplayerService.oldToNewActions$.subscribe((oldAndNewAction) => 
+    {
+      this.handleSubmittedAction(oldAndNewAction);
+    });
   }
 
   ngOnChanges() {
@@ -107,13 +113,14 @@ export class EditComponent implements OnInit {
     }
   }
 
-  handleSubmittedAction($action: [Action, Action]) {
+  handleSubmittedAction(oldAndNewAction: [Action, Action]) {
+    if (!oldAndNewAction) return;
     let oldProcessus = this.processus;
     this.processus = new Processus(oldProcessus);
-    let oldAction = $action[0];
-    this.action = $action[1];
+    let oldAction = oldAndNewAction[0];
+    this.action = oldAndNewAction[1];
     // console.log($action);
-    this.deleteOldActionFromProcessus(oldAction);
+    this.deleteActionFromProcessus(oldAction);
     // console.log($action);
     // Perform deep copy
     let actionInterface = <IAction>JSON.parse(JSON.stringify(this.action));
@@ -144,7 +151,7 @@ export class EditComponent implements OnInit {
         }
         break;
       default:
-        console.log('in default');
+        console.log('in default, just deleted old action');
     }
       // console.log(this.processus.inputs);
       // console.log(this.processus.outputs);
@@ -154,7 +161,10 @@ export class EditComponent implements OnInit {
     this.action = new Action();
     this.action.agent = new UniqueIdentifier();
     this.action.type = ActionType.INPUT;
-    this.actionComponent.openModal();
+    // console.log('From open Action Panel ');
+    // console.log(this.action);
+    // this.actionComponent.openModal(this.action);
+    this.actionDisplayerService.display(this.action);
   }
  
   save() {
@@ -193,7 +203,7 @@ export class EditComponent implements OnInit {
     this.save();
   }
 
-  deleteOldActionFromProcessus(oldAction: Action)
+  deleteActionFromProcessus(oldAction: Action)
   {
     if (!oldAction) return;
     let newActions: Action[] = [];

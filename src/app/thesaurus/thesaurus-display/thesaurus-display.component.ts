@@ -4,6 +4,7 @@ import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-pa
 import { GlobalVariables, hash32 } from '../../configuration';
 import {ThesaurusEntry} from '../thesaurusEntry';
 import { UniqueIdentifier } from '../../configuration';
+import {MermaidComponent} from '../../mermaid/mermaid.component';
 // import { Input } from '../../processus/processus';
 // import { Output as pOutput } from '../../processus/processus';
 
@@ -18,8 +19,12 @@ export class ThesaurusDisplayComponent implements OnInit {
 
   searchField: string;
 
+  
+
   // @Input()
   // currentIdentifier: UniqueIdentifier;
+  @ViewChild('mermaidGraph')
+  meramidComponent: MermaidComponent
   @ViewChild('searchInput')
   searchInput: ElementRef;
   @Output()

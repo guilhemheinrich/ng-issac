@@ -20,12 +20,12 @@ export class LoginComponent implements OnInit {
     private sparqlParser: SparqlParserService,
     private logService: LogService
   ) { 
-    this.logService.log$.subscribe(
-      value => {
-         console.log('log is ' + value);
-         console.log('log is ' + (value != null));
-      }
- );
+    // this.logService.logUpdate$.subscribe(
+    //   value => {
+    //      console.log('log is ' + value);
+    //      console.log('log is ' + (value != null));
+    //   }
+//  );
     this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
    }
 

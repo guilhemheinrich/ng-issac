@@ -48,13 +48,19 @@ export class EditComponent implements OnInit {
     let options = Object.values(ActionType);
     this.actionTypes = options;
 
-    this.logService.log$.subscribe(
+    let currentProcessus = JSON.parse(localStorage.getItem('currentProcessus'))
+    if (currentProcessus) {
+      this.processus = currentProcessus;
+    }
+
+    this.logService.logUpdate$.subscribe(
       value => {
-        if (value) {
-          this.user = value;
-        }
-        console.log('log is ' + value);
-        console.log('log is ' + (value != null));
+        // if (value) {
+        //   this.user = value;
+        // }
+        // console.log('log is ' + value);
+        // console.log('log is ' + (value != null));
+
       }
     );
     this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
@@ -65,6 +71,10 @@ export class EditComponent implements OnInit {
     On Init ! 
     Don't forget to properly clean old processus data
     when editing an already existing one`);
+    //     let currentProcessus = JSON.parse(localStorage.getItem('currentProcessus'))
+    // if (currentProcessus) {
+    //   this.processus = currentProcessus;
+    // }
     this.action.agent = new UniqueIdentifier();
     this.processus.owners = [this.user.uri];
     this.actionDisplayerService.oldToNewActions$.subscribe((oldAndNewAction) => 
@@ -77,29 +87,13 @@ export class EditComponent implements OnInit {
     if (this.user == null) {
       console.log('Handle not connection');
     }
+    // localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
   }
 
-
-  // @HostListener('document:click', ['$event'])
-  // globalListener(event: Event) {
-  //   if (event && event.target == this.modal.nativeElement) {
-  //     this.closeModal();
-  //   }
-  // }
-  // closeModal() {
-  //   this.modal.nativeElement.style.display = "none";
-  // }
-
-  // openModal() {
-  //   this.action = new Action();
-  //   this.action.agent = new UniqueIdentifier();
-  //   this.modal.nativeElement.style.display = "block";
-  // }
-
-  // onThesaurusResult(thesaurusIdentifier: UniqueIdentifier) {
-  //   this.action.agent.name = thesaurusIdentifier.name;
-  //   this.action.agent.uri = thesaurusIdentifier.uri;
-  // }
+  ngAfterViewInit() 
+  {
+    console.log(this.processus);
+  }
 
   onNameChange() {
     if (this.typingTimer < this.typingTimeout) {
@@ -111,6 +105,7 @@ export class EditComponent implements OnInit {
         this.viewComponent.computeGraphDefinition();
       }, this.typingTimeout);
     }
+    localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
   }
 
   handleSubmittedAction(oldAndNewAction: [Action, Action]) {
@@ -153,8 +148,7 @@ export class EditComponent implements OnInit {
       default:
         console.log('in default, just deleted old action');
     }
-      // console.log(this.processus.inputs);
-      // console.log(this.processus.outputs);
+    localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
   }
 
   openActionPanel() {
@@ -194,6 +188,7 @@ export class EditComponent implements OnInit {
   }
 
   onSubmitProcessus() {
+    this.user.uri = localStorage.getItem('user');
     if (!this.processus.owners || this.processus.owners === ['']) {
       this.processus.owners.push(this.user.uri);
     }

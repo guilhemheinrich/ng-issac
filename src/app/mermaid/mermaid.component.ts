@@ -10,12 +10,12 @@ import { pipeBind1 } from '@angular/core/src/render3/pipe';
 })
 export class MermaidComponent implements OnInit {
   @Input()
-  graphDefinition: string = "";
+  graphDefinition: string = ``;
 
   @Input()
   graphId: string="mermaidGraph";
   @Input()
-  mermaidId: string="";
+  mermaidId: string="mermaidId";
   @Input()
   viewPortHeight: string = "";
   @Input()
@@ -29,31 +29,31 @@ export class MermaidComponent implements OnInit {
   @ViewChild("mermaid") 
   mermaidContainer: ElementRef;
 
-  constructor() { }
-
-  ngOnDestroy() {
-    this.mermaidContainer.nativeElement.remove();
+  constructor() { 
   }
 
+
+
   ngOnInit() {
-    mermaid.mermaidAPI.initialize(
-      {
-        startOnLoad: true,
-        useMaxWidth:false,
-      }
-    )
-    this.renderMermaid();
+    this.mermaidContainer.nativeElement.innerHTML = this.graphDefinition;
   }
 
   ngOnChanges() {
+    console.log('onChange mermaid');
+
     this.renderMermaid();
+
+    // Fix : for unknown reason, the first time a graph should be rendered in thesaurus
+    // it just show the unparsed definition graph.
+    // Wainting 'a bit' fix it, but a proper fix/understandment would be better 
+    let typingTimeout: number = 50;
+    window.setTimeout(() => { this.renderMermaid() }, typingTimeout);
+
   }
 
   renderMermaid()
   {
-  // console.log('in mermaid render');
-  // console.log(this.graphDefinition);
-  // Skip if there is no graph
+    // Skip if there is no graph
     if (!this.graphDefinition) return;
     this.mermaidContainer.nativeElement.innerHTML = this.graphDefinition;
     var cb = svgGraph => {
@@ -90,17 +90,12 @@ export class MermaidComponent implements OnInit {
       this.mermaidContainer.nativeElement.innerHTML = svgGraph;
   // console.log('in mermaid render');
   //     console.log(svgGraph)
-      console.log(this.mermaidContainer);
-      console.log(this.mermaidId);
       this.finishDrawing.emit(this.mermaidContainer);
       // this.post_process_callback();
+      console.log(this.mermaidContainer.nativeElement);
     }
-    mermaid.mermaidAPI.initialize(
-      {
-        startOnLoad: true,
-        useMaxWidth:false,
-      });
-    mermaid.mermaidAPI.render(this.graphId,this.graphDefinition, cb, this.mermaidContainer.nativeElement)
+
+    mermaid.mermaidAPI.render(this.graphId,this.graphDefinition, cb, this.mermaidContainer.nativeElement);
   }
 
 

@@ -19,14 +19,25 @@ export class LoggerComponent implements OnInit {
     private router: Router
   ) { 
 
-    this.logService.log$.subscribe(
-      value => {
-         this.loggedUser = value;
-         this.logged = value != null;
-      });
+    this.loggedUser = JSON.parse(localStorage.getItem('user'));
+
   }
 
   ngOnInit() {
+    console.log('onInitLog'); 
+    console.log(this.loggedUser);
+    console.log(this.loggedUser != null);
+    this.logService.logUpdate$.subscribe(
+      value => {
+        this.loggedUser = JSON.parse(localStorage.getItem('user'));
+        console.log(this.loggedUser);
+        //  this.loggedUser = value;
+        //  this.logged = value != null;
+        if (this.loggedUser != null) {
+          this.logged = true;
+        }
+      });
+      console.log(this.logged);
   }
 
   onLogout() {

@@ -35,7 +35,7 @@ export class ThesaurusDisplayComponent implements OnInit {
   thesaurusEntries: ThesaurusEntry[] = <ThesaurusEntry[]>[] ;
   thesaurusEntry: ThesaurusEntry;
 
-  graphDefinition: string = '';
+  graphDefinition: string = ``;
   graphId: string = 'mermaidGraph';
 
 

@@ -1,7 +1,7 @@
 import { HostListener, Component, OnInit, Input, OnChanges, ViewChild, ElementRef, EventEmitter, Output } from '@angular/core';
 import { Processus, Action, ActionType, IAction } from '../processus';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
-import {ThesaurusDisplayComponent} from '../../thesaurus/thesaurus-display/thesaurus-display.component';
+import {MermaidComponent } from '../../mermaid/mermaid.component';
 import { ActionDisplayerService } from '../action/action-displayer.service';
 
 @Component({
@@ -28,8 +28,8 @@ export class ViewComponent implements OnInit {
   action: Action = new Action();
   actionTypes = [];
 
-  @ViewChild('modal') 
-  modal: ElementRef;
+  @ViewChild('mermaidComponent') 
+  mermaidComponent: MermaidComponent;
 
 
   constructor(
@@ -37,12 +37,21 @@ export class ViewComponent implements OnInit {
   ) {
     let options = Object.values(ActionType);
     this.actionTypes = options;
+
+
    }
 
-  ngOnInit() {
-  }
+   ngOnInit()
+   {
+     
+   }
 
+  ngAfterViewInit() {
+    console.log('called here');
+    // this.mermaidComponent.renderMermaid();
+  }
   ngOnChanges() {
+
 
     // console.log('onChange');
     var inputElements = this.processus.inputs.map((input) => {
@@ -120,6 +129,7 @@ export class ViewComponent implements OnInit {
   }
 
   computeGraphDefinition() {
+    
     this.processusGraphDefinition = `
     graph RL;\n
     classDef thesaurusMermaid:hover cursor:pointer, fill:aquamarine;

@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { RegisterComponent } from './authentification/register/register.component';
 import { LoginComponent } from './authentification/login/login.component';
 import { EditComponent } from './processus/edit/edit.component';
+import { IndexComponent } from './processus/index/index.component';
 import { HttpClientModule } from '@angular/common/http'; 
 import { AuthGuard } from './auth-guard.service';
 
@@ -10,6 +11,7 @@ const routes: Routes = [
   { path: 'authentification/register', component: RegisterComponent },
   { path: 'authentification/login', component: LoginComponent },
   { path: 'processus/edit', component: EditComponent, canActivate: [AuthGuard] },
+  { path: 'processus/index', component: IndexComponent, canActivate: [AuthGuard] },
   
 ];
 

@@ -1,7 +1,7 @@
 
 import { UniqueIdentifier, hash32, GlobalVariables } from '../configuration';
 import { SparqlClientService } from '../sparql-client.service';
-import { Prefix, GraphDefinition, QueryType } from '../sparql-parser.service';
+import { Prefix, GraphDefinition, QueryType, Uri, Litteral, SparqlBinding, SparqlAbstractClass, SparqlClass } from '../sparql-parser.service';
 export interface IProcessus {
     uri: string;
     name: string;
@@ -9,6 +9,57 @@ export interface IProcessus {
     inputs?: Input[];
     outputs?: Output[]
     owners: string[];
+}
+
+
+export class testP extends SparqlAbstractClass
+{
+
+}
+
+export class ProcessusBis extends SparqlClass
+{
+    @Uri()
+    uri: string = 'helo';
+    @Litteral()
+    name: SparqlBinding;
+    @Litteral()
+    description?: SparqlBinding= new SparqlBinding();;
+    inputs?: InputBis[] = Array<InputBis>();
+    outputs?: Output[] = Array<Output>();
+    @Litteral()
+    owners: SparqlBinding[] = Array<SparqlBinding>();
+
+    sparqlParse(key: keyof ProcessusBis, prefix?: string)
+    {
+        return super.sparqlParse(key, prefix);
+    }
+
+    parseSkeletonQuery(prefix?: string) {
+        this.sparqlParse("uri", prefix);
+        this.inputs.forEach((input, index) => {
+            input.parseSkeletonQuery('input' + index);
+        })
+    }
+}
+
+export class InputBis extends SparqlClass{
+    @Uri()
+    uri:string = 'i am an input';
+
+    sparqlParse(key: keyof InputBis, prefix?: string)
+    {
+        return super.sparqlParse(key, prefix);
+    }
+    parseSkeletonQuery(prefix?: string) {
+        let tmpParser = ((key: keyof InputBis) => {
+            super.sparqlParse(key, prefix);
+        })
+
+        console.log('InInputBis')
+        tmpParser("uri");
+        
+    }
 }
 export class Processus {
     uri: string;
@@ -36,6 +87,37 @@ export class Processus {
         }
         // this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
     };
+
+    parseDefinitionSkeleton(): GraphDefinition {
+        if (this.uri === "" || !this.uri) {
+            this.generateUri();
+        }
+
+        var saveQuery = new GraphDefinition([
+            `
+            <${this.uri}> a issac:Process .\n
+            <${this.uri}> rdfs:label \"${this.name}\"^^xsd:string .\n
+            `
+        ]);
+        this.owners.forEach((owner) => {
+            saveQuery.triplesContent.push(
+                `<${this.uri}> admin:hasWriteAccess <${owner}> .\n`
+            );
+        });
+        let actions = (<Array<Action>>this.inputs).concat(<Array<Action>>this.outputs);
+        actions.forEach((action) => 
+    {
+        // action.generateUri();
+        saveQuery.triplesContent.push(
+            `
+            <${this.uri}> issac:hasAction 
+            `
+        );
+        saveQuery.merge(action.parseDefinition());
+    })
+        return saveQuery;
+    }
+
 
     parseDefinition(): GraphDefinition {
         if (this.uri === "" || !this.uri) {

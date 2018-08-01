@@ -1,5 +1,5 @@
 import { HostListener, Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
-import { Processus, Action, Input, Output, IAction, ActionType } from '../processus';
+import { Processus, Action, Input, Output, IAction, ActionType, IProcessus } from '../processus';
 import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
@@ -50,7 +50,7 @@ export class EditComponent implements OnInit {
 
     let currentProcessus = JSON.parse(localStorage.getItem('currentProcessus'))
     if (currentProcessus) {
-      this.processus = currentProcessus;
+      this.processus = new Processus(<IProcessus>currentProcessus);
     }
 
     this.logService.logUpdate$.subscribe(
@@ -155,9 +155,7 @@ export class EditComponent implements OnInit {
     this.action = new Action();
     this.action.agent = new UniqueIdentifier();
     this.action.type = ActionType.INPUT;
-    // console.log('From open Action Panel ');
-    // console.log(this.action);
-    // this.actionComponent.openModal(this.action);
+
     this.actionDisplayerService.display(this.action);
   }
  
@@ -166,8 +164,8 @@ export class EditComponent implements OnInit {
     this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
     this.sparqlParser.queryType = QueryType.ADD;
     this.sparqlParser.prefixes = Processus.requiredPrefixes;
-
-    var saveQuery = this.processus.parseDefinition();
+    this.processus.generateUri();
+    var saveQuery = this.processus.parseIdentity();
     this.sparqlParser.graphDefinition = saveQuery;
     console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
@@ -180,7 +178,10 @@ export class EditComponent implements OnInit {
     this.sparqlParser.queryType = QueryType.DELETE;
     this.sparqlParser.prefixes = Processus.requiredPrefixes;
 
-    var saveQuery = this.processus.parseDefinition();
+    console.log(this.processus.outputs[0]);
+    console.log(this.processus.outputs[0] instanceof Action);
+
+    var saveQuery = this.processus.parseIdentity();
     this.sparqlParser.graphDefinition = saveQuery;
     console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
@@ -188,11 +189,19 @@ export class EditComponent implements OnInit {
   }
 
   onSubmitProcessus() {
-    this.user.uri = localStorage.getItem('user');
-    if (!this.processus.owners || this.processus.owners === ['']) {
+    this.user = new LoggedUser(JSON.parse(localStorage.getItem('user')));
+    if (this.processus.owners instanceof Array && this.processus.owners[0] !== undefined && this.processus.owners[0] === '' ) {
+      // console.log(this.user);
+      this.processus.owners.reverse().pop();
       this.processus.owners.push(this.user.uri);
     }
 
+    // console.log(this.processus.owners instanceof Array);
+    // console.log(this.processus.owners[0] !== undefined);
+    // console.log(this.processus.owners[0] === '');
+    // console.log(this.processus.owners === undefined);
+    // console.log((this.processus.owners instanceof Array && this.processus.owners[0] !== undefined && this.processus.owners[0] === '' ));
+    console.log(this.processus);
     // Add ad hoc verification ...
     this.delete();
     this.save();

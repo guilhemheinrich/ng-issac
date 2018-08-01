@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { isArray } from 'util';
 import "reflect-metadata";
 import { ProcessusBis } from './processus/processus';
+import {GlobalVariables} from './configuration'
 
 @Injectable({
   providedIn: 'root'
@@ -68,20 +69,20 @@ export enum QueryType {
   DELETE = "DELETE"
 }
 
+export enum SubPatternType {
+  UNION = "UNION",
+  OPTIONAL = "OPTIONAL",
+}
 export class GraphDefinition {
   triplesContent: string[] = [''];
-  graphDefinitions?: GraphDefinition[];
+  subPatterns: Array<[GraphDefinition, SubPatternType]> = new Array<[GraphDefinition, SubPatternType]>();
   namedGraph?: string;
 
   constructor(
     triplesContent?: string[],
-    graphDefinitions?: GraphDefinition[],
     namedGraph?: string
   ) {
     this.triplesContent = triplesContent;
-    if (graphDefinitions) {
-      this.graphDefinitions = graphDefinitions;
-    }
     if (namedGraph) {
       this.namedGraph = namedGraph;
     }
@@ -95,9 +96,9 @@ export class GraphDefinition {
         this.triplesContent.push(triple);
       });
     }
-    if (otherGraphDefinition.graphDefinitions) {
-      otherGraphDefinition.graphDefinitions.forEach((graphDefinition) => {
-        this.graphDefinitions.push(graphDefinition);
+    if (otherGraphDefinition.subPatterns) {
+      otherGraphDefinition.subPatterns.forEach((graphDefinition) => {
+        this.subPatterns.push(graphDefinition);
       });
     }
   }
@@ -109,10 +110,10 @@ export class GraphDefinition {
         out_string += tripleContent + ` \n`;
       });
     }
-    if (this.graphDefinitions) {
-      this.graphDefinitions.forEach(graphDefinition => {
-        out_string += 'UNION ';
-        out_string += graphDefinition.toString() + ` \n`;
+    if (this.subPatterns) {
+      this.subPatterns.forEach(graphDefinition => {
+        out_string += graphDefinition[1];
+        out_string += graphDefinition[0].toString() + ` \n`;
       });
     }
     out_string += ` }`;
@@ -170,45 +171,61 @@ export class SparqlClass {
     this._sparqlAttributes = Object.getPrototypeOf(this)[sparqlAtrributeName];
   }
 
-  sparqlParse(key: keyof any, prefix?: string) {
-    if (prefix) {
-      console.log(prefix + Object.getPrototypeOf(this).constructor.name);
-    } else {
-      console.log(Object.getPrototypeOf(this).constructor.name);
-    }
+  sparqlParse(key: keyof any, type: string, prefix: string = '') {
+    // if (prefix) {
+    //   console.log(prefix + Object.getPrototypeOf(this).constructor.name);
+    // } else {
+    //   console.log(Object.getPrototypeOf(this).constructor.name);
+    // }
+    console.log(key);
+    console.log(this);
+    console.log(this[key].toString());
     let out:string;
     switch (this._sparqlAttributes[key].type)
     {
       case SparqlType.IRI:
-      if (this[key]==undefined) {
-        out = "?" + prefix + Object.getPrototypeOf(this).constructor.name;
+      if (type=="UNK") {
+        // if (this[key]==undefined) {
+        out = "?" + prefix + "." +this[key] + Object.getPrototypeOf(this).constructor.name;
       }else {
         out = "<" + this[key] + ">";
       }
       break;
       case SparqlType.LITTERAL:
-      if (this[key]==undefined) {
-        out = "?" + prefix + Object.getPrototypeOf(this).constructor.name;
+      if (type=="UNK") {
+        // if (this[key]==undefined) {
+        out = "?" + prefix + "." + this[key] + Object.getPrototypeOf(this).constructor.name;
       }else {
         out = "\"" + this[key] + "\"";
       }
       break;
     }
     return out;
-    // this[key];
-    // this[value];
-    // Object.getPrototypeOf(value);
-    // console.log(this[value]);
-    // if (value === undefined) {
-    // }
   }
 
-  parseSkeletonQuery(prefix?: string) {
-
+  sparqlIdentifier(key: keyof any, prefix?: string) {
+    let out:string;
+    let sparqlAttribute = this._sparqlAttributes[key];
+    console.log(sparqlAttribute.identifier);
+    if (prefix) {
+      out = "?" + prefix + sparqlDelimitter + sparqlAttribute.identifier;
+    } else {
+      out = "?" + sparqlAttribute.identifier;
+    }
+    return out;
   }
 }
 
+export function toSparqlUri(uri: string): string{
+  return "<" + uri + ">";
+}
+
+export function toSparqlLitteral(litteral: string, suffix: string = '^^xsd:string'): string{
+  return "\"" + litteral +  "\"" + suffix;
+}
+
 const sparqlAtrributeName = '_sparqlAttributes';
+const sparqlDelimitter = '_'
 const sparqlUriPorpertyName = '_uris';
 export function Uri() {
   return (function (target: Object, propertyKey: string | symbol) {
@@ -218,7 +235,7 @@ export function Uri() {
     // target[sparqlUriPorpertyName].push(propertyKey);
     target[sparqlAtrributeName][propertyKey] = {
       type: SparqlType.IRI,
-      identifier: target.constructor.name + '.' + propertyKey.toString()
+      identifier: target.constructor.name + sparqlDelimitter + propertyKey.toString()
     };
 
   })
@@ -234,7 +251,7 @@ export function Litteral() {
     // target[sparqlUriPorpertyName].push(propertyKey);
     target[sparqlAtrributeName][propertyKey] = {
       type: SparqlType.LITTERAL,
-      // identifier: 
+      identifier: target.constructor.name + sparqlDelimitter + propertyKey.toString()
     };
 
   })
@@ -281,11 +298,4 @@ export enum SparqlType {
   LITTERAL = "Litteral"
 }
 
-// export function SparqlClass(target: Function)
-// {
-//   target.prototype.parseSkeletonQuery = () => 
-//   {
-//     target.
-//   }
-// }
 

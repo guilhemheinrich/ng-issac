@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {Processus, ProcessusBis, testP, InputBis} from '../processus';
-import { SparqlParserService, GraphDefinition, SparqlBinding, Uri } from '../../sparql-parser.service';
+import {Processus, ProcessusBis, InputBis} from '../processus';
+import { SparqlParserService, GraphDefinition, SparqlBinding, QueryType } from '../../sparql-parser.service';
+import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 
 @Component({
   selector: 'app-index',
@@ -14,7 +15,8 @@ export class IndexComponent implements OnInit {
   public myuri: SparqlBinding;
   private _myuri
 
-  constructor() {
+  constructor(
+    private sparqlParser: SparqlParserService,) {
     // this.myuri.value = 'http://hello';
   }
 
@@ -24,15 +26,21 @@ export class IndexComponent implements OnInit {
 
   searchAllProcessus ()
   {
-    let processus = new ProcessusBis();
-    let test = new testP();
-    // console.log(processus._uris);
-    // processus.description.value = 'A description';
-    processus.uri = 'http://uri';
-    processus.inputs.push(new InputBis());
-    // processus.turi = 'anotherUri';
-    console.log(processus); 
-    console.log(test); 
-    console.log(processus.parseSkeletonQuery());
+    let processus = new Processus();
+    processus.name = 'new';
+
+    this.sparqlParser.clear();
+    this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
+    this.sparqlParser.queryType = QueryType.QUERY;
+    this.sparqlParser.prefixes = Processus.requiredPrefixes;
+
+    var query = processus.parseSkeleton();
+    var filter = processus.parseFilter();
+    query.merge(filter);
+    this.sparqlParser.graphPattern = query;
+    console.log(this.sparqlParser.toString());
+    console.log(this.sparqlParser);
+    // let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
+    // result.subscribe((response => console.log(response)));
   }
 }

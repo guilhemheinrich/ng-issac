@@ -1,7 +1,8 @@
 
 import { UniqueIdentifier, hash32, GlobalVariables } from '../configuration';
 import { SparqlClientService } from '../sparql-client.service';
-import { Prefix, GraphDefinition, QueryType, Uri, Litteral, SparqlBinding, SparqlAbstractClass, SparqlClass } from '../sparql-parser.service';
+import { Prefix, GraphDefinition, QueryType, Uri, Litteral, SparqlBinding, SparqlAbstractClass, SparqlClass, SubPatternType } from '../sparql-parser.service';
+import { isArray } from 'util';
 export interface IProcessus {
     uri: string;
     name: string;
@@ -12,10 +13,6 @@ export interface IProcessus {
 }
 
 
-export class testP extends SparqlAbstractClass
-{
-
-}
 
 export class ProcessusBis extends SparqlClass
 {
@@ -30,13 +27,13 @@ export class ProcessusBis extends SparqlClass
     @Litteral()
     owners: SparqlBinding[] = Array<SparqlBinding>();
 
-    sparqlParse(key: keyof ProcessusBis, prefix?: string)
+    sparqlIdentifier(key: keyof ProcessusBis, prefix?: string)
     {
-        return super.sparqlParse(key, prefix);
+        return super.sparqlIdentifier(key, prefix);
     }
 
     parseSkeletonQuery(prefix?: string) {
-        this.sparqlParse("uri", prefix);
+        this.sparqlIdentifier("uri", prefix);
         this.inputs.forEach((input, index) => {
             input.parseSkeletonQuery('input' + index);
         })
@@ -47,13 +44,13 @@ export class InputBis extends SparqlClass{
     @Uri()
     uri:string = 'i am an input';
 
-    sparqlParse(key: keyof InputBis, prefix?: string)
+    sparqlIdentifier(key: keyof InputBis, prefix?: string)
     {
-        return super.sparqlParse(key, prefix);
+        return super.sparqlIdentifier(key, prefix);
     }
     parseSkeletonQuery(prefix?: string) {
         let tmpParser = ((key: keyof InputBis) => {
-            super.sparqlParse(key, prefix);
+            super.sparqlIdentifier(key, prefix);
         })
 
         console.log('InInputBis')
@@ -61,13 +58,17 @@ export class InputBis extends SparqlClass{
         
     }
 }
-export class Processus {
+export class Processus extends SparqlClass {
+    @Uri()
     uri: string;
+    @Litteral()
     name: string;
+    @Litteral()
     description?: string;
-    inputs?: Input[] = Array<Input>();
-    outputs?: Output[] = Array<Output>();
-    owners: string[] = [""];
+    inputs?: Input[] = new Array<Input>();
+    outputs?: Output[]= new Array<Output>();
+    @Litteral()
+    owners: string[];
     static readonly requiredPrefixes: Prefix[] = [
         GlobalVariables.ONTOLOGY_PREFIX.issac,
         GlobalVariables.ONTOLOGY_PREFIX.admin,
@@ -77,61 +78,92 @@ export class Processus {
     constructor(
         options?: IProcessus,
     ) {
+        super();
         if (options) {
             this.uri = options.uri;
             this.name = options.name;
             this.description = options.description;
-            this.inputs = options.inputs;
-            this.outputs = options.outputs;
             this.owners = options.owners;
+            this.inputs = new Array<Input>(); 
+            this.outputs = new Array<Output>(); 
+            options.inputs.forEach((input) => {
+                this.inputs.push(new Input(input));
+            })
+            options.outputs.forEach((output) => {
+                this.outputs.push(new Output(output));
+            })
         }
-        // this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
     };
 
-    parseDefinitionSkeleton(): GraphDefinition {
-        if (this.uri === "" || !this.uri) {
-            this.generateUri();
-        }
+    parseGather( search: string): GraphDefinition
+    {
+        var gather = new GraphDefinition([]);
+        ['uri', 'name', 'description'].forEach((attribute) => {
+            gather.triplesContent.push(`
+            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${search}', 'i')
+            `);
+        })
+        return gather;
+    }
 
-        var saveQuery = new GraphDefinition([
+    parseFilter()
+    {
+        var filter = new GraphDefinition([]);
+        ['uri', 'name', 'description'].forEach((attribute) => {
+            if (this[attribute] !== undefined && this[attribute] !== '')
+            filter.triplesContent.push(`
+            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${this[attribute] }', 'i')
+            `);
+        })
+        return filter;
+    }
+
+    parseRestricter()
+    {
+        var restriction = new GraphDefinition([]);
+        // let 
+        ['uri', 'name', 'description'].forEach((attribute) => {
+            if (this[attribute] !== undefined && this[attribute] !== '')
+            restriction.triplesContent.push(`
+            VALUES (${this.sparqlIdentifier(attribute)}) regex(STR(${this.sparqlIdentifier(attribute)}), '${this[attribute] }', 'i')
+            `);
+        })
+        return restriction;
+    }
+
+    parseSkeleton(prefix: string = '')
+    {
+        var query = new GraphDefinition([
             `
-            <${this.uri}> a issac:Process .\n
-            <${this.uri}> rdfs:label \"${this.name}\"^^xsd:string .\n
+            ${this.sparqlIdentifier('uri', prefix)} a issac:Process .\n
+            ${this.sparqlIdentifier('uri', prefix)} rdfs:label ${this.sparqlIdentifier('name', prefix)} .\n
             `
         ]);
-        this.owners.forEach((owner) => {
-            saveQuery.triplesContent.push(
-                `<${this.uri}> admin:hasWriteAccess <${owner}> .\n`
+            query.triplesContent.push(
+                `${this.sparqlIdentifier('uri', prefix)} admin:hasWriteAccess ${this.sparqlIdentifier('owners', prefix)} .\n`
             );
-        });
-        let actions = (<Array<Action>>this.inputs).concat(<Array<Action>>this.outputs);
-        actions.forEach((action) => 
-    {
-        // action.generateUri();
-        saveQuery.triplesContent.push(
+
+        let emptyAction = new Action();
+        let actionPattern = new GraphDefinition([
             `
-            <${this.uri}> issac:hasAction 
+            ${this.sparqlIdentifier('uri', prefix)} issac:hasAction
             `
-        );
-        saveQuery.merge(action.parseDefinition());
-    })
-        return saveQuery;
+        ])
+        actionPattern.merge(emptyAction.parseSkeleton('Processus'));
+        query.subPatterns.push([actionPattern, SubPatternType.OPTIONAL]);
+        return query;
     }
 
 
-    parseDefinition(): GraphDefinition {
-        if (this.uri === "" || !this.uri) {
-            this.generateUri();
-        }
-
-        var saveQuery = new GraphDefinition([
+    parseIdentity(): GraphDefinition {
+        var query = new GraphDefinition([
             `
             <${this.uri}> a issac:Process .\n
             <${this.uri}> rdfs:label \"${this.name}\"^^xsd:string .\n
             `
         ]);
         this.owners.forEach((owner) => {
-            saveQuery.triplesContent.push(
+            query.triplesContent.push(
                 `<${this.uri}> admin:hasWriteAccess <${owner}> .\n`
             );
         });
@@ -139,18 +171,19 @@ export class Processus {
         actions.forEach((action) => 
     {
         // action.generateUri();
-        saveQuery.triplesContent.push(
+        query.triplesContent.push(
             `
             <${this.uri}> issac:hasAction 
             `
         );
-        saveQuery.merge(action.parseDefinition());
+        query.merge(action.parseIdentity());
     })
-        return saveQuery;
+        return query;
     }
 
 
     generateUri() {
+        if (this.uri !== undefined && this.uri !== '') return;
         let hashedFingerprint = this.name;
         this.inputs.forEach(input => {
             hashedFingerprint += input.agent.uri;
@@ -171,11 +204,17 @@ export enum ActionType {
     OUTPUT = "Output",
     INOUT = "Both"
 }
-export class Action {
+export class Action extends SparqlClass {
 
-    // uri: string;
     agent: UniqueIdentifier;
+    @Litteral()
+    agentLabel: string;
+    @Uri()
+    agentUri: string;
+    @Litteral()
     roles: string[];
+    @Uri()
+    types: ActionType;
 
     
 
@@ -186,53 +225,79 @@ export class Action {
     type: ActionType;
     constructor(options?: IAction
     ) {
+        super();
         this.agent = new UniqueIdentifier;
         if (options) {
+            if (options.agent) {
+                this.agentUri = options.agent.uri;
+                this.agentLabel = options.agent.name;
+            }
             // this.uri = options.uri;
             this.agent = options.agent;
             this.roles = options.roles;
             this.type = options.type;
+            this.agentUri = options.agentUri;
+            this.agentLabel = options.agentLabel;
         }
-        // this.type = 'Role';
     };
 
-    parseDefinition()
+    parseIdentity(): GraphDefinition
     {
-        // if (this.uri === "" || !this.uri) {
-        //     this.generateUri();
-        // }
 
-        var saveQuery = new GraphDefinition([
+        var query = new GraphDefinition([
             `
             [
-                issac:hasAgentType <${this.agent.uri}> .\n
-                issac:hasActionType "${this.type}" .\n
-            ]
+                issac:hasAgentType <${this.agent.uri}> ;\n
+                issac:hasActionType "${this.type}" ;\n
+            ] .
             `
         ]);
-        // this.roles.forEach(role => {
-        //     saveQuery.triplesContent.push(
-        //         `
-        //         <${this.uri}> issac:hasRole "${role}"
-        //         `
-        //     );
-        // });
-        return saveQuery;
+        return query;
     }
 
-    // generateUri() {
-    //     let hashedFingerprint = '';
-    //     this.roles.forEach(role => {
-    //         hashedFingerprint += role;
-    //     });
-    //     hashedFingerprint += this.agent.uri;
-    //     this.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_action.uri + hash32(hashedFingerprint)
-    // }
+    parseSkeleton(prefix :string = ''): GraphDefinition
+    {
+        var query = new GraphDefinition([
+            `
+            [
+                issac:hasAgentType ${this.sparqlIdentifier('agentUri', prefix)} ;\n
+                issac:hasActionType ${this.sparqlIdentifier('types', prefix)} ;\n
+            ] .
+            `
+        ]);
+        return query;
+    }
+
+    parseGather( search: string): GraphDefinition
+    {
+        var gather = new GraphDefinition([]);
+        ['agentLabel', 'agentUri'].forEach((attribute) => {
+            gather.triplesContent.push(`
+            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${search}', 'i')
+            `);
+        })
+        return gather;
+    }
+
+    parseFilter()
+    {
+        var filter = new GraphDefinition([]);
+        ['agentLabel', 'agentUri'].forEach((attribute) => {
+            if (this[attribute] !== undefined && this[attribute] !== '')
+            filter.triplesContent.push(`
+            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${this[attribute] }', 'i')
+            `);
+        })
+        return filter;
+    }
+
 }
 
 export interface IAction {
     // uri?: string;
     agent?: UniqueIdentifier;
+    agentUri:string;
+    agentLabel:string;
     roles?: string[];
     type?: ActionType;
 }

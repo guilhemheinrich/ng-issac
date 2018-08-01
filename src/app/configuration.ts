@@ -29,6 +29,9 @@ export const GlobalVariables = Object.freeze({
         'prefix_action'             : {prefix : 'prefix_action'          , uri : 'http://ECPP_models/action/' },
         'context_administration'    : {prefix : 'context_administration' , uri : 'http://ECPP_administration/agent/set/' },
         'prefix_agent'              : {prefix : 'prefix_agent'           , uri : 'http://ECPP_administration/agent/id/' },
+    },
+    LITTERALS_TYPE : {
+        STRING: "xsd^^string",
     }
 });
 

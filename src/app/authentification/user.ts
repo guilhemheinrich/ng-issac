@@ -25,7 +25,12 @@ export class LoggedUser {
   username = "";
   email = "";
   uri = "";
-  constructor() {
+  constructor(options?: any) {
+    if (options) {
+      this.username  = options.username;
+      this.email     = options.email   ;
+      this.uri       = options.uri     ;
+    }
   }
 }
 

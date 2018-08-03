@@ -71,10 +71,7 @@ export class EditComponent implements OnInit {
     On Init ! 
     Don't forget to properly clean old processus data
     when editing an already existing one`);
-    //     let currentProcessus = JSON.parse(localStorage.getItem('currentProcessus'))
-    // if (currentProcessus) {
-    //   this.processus = currentProcessus;
-    // }
+
     this.action.agent = new UniqueIdentifier();
     this.processus.owners = [this.user.uri];
     this.actionDisplayerService.oldToNewActions$.subscribe((oldAndNewAction) => 
@@ -173,19 +170,19 @@ export class EditComponent implements OnInit {
   }
 
   delete() {
+    if (this.processus.uri === undefined) return;
     this.sparqlParser.clear();
     this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
     this.sparqlParser.queryType = QueryType.DELETE;
     this.sparqlParser.prefixes = Processus.requiredPrefixes;
 
-    console.log(this.processus.outputs[0]);
-    console.log(this.processus.outputs[0] instanceof Action);
 
-    var saveQuery = this.processus.parseIdentity();
-    this.sparqlParser.graphDefinition = saveQuery;
+    var deleteOperation = this.processus.operationDelete();
+    this.sparqlParser.graphDefinition = deleteOperation.quadPattern;
+    this.sparqlParser.graphPattern = deleteOperation.graphPattern;
     console.log(this.sparqlParser.toString());
-    let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
-    result.subscribe((response => console.log(response)));
+    // let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
+    // result.subscribe((response => console.log(response)));
   }
 
   onSubmitProcessus() {

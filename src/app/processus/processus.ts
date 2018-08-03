@@ -1,7 +1,7 @@
 
 import { UniqueIdentifier, hash32, GlobalVariables } from '../configuration';
 import { SparqlClientService } from '../sparql-client.service';
-import { Prefix, GraphDefinition, QueryType, Uri, Litteral, SparqlBinding, SparqlAbstractClass, SparqlClass, SubPatternType } from '../sparql-parser.service';
+import { Prefix, GraphDefinition, QueryType, Uri, Litteral, SparqlClass, SubPatternType, SparqlType, SparqlObject, Collection } from '../sparql-parser.service';
 import { isArray } from 'util';
 export interface IProcessus {
     uri: string;
@@ -12,52 +12,7 @@ export interface IProcessus {
     owners: string[];
 }
 
-
-
-export class ProcessusBis extends SparqlClass
-{
-    @Uri()
-    uri: string = 'helo';
-    @Litteral()
-    name: SparqlBinding;
-    @Litteral()
-    description?: SparqlBinding= new SparqlBinding();;
-    inputs?: InputBis[] = Array<InputBis>();
-    outputs?: Output[] = Array<Output>();
-    @Litteral()
-    owners: SparqlBinding[] = Array<SparqlBinding>();
-
-    sparqlIdentifier(key: keyof ProcessusBis, prefix?: string)
-    {
-        return super.sparqlIdentifier(key, prefix);
-    }
-
-    parseSkeletonQuery(prefix?: string) {
-        this.sparqlIdentifier("uri", prefix);
-        this.inputs.forEach((input, index) => {
-            input.parseSkeletonQuery('input' + index);
-        })
-    }
-}
-
-export class InputBis extends SparqlClass{
-    @Uri()
-    uri:string = 'i am an input';
-
-    sparqlIdentifier(key: keyof InputBis, prefix?: string)
-    {
-        return super.sparqlIdentifier(key, prefix);
-    }
-    parseSkeletonQuery(prefix?: string) {
-        let tmpParser = ((key: keyof InputBis) => {
-            super.sparqlIdentifier(key, prefix);
-        })
-
-        console.log('InInputBis')
-        tmpParser("uri");
-        
-    }
-}
+export type ProcessusAlias = Processus;
 export class Processus extends SparqlClass {
     @Uri()
     uri: string;
@@ -65,9 +20,15 @@ export class Processus extends SparqlClass {
     name: string;
     @Litteral()
     description?: string;
+    @SparqlObject('Input')
+    @Collection()
     inputs?: Input[] = new Array<Input>();
+
+    @SparqlObject('Output')
+    @Collection()
     outputs?: Output[]= new Array<Output>();
-    @Litteral()
+    @Uri()
+    @Collection()
     owners: string[];
     static readonly requiredPrefixes: Prefix[] = [
         GlobalVariables.ONTOLOGY_PREFIX.issac,
@@ -95,6 +56,7 @@ export class Processus extends SparqlClass {
         }
     };
 
+
     parseGather( search: string): GraphDefinition
     {
         var gather = new GraphDefinition([]);
@@ -118,16 +80,24 @@ export class Processus extends SparqlClass {
         return filter;
     }
 
-    parseRestricter()
+    parseRestricter(attribute: keyof Processus, values: string[])
     {
-        var restriction = new GraphDefinition([]);
-        // let 
-        ['uri', 'name', 'description'].forEach((attribute) => {
-            if (this[attribute] !== undefined && this[attribute] !== '')
-            restriction.triplesContent.push(`
-            VALUES (${this.sparqlIdentifier(attribute)}) regex(STR(${this.sparqlIdentifier(attribute)}), '${this[attribute] }', 'i')
-            `);
-        })
+        var restriction = new GraphDefinition([`VALUES (${this.sparqlIdentifier(attribute.toString())}) { \n`]);
+        switch (this._sparqlAttributes[attribute].type) {
+            case SparqlType.IRI:
+            values.forEach((value) => {
+                restriction.triplesContent[0] += ` ( <${value}> ) \n`;
+    
+            })
+            break;
+            case SparqlType.LITTERAL:
+            values.forEach((value) => {
+                restriction.triplesContent[0] += ` ( "${value}" ) \n`;
+    
+            })
+            break;
+        }
+        restriction.triplesContent[0] += ` }`;
         return restriction;
     }
 
@@ -137,6 +107,7 @@ export class Processus extends SparqlClass {
             `
             ${this.sparqlIdentifier('uri', prefix)} a issac:Process .\n
             ${this.sparqlIdentifier('uri', prefix)} rdfs:label ${this.sparqlIdentifier('name', prefix)} .\n
+            OPTIONAL { ${this.sparqlIdentifier('uri', prefix)} rdfs:label ${this.sparqlIdentifier('description', prefix)} } .\n
             `
         ]);
             query.triplesContent.push(
@@ -160,6 +131,7 @@ export class Processus extends SparqlClass {
             `
             <${this.uri}> a issac:Process .\n
             <${this.uri}> rdfs:label \"${this.name}\"^^xsd:string .\n
+            
             `
         ]);
         this.owners.forEach((owner) => {
@@ -181,6 +153,26 @@ export class Processus extends SparqlClass {
         return query;
     }
 
+    operationDelete()
+    {
+        var operation = new GraphDefinition([
+            `?s ?p ?o .
+            ?o ?p1 ?o1
+            `
+        ]);
+        let whereClause = new GraphDefinition([
+            `
+                ?s ?p ?o .
+                OPTIONAL {
+                    ?o ?p1 ?o1 .
+                    FILTER (isBlank(?o))
+                } .
+                VALUES ( ?s ) { (<${this.uri}>) }
+            `
+        ]) 
+        
+        return {quadPattern : operation, graphPattern: whereClause};
+    }
 
     generateUri() {
         if (this.uri !== undefined && this.uri !== '') return;
@@ -207,21 +199,20 @@ export enum ActionType {
 export class Action extends SparqlClass {
 
     agent: UniqueIdentifier;
-    @Litteral()
+
     agentLabel: string;
     @Uri()
     agentUri: string;
-    @Litteral()
+
     roles: string[];
-    @Uri()
-    types: ActionType;
+
 
     
 
     static readonly requiredPrefixes: Prefix[] = [
         GlobalVariables.ONTOLOGY_PREFIX.issac,
     ]
-
+    @Uri()
     type: ActionType;
     constructor(options?: IAction
     ) {

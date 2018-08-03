@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {Processus, ProcessusBis, InputBis} from '../processus';
-import { SparqlParserService, GraphDefinition, SparqlBinding, QueryType } from '../../sparql-parser.service';
+import {Processus} from '../processus';
+import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 
 @Component({
@@ -12,7 +12,6 @@ export class IndexComponent implements OnInit {
 
   processusList: Processus[];
 
-  public myuri: SparqlBinding;
   private _myuri
 
   constructor(
@@ -27,6 +26,8 @@ export class IndexComponent implements OnInit {
   searchAllProcessus ()
   {
     let processus = new Processus();
+    console.log(processus);
+    console.log(processus.processBindings());
     processus.name = 'new';
 
     this.sparqlParser.clear();
@@ -37,9 +38,10 @@ export class IndexComponent implements OnInit {
     var query = processus.parseSkeleton();
     var filter = processus.parseFilter();
     query.merge(filter);
+    query.merge(processus.parseGather('toto'));
     this.sparqlParser.graphPattern = query;
-    console.log(this.sparqlParser.toString());
-    console.log(this.sparqlParser);
+    // console.log(this.sparqlParser.toString());
+    // console.log(this.sparqlParser);
     // let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     // result.subscribe((response => console.log(response)));
   }

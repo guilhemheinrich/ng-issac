@@ -1,9 +1,19 @@
 import { Injectable } from '@angular/core';
 import { isArray } from 'util';
 import "reflect-metadata";
-import { ProcessusBis } from './processus/processus';
 import {GlobalVariables} from './configuration'
+import * as ts from "typescript";
 
+
+
+export enum QueryType {
+  ASK = "ASK",
+  QUERY = "SELECT",
+  UPDATE = "UPDATE",
+  ADD = "INSERT",
+  DELETE = "DELETE",
+
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -48,8 +58,13 @@ export class SparqlParserService {
         });
       }
     }
-    if (this.queryType === QueryType.ADD || this.queryType === QueryType.DELETE || this.queryType === QueryType.ASK && this.graphDefinition) {
-      request += ` ${this.graphDefinition.toString()}`;
+    if ( this.queryType === QueryType.ADD || this.queryType === QueryType.DELETE || this.queryType === QueryType.ASK) {
+      if (this.graphDefinition !== undefined) {
+
+        request += ` ${this.graphDefinition.toString()}`;
+      } else {
+        request += ' { } ';
+      }
     }
     if (this.graphPattern) {
       request += `WHERE \n`;
@@ -61,17 +76,44 @@ export class SparqlParserService {
 
 }
 
-export enum QueryType {
-  ASK = "ASK",
-  QUERY = "SELECT",
-  UPDATE = "UPDATE",
-  ADD = "INSERT",
-  DELETE = "DELETE"
+
+const sparqlAtrributeName = '_sparqlAttributes';
+const sparqlDelimitter = '_'
+
+export class SparqlAttribute {
+    type: SparqlType;
+    isCollection: boolean;
+    identifier: string;
+    attributeName: string;
+    objectType: string;
+    constructor() {
+        this.isCollection = false;
+    }
 }
+
+export function _sparqlAttributeSetup(target: Object, propertyKey: string | symbol) {
+  if (target[sparqlAtrributeName] === undefined) {
+      target[sparqlAtrributeName] = {};
+  }
+  if (target[sparqlAtrributeName][propertyKey] === undefined) {
+      target[sparqlAtrributeName][propertyKey] = new SparqlAttribute();
+      target[sparqlAtrributeName][propertyKey].identifier = target.constructor.name + sparqlDelimitter + propertyKey.toString();
+      target[sparqlAtrributeName][propertyKey].attributeName = propertyKey.toString();
+      // target[sparqlAtrributeName].push(propertyKey);
+  }
+}
+
+export enum SparqlType {
+  IRI = "Iri",
+  LITTERAL = "Litteral",
+  OBJECT = "SparqlObject",
+}
+
 
 export enum SubPatternType {
   UNION = "UNION",
   OPTIONAL = "OPTIONAL",
+  WHERE = "WHERE"
 }
 export class GraphDefinition {
   triplesContent: string[] = [''];
@@ -127,59 +169,17 @@ export interface Prefix {
   uri: string;
 }
 
-export function sparqlComponent(prefix: string) {
-  return this.prefix = prefix;
-}
-const formatMetadataKey = Symbol("format");
-function format(formatString: string) {
-  return Reflect.metadata(formatMetadataKey, formatString);
-}
-function configurable(value: boolean) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    descriptor.configurable = value;
-  };
-}
 
-export class SparqlAbstractClass {
 
-  // private readonly _uris: string[] = ['hello'];
-  parseSkeletonQuery() {
-    let propertiesName = Object.getOwnPropertyNames(this);
-    // console.log(Object.getOwnPropertyNames(Object.getPrototypeOf(this)))
-    // console.log(Object.getOwnPropertyNames(this))
-    // console.log(Object.getOwnPropertyNames(this))
-    console.log(propertiesName);
-    propertiesName.forEach((propertyName) => {
-      let propertyDescriptor = Object.getOwnPropertyDescriptor(this, propertyName);
-      console.log(propertyDescriptor.value);
-      // console.log(propertyDescriptor.value);
-      // if (propertyDescriptor.value instanceof SparqlBinding ) {
-      //     console.log(propertyDescriptor.value + "is a sparql Attribute");
-      //     console.log(propertyDescriptor.value.value);
-      //     console.log(propertyDescriptor.value.asRDF());
-      //     console.log(propertyDescriptor.value.sparqlValue);
-      // }
-    })
-  }
-}
 
 export class SparqlClass {
-  // readonly _uris;
-  // readonly _litterals;
   readonly _sparqlAttributes;
   constructor() {
-    this._sparqlAttributes = Object.getPrototypeOf(this)[sparqlAtrributeName];
+      this._sparqlAttributes = Object.getPrototypeOf(this)[sparqlAtrributeName];
   }
 
+
   sparqlParse(key: keyof any, type: string, prefix: string = '') {
-    // if (prefix) {
-    //   console.log(prefix + Object.getPrototypeOf(this).constructor.name);
-    // } else {
-    //   console.log(Object.getPrototypeOf(this).constructor.name);
-    // }
-    console.log(key);
-    console.log(this);
-    console.log(this[key].toString());
     let out:string;
     switch (this._sparqlAttributes[key].type)
     {
@@ -202,18 +202,74 @@ export class SparqlClass {
     }
     return out;
   }
-
   sparqlIdentifier(key: keyof any, prefix?: string) {
-    let out:string;
-    let sparqlAttribute = this._sparqlAttributes[key];
-    console.log(sparqlAttribute.identifier);
-    if (prefix) {
-      out = "?" + prefix + sparqlDelimitter + sparqlAttribute.identifier;
-    } else {
-      out = "?" + sparqlAttribute.identifier;
-    }
-    return out;
+      let out: string;
+      let sparqlAttribute = this._sparqlAttributes[key];
+      // console.log(sparqlAttribute.identifier);
+      if (prefix) {
+          out = "?" + prefix + sparqlDelimitter + sparqlAttribute.identifier;
+      } else {
+          out = "?" + sparqlAttribute.identifier;
+      }
+      return out;
   }
+
+  makeBindings() {
+      let jsonBindings = `(concat('`;
+      jsonBindings += this.processBindings()
+      jsonBindings += `')) AS ?` + this.constructor.name;
+      return jsonBindings;
+  }
+
+  processBindings(prefix?: string) {
+      let current_prefix:string;
+      if (prefix === undefined) {
+          current_prefix = Object.getPrototypeOf(this).constructor.name;
+      } else {
+          current_prefix = prefix;
+      }
+      let jsonBindings = `{`;
+      Object.keys(this._sparqlAttributes).forEach((key) => {
+          let sparqlAttribute = this._sparqlAttributes[key];
+          // console.log(sparqlAttribute);
+          jsonBindings += this._processBindings(sparqlAttribute, current_prefix);
+          jsonBindings += `,`;
+      })
+      jsonBindings = jsonBindings.substring(0, jsonBindings.length - 1);
+      jsonBindings += `}`;
+      return jsonBindings;
+  }
+
+  private _processBindings(sparqlAttribute: SparqlAttribute, prefix: string = '') {
+      let jsonBindings = ``;
+      jsonBindings += `"${sparqlAttribute.attributeName}":`;
+      let identifier = '';
+      switch (sparqlAttribute.type) {
+          case SparqlType.IRI:
+          case SparqlType.LITTERAL:
+          identifier = `"',?${prefix + '_' + sparqlAttribute.attributeName},'"`;
+          break;
+          case SparqlType.OBJECT:
+          let objectType = sparqlAttribute.objectType;
+          let tmpObj:SparqlClass;
+          let code = 'tmpObj = new ' + objectType +'();'
+          // let result = ts.transpile(code);
+          // eval(code);
+          let new_prefix = prefix + sparqlDelimitter + objectType;
+          // identifier = tmpObj.processBindings(new_prefix);
+          identifier = window[objectType].prototype.processBindings(new_prefix);
+          // Object.create(objectType)
+      }
+      if (sparqlAttribute.isCollection) {
+          jsonBindings += `[',group_concat(distinct concat(' ${identifier} ');separator=','),']`
+      } else {
+          jsonBindings += `${identifier} `
+      }
+      jsonBindings += ``;
+      return jsonBindings;
+  }
+
+
 }
 
 export function toSparqlUri(uri: string): string{
@@ -224,78 +280,44 @@ export function toSparqlLitteral(litteral: string, suffix: string = '^^xsd:strin
   return "\"" + litteral +  "\"" + suffix;
 }
 
-const sparqlAtrributeName = '_sparqlAttributes';
-const sparqlDelimitter = '_'
-const sparqlUriPorpertyName = '_uris';
+
+
+
+
+export function SparqlObject(objectType:string) {
+  return (function (target: Object, propertyKey: string | symbol) {
+      _sparqlAttributeSetup(target, propertyKey);
+      target[sparqlAtrributeName][propertyKey].type = SparqlType.OBJECT;
+
+      target[sparqlAtrributeName][propertyKey].objectType = objectType;
+      // console.log(new  target[sparqlAtrributeName][propertyKey].objectType());
+  })
+}
+
 export function Uri() {
   return (function (target: Object, propertyKey: string | symbol) {
-    if (!target[sparqlAtrributeName]) {
-      target[sparqlAtrributeName] = []
-    }
-    // target[sparqlUriPorpertyName].push(propertyKey);
-    target[sparqlAtrributeName][propertyKey] = {
-      type: SparqlType.IRI,
-      identifier: target.constructor.name + sparqlDelimitter + propertyKey.toString()
-    };
-
+      _sparqlAttributeSetup(target, propertyKey);
+      target[sparqlAtrributeName][propertyKey].type = SparqlType.IRI;
   })
 }
-
-
-const sparqlLitteralPorpertyName = '_litterals';
 export function Litteral() {
   return (function (target: Object, propertyKey: string | symbol) {
-    if (!target[sparqlAtrributeName]) {
-      target[sparqlAtrributeName] = []
-    }
-    // target[sparqlUriPorpertyName].push(propertyKey);
-    target[sparqlAtrributeName][propertyKey] = {
-      type: SparqlType.LITTERAL,
-      identifier: target.constructor.name + sparqlDelimitter + propertyKey.toString()
-    };
-
+      _sparqlAttributeSetup(target, propertyKey);
+      target[sparqlAtrributeName][propertyKey].type = SparqlType.LITTERAL;
   })
 }
 
-export class SparqlBinding {
-  public value: string | string[];
-  public sparqlValue: string;
-  public type: SparqlType;
-
-  asRDF(): string | string[] {
-    let out;
-    if (!(this.value instanceof Array)) {
-      switch (this.type) {
-        case SparqlType.IRI:
-          out = "<" + this.value + ">";
-          break;
-        case SparqlType.LITTERAL:
-          out = "\n" + this.value + "\n";
-          break;
-      }
-    } else {
-      out = [];
-      switch (this.type) {
-        case SparqlType.IRI:
-          this.value.forEach((value) => {
-            out.push("<" + value + ">");
-          })
-          break;
-        case SparqlType.LITTERAL:
-          this.value.forEach((value) => {
-            out.push("\"" + this.value + "\"");
-          })
-          break;
-      }
-    }
-    return out;
-  }
-
+export function Collection() {
+  return (function (target: Object, propertyKey: string | symbol) {
+      _sparqlAttributeSetup(target, propertyKey);
+      target[sparqlAtrributeName][propertyKey].isCollection = true;
+  })
 }
 
-export enum SparqlType {
-  IRI = "Iri",
-  LITTERAL = "Litteral"
-}
+
+
+
+
+
 
 

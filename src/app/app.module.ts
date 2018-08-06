@@ -18,6 +18,7 @@ import { ViewComponent } from './processus/view/view.component';
 import { ThesaurusDisplayComponent } from './thesaurus/thesaurus-display/thesaurus-display.component';
 import { MermaidComponent } from './mermaid/mermaid.component';
 import { ActionDisplayComponent } from './processus/action/display/display.component';
+import {selectFieldPipe} from './tools';
 
 
 
@@ -33,7 +34,8 @@ import { ActionDisplayComponent } from './processus/action/display/display.compo
     ViewComponent,
     ThesaurusDisplayComponent,
     MermaidComponent,
-    ActionDisplayComponent
+    ActionDisplayComponent,
+    selectFieldPipe
   ],
   imports: [
     BrowserModule,

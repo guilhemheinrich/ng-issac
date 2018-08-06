@@ -85,7 +85,7 @@ export class SparqlAttribute {
     isCollection: boolean;
     identifier: string;
     attributeName: string;
-    objectType: string;
+    sparqlObject: SparqlClass;
     constructor() {
         this.isCollection = false;
     }
@@ -113,20 +113,39 @@ export enum SparqlType {
 export enum SubPatternType {
   UNION = "UNION",
   OPTIONAL = "OPTIONAL",
-  WHERE = "WHERE"
+  WHERE = "WHERE",
+  EMPTY = ""
+}
+
+export interface IGraphDefinition {
+  triplesContent?: string[];
+  subPatterns?: Array<[GraphDefinition, SubPatternType]>;
+  namedGraph?: string;
 }
 export class GraphDefinition {
-  triplesContent: string[] = [''];
-  subPatterns: Array<[GraphDefinition, SubPatternType]> = new Array<[GraphDefinition, SubPatternType]>();
+  triplesContent: string[];
+  subPatterns?: Array<[GraphDefinition, SubPatternType]>;
   namedGraph?: string;
 
   constructor(
-    triplesContent?: string[],
-    namedGraph?: string
+    options: IGraphDefinition = {}
   ) {
-    this.triplesContent = triplesContent;
-    if (namedGraph) {
-      this.namedGraph = namedGraph;
+    if (options.triplesContent === undefined) {
+      this.triplesContent = [];
+    } else {
+      this.triplesContent = options.triplesContent;
+
+    }
+    this.subPatterns = new Array<[GraphDefinition, SubPatternType]>();
+    if (options.subPatterns !== undefined) {
+
+      options.subPatterns.forEach((pairGraphType) => {
+        this.subPatterns.push([new GraphDefinition(JSON.parse(JSON.stringify(pairGraphType[0]))), pairGraphType[1]])
+      });
+
+    }
+    if (options.namedGraph) {
+      this.namedGraph = options.namedGraph;
     }
   }
 
@@ -250,15 +269,19 @@ export class SparqlClass {
           identifier = `"',?${prefix + '_' + sparqlAttribute.attributeName},'"`;
           break;
           case SparqlType.OBJECT:
-          let objectType = sparqlAttribute.objectType;
-          let tmpObj:SparqlClass;
-          let code = 'tmpObj = new ' + objectType +'();'
+          let new_prefix = prefix + sparqlDelimitter + sparqlAttribute.sparqlObject.constructor.name;
+          identifier = sparqlAttribute.sparqlObject.processBindings(new_prefix);
+
+
+
+          // let sparqlObject = sparqlAttribute.sparqlObject;
+          // let tmpObj:SparqlClass;
+          // let code = 'tmpObj = new ' + sparqlObject +'();'
           // let result = ts.transpile(code);
           // eval(code);
-          let new_prefix = prefix + sparqlDelimitter + objectType;
           // identifier = tmpObj.processBindings(new_prefix);
-          identifier = window[objectType].prototype.processBindings(new_prefix);
-          // Object.create(objectType)
+          // identifier = window[sparqlObject].prototype.processBindings(new_prefix);
+          // Object.create(sparqlObject)
       }
       if (sparqlAttribute.isCollection) {
           jsonBindings += `[',group_concat(distinct concat(' ${identifier} ');separator=','),']`
@@ -283,14 +306,13 @@ export function toSparqlLitteral(litteral: string, suffix: string = '^^xsd:strin
 
 
 
-
-export function SparqlObject(objectType:string) {
+// Accepting a newable argument as <https://stackoverflow.com/questions/33224047/how-to-specify-any-newable-type-in-typescript>
+export function SparqlObject(sparqlType: { new(...args: any[]): any; }) {
   return (function (target: Object, propertyKey: string | symbol) {
       _sparqlAttributeSetup(target, propertyKey);
       target[sparqlAtrributeName][propertyKey].type = SparqlType.OBJECT;
 
-      target[sparqlAtrributeName][propertyKey].objectType = objectType;
-      // console.log(new  target[sparqlAtrributeName][propertyKey].objectType());
+      target[sparqlAtrributeName][propertyKey].sparqlObject = new sparqlType();
   })
 }
 

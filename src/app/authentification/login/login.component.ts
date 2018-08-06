@@ -50,14 +50,14 @@ export class LoginComponent implements OnInit {
 
     let hashedEmail = hash32(this.user.email);
 
-    this.sparqlParser.graphPattern = new GraphDefinition([
+    this.sparqlParser.graphPattern = new GraphDefinition({triplesContent : [
       `
       prefix_agent:${hashedEmail} a foaf:Agent .
       prefix_agent:${hashedEmail} admin:hasPassword \"${this.user.password}\"^^xsd:string .
       prefix_agent:${hashedEmail} foaf:mbox [ rdf:value \"${this.user.email}\"^^xsd:string ].
       prefix_agent:${hashedEmail} foaf:nick ?nickname .
       `
-    ]);
+    ]});
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response => 
       {

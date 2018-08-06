@@ -117,7 +117,7 @@ export class ThesaurusDisplayComponent implements OnInit {
       GlobalVariables.ONTOLOGY_PREFIX.issac,
       GlobalVariables.ONTOLOGY_PREFIX.skos,
     ];
-    var searchQueryLabel = new GraphDefinition([
+    var searchQueryLabel = new GraphDefinition({triplesContent : [
       `
         ?uri skos:prefLabel|skos:altLabel ?label .
         FILTER regex(STR(?label), \"${input}\", \"i\") . 
@@ -127,7 +127,7 @@ export class ThesaurusDisplayComponent implements OnInit {
           ?uriBroader skos:prefLabel ?labelBroader
         }
         `
-    ]);
+    ]});
     this.sparqlParser.graphPattern = searchQueryLabel;
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;
@@ -143,7 +143,7 @@ export class ThesaurusDisplayComponent implements OnInit {
       GlobalVariables.ONTOLOGY_PREFIX.issac,
       GlobalVariables.ONTOLOGY_PREFIX.skos,
     ];
-    var searchQueryLabel = new GraphDefinition([
+    var searchQueryLabel = new GraphDefinition({triplesContent : [
       `
         <${uri}> skos:prefLabel|skos:altLabel ?label .
         OPTIONAL {
@@ -151,7 +151,7 @@ export class ThesaurusDisplayComponent implements OnInit {
           ?uriBroader skos:prefLabel ?labelBroader
         }
         `
-    ]);
+    ]});
     searchQueryLabel.triplesContent.push(
       `
       OPTIONAL {

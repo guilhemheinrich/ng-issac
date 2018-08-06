@@ -28,7 +28,9 @@ export class RegisterComponent implements OnInit {
     this.sparqlParser.clear();
     this.sparqlParser.queryType = QueryType.ASK;
     this.sparqlParser.prefixes = [GlobalVariables.ONTOLOGY_PREFIX.foaf];
-    this.sparqlParser.graphDefinition = new GraphDefinition([`?uri foaf:mbox [ rdf:value \"${this.user.email}\"^^xsd:string ] .\n`]);
+    this.sparqlParser.graphDefinition = new GraphDefinition({triplesContent : 
+      [`?uri foaf:mbox [ rdf:value \"${this.user.email}\"^^xsd:string ] .\n`
+    ]});
     let askQuery = this.sparqlParser.toString();
 
     return this.sparqlClient.queryByGet(askQuery);
@@ -57,14 +59,14 @@ export class RegisterComponent implements OnInit {
 
       let hashedEmail = hash32(this.user.email);
 
-      this.sparqlParser.graphDefinition = new GraphDefinition([
+      this.sparqlParser.graphDefinition = new GraphDefinition({triplesContent : [
         `
         prefix_agent:${hashedEmail} a foaf:Agent .
         prefix_agent:${hashedEmail} admin:hasPassword \"${this.user.password}\"^^xsd:string .
         prefix_agent:${hashedEmail} foaf:mbox [ rdf:value \"${this.user.email}\"^^xsd:string ].
         prefix_agent:${hashedEmail} foaf:nick \"${this.user.username}\"^^xsd:string .
         `
-      ]);
+      ]});
 
       let result = this.sparqlClient.updateByUrlEncodedPost(this.sparqlParser.toString());
       result.subscribe((response => console.log(response)));

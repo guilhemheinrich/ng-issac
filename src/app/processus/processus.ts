@@ -3,193 +3,7 @@ import { UniqueIdentifier, hash32, GlobalVariables } from '../configuration';
 import { SparqlClientService } from '../sparql-client.service';
 import { Prefix, GraphDefinition, QueryType, Uri, Litteral, SparqlClass, SubPatternType, SparqlType, SparqlObject, Collection } from '../sparql-parser.service';
 import { isArray } from 'util';
-export interface IProcessus {
-    uri: string;
-    name: string;
-    description?: string;
-    inputs?: Input[];
-    outputs?: Output[]
-    owners: string[];
-}
 
-export type ProcessusAlias = Processus;
-export class Processus extends SparqlClass {
-    @Uri()
-    uri: string;
-    @Litteral()
-    name: string;
-    @Litteral()
-    description?: string;
-    @SparqlObject('Input')
-    @Collection()
-    inputs?: Input[] = new Array<Input>();
-
-    @SparqlObject('Output')
-    @Collection()
-    outputs?: Output[]= new Array<Output>();
-    @Uri()
-    @Collection()
-    owners: string[];
-    static readonly requiredPrefixes: Prefix[] = [
-        GlobalVariables.ONTOLOGY_PREFIX.issac,
-        GlobalVariables.ONTOLOGY_PREFIX.admin,
-        GlobalVariables.ONTOLOGY_PREFIX.rdfs
-    ]
-
-    constructor(
-        options?: IProcessus,
-    ) {
-        super();
-        if (options) {
-            this.uri = options.uri;
-            this.name = options.name;
-            this.description = options.description;
-            this.owners = options.owners;
-            this.inputs = new Array<Input>(); 
-            this.outputs = new Array<Output>(); 
-            options.inputs.forEach((input) => {
-                this.inputs.push(new Input(input));
-            })
-            options.outputs.forEach((output) => {
-                this.outputs.push(new Output(output));
-            })
-        }
-    };
-
-
-    parseGather( search: string): GraphDefinition
-    {
-        var gather = new GraphDefinition([]);
-        ['uri', 'name', 'description'].forEach((attribute) => {
-            gather.triplesContent.push(`
-            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${search}', 'i')
-            `);
-        })
-        return gather;
-    }
-
-    parseFilter()
-    {
-        var filter = new GraphDefinition([]);
-        ['uri', 'name', 'description'].forEach((attribute) => {
-            if (this[attribute] !== undefined && this[attribute] !== '')
-            filter.triplesContent.push(`
-            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${this[attribute] }', 'i')
-            `);
-        })
-        return filter;
-    }
-
-    parseRestricter(attribute: keyof Processus, values: string[])
-    {
-        var restriction = new GraphDefinition([`VALUES (${this.sparqlIdentifier(attribute.toString())}) { \n`]);
-        switch (this._sparqlAttributes[attribute].type) {
-            case SparqlType.IRI:
-            values.forEach((value) => {
-                restriction.triplesContent[0] += ` ( <${value}> ) \n`;
-    
-            })
-            break;
-            case SparqlType.LITTERAL:
-            values.forEach((value) => {
-                restriction.triplesContent[0] += ` ( "${value}" ) \n`;
-    
-            })
-            break;
-        }
-        restriction.triplesContent[0] += ` }`;
-        return restriction;
-    }
-
-    parseSkeleton(prefix: string = '')
-    {
-        var query = new GraphDefinition([
-            `
-            ${this.sparqlIdentifier('uri', prefix)} a issac:Process .\n
-            ${this.sparqlIdentifier('uri', prefix)} rdfs:label ${this.sparqlIdentifier('name', prefix)} .\n
-            OPTIONAL { ${this.sparqlIdentifier('uri', prefix)} rdfs:label ${this.sparqlIdentifier('description', prefix)} } .\n
-            `
-        ]);
-            query.triplesContent.push(
-                `${this.sparqlIdentifier('uri', prefix)} admin:hasWriteAccess ${this.sparqlIdentifier('owners', prefix)} .\n`
-            );
-
-        let emptyAction = new Action();
-        let actionPattern = new GraphDefinition([
-            `
-            ${this.sparqlIdentifier('uri', prefix)} issac:hasAction
-            `
-        ])
-        actionPattern.merge(emptyAction.parseSkeleton('Processus'));
-        query.subPatterns.push([actionPattern, SubPatternType.OPTIONAL]);
-        return query;
-    }
-
-
-    parseIdentity(): GraphDefinition {
-        var query = new GraphDefinition([
-            `
-            <${this.uri}> a issac:Process .\n
-            <${this.uri}> rdfs:label \"${this.name}\"^^xsd:string .\n
-            
-            `
-        ]);
-        this.owners.forEach((owner) => {
-            query.triplesContent.push(
-                `<${this.uri}> admin:hasWriteAccess <${owner}> .\n`
-            );
-        });
-        let actions = (<Array<Action>>this.inputs).concat(<Array<Action>>this.outputs);
-        actions.forEach((action) => 
-    {
-        // action.generateUri();
-        query.triplesContent.push(
-            `
-            <${this.uri}> issac:hasAction 
-            `
-        );
-        query.merge(action.parseIdentity());
-    })
-        return query;
-    }
-
-    operationDelete()
-    {
-        var operation = new GraphDefinition([
-            `?s ?p ?o .
-            ?o ?p1 ?o1
-            `
-        ]);
-        let whereClause = new GraphDefinition([
-            `
-                ?s ?p ?o .
-                OPTIONAL {
-                    ?o ?p1 ?o1 .
-                    FILTER (isBlank(?o))
-                } .
-                VALUES ( ?s ) { (<${this.uri}>) }
-            `
-        ]) 
-        
-        return {quadPattern : operation, graphPattern: whereClause};
-    }
-
-    generateUri() {
-        if (this.uri !== undefined && this.uri !== '') return;
-        let hashedFingerprint = this.name;
-        this.inputs.forEach(input => {
-            hashedFingerprint += input.agent.uri;
-        });
-        this.outputs.forEach(output => {
-            hashedFingerprint += output.agent.uri;
-        });
-        // Add time to avoid a set of possible collision relying purely on processus attributes
-        hashedFingerprint += (new Date()).getTime();
-        this.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_processus.uri + hash32(hashedFingerprint)
-    }
-
-
-}
 
 export enum ActionType {
     INPUT = "Input",
@@ -204,16 +18,16 @@ export class Action extends SparqlClass {
     @Uri()
     agentUri: string;
 
+    @Uri()
+    type: ActionType;
     roles: string[];
 
 
-    
+
 
     static readonly requiredPrefixes: Prefix[] = [
         GlobalVariables.ONTOLOGY_PREFIX.issac,
     ]
-    @Uri()
-    type: ActionType;
     constructor(options?: IAction
     ) {
         super();
@@ -232,36 +46,37 @@ export class Action extends SparqlClass {
         }
     };
 
-    parseIdentity(): GraphDefinition
-    {
+    parseIdentity(): GraphDefinition {
 
-        var query = new GraphDefinition([
-            `
+        var query = new GraphDefinition({
+            triplesContent: [
+                `
             [
                 issac:hasAgentType <${this.agent.uri}> ;\n
                 issac:hasActionType "${this.type}" ;\n
             ] .
             `
-        ]);
+            ]
+        });
         return query;
     }
 
-    parseSkeleton(prefix :string = ''): GraphDefinition
-    {
-        var query = new GraphDefinition([
-            `
+    parseSkeleton(prefix: string = ''): GraphDefinition {
+        var query = new GraphDefinition({
+            triplesContent: [
+                `
             [
                 issac:hasAgentType ${this.sparqlIdentifier('agentUri', prefix)} ;\n
-                issac:hasActionType ${this.sparqlIdentifier('types', prefix)} ;\n
+                issac:hasActionType ${this.sparqlIdentifier('type', prefix)} ;\n    
             ] .
             `
-        ]);
+            ]
+        });
         return query;
     }
 
-    parseGather( search: string): GraphDefinition
-    {
-        var gather = new GraphDefinition([]);
+    parseGather(search: string): GraphDefinition {
+        var gather = new GraphDefinition({});
         ['agentLabel', 'agentUri'].forEach((attribute) => {
             gather.triplesContent.push(`
             FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${search}', 'i')
@@ -270,13 +85,12 @@ export class Action extends SparqlClass {
         return gather;
     }
 
-    parseFilter()
-    {
-        var filter = new GraphDefinition([]);
+    parseFilter() {
+        var filter = new GraphDefinition({});
         ['agentLabel', 'agentUri'].forEach((attribute) => {
             if (this[attribute] !== undefined && this[attribute] !== '')
-            filter.triplesContent.push(`
-            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${this[attribute] }', 'i')
+                filter.triplesContent.push(`
+            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${this[attribute]}', 'i')
             `);
         })
         return filter;
@@ -287,8 +101,8 @@ export class Action extends SparqlClass {
 export interface IAction {
     // uri?: string;
     agent?: UniqueIdentifier;
-    agentUri:string;
-    agentLabel:string;
+    agentUri: string;
+    agentLabel: string;
     roles?: string[];
     type?: ActionType;
 }
@@ -323,4 +137,239 @@ export class InOut extends Action {
         super(options);
         this.type = ActionType.INOUT;
     };
+}
+
+export interface IProcessus {
+    uri: string;
+    name: string;
+    description?: string;
+    actions?: Action[];
+    inputs?: Input[];
+    outputs?: Output[]
+    owners: string[];
+}
+
+
+export class Processus extends SparqlClass {
+    @Uri()
+    uri: string;
+    @Litteral()
+    name: string;
+    @Litteral()
+    description?: string;
+    @SparqlObject(Action)
+    @Collection()
+    actions?: Action[] = new Array<Action>();
+
+
+    inputs?: Input[] = new Array<Input>();
+    outputs?: Output[] = new Array<Output>();
+
+    @Uri()
+    @Collection()
+    owners: string[];
+    static readonly requiredPrefixes: Prefix[] = [
+        GlobalVariables.ONTOLOGY_PREFIX.issac,
+        GlobalVariables.ONTOLOGY_PREFIX.admin,
+        GlobalVariables.ONTOLOGY_PREFIX.rdfs
+    ]
+
+    constructor(
+        options?: IProcessus,
+    ) {
+        super();
+        if (options) {
+            this.uri = options.uri;
+            this.name = options.name;
+            this.description = options.description;
+            this.owners = options.owners;
+            this.actions = new Array<Action>();
+            this.inputs = new Array<Input>();
+            this.outputs = new Array<Output>();
+            if (options.inputs !== undefined) {
+                options.inputs.forEach((input) => {
+                    this.inputs.push(new Input(input));
+                });
+            }
+            if (options.outputs !== undefined) {
+                options.outputs.forEach((output) => {
+                    this.outputs.push(new Output(output));
+                });
+            }
+            if (options.actions !== undefined) {
+                options.actions.forEach((input) => {
+                    this.actions.push(new Action(input));
+                })
+            }
+        }
+    };
+
+
+    parseGather(search: string, graphPattern: GraphDefinition): GraphDefinition {
+        var gather = new GraphDefinition();
+        // We don't do anything if search is empty or undefined
+        if (search === undefined || search == '') return graphPattern;
+        gather.subPatterns.push([new GraphDefinition(), SubPatternType.EMPTY]);
+        ['uri', 'name', 'description'].forEach((attribute) => {
+            let gathering = new GraphDefinition(JSON.parse(JSON.stringify(graphPattern)));
+            // gathering.triplesContent = graphPattern.triplesContent;
+            // gathering.subPatterns = graphPattern.subPatterns;
+            gathering.triplesContent.push(`
+            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${search}', 'i')
+            `);
+            gather.subPatterns.push([gathering, SubPatternType.UNION]);
+        })
+        return gather;
+    }
+
+    parseFilter() {
+        var filter = new GraphDefinition();
+        ['uri', 'name', 'description'].forEach((attribute) => {
+            if (this[attribute] !== undefined && this[attribute] !== '')
+                filter.triplesContent.push(`
+            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${this[attribute]}', 'i')
+            `);
+        })
+        return filter;
+    }
+
+    parseRestricter(attribute: keyof Processus, values: string[]) {
+        var restriction = new GraphDefinition(
+            {
+                triplesContent: [`VALUES (${this.sparqlIdentifier(attribute.toString())}) { \n`]
+            });
+        switch (this._sparqlAttributes[attribute].type) {
+            case SparqlType.IRI:
+                values.forEach((value) => {
+                    restriction.triplesContent[0] += ` ( <${value}> ) \n`;
+
+                })
+                break;
+            case SparqlType.LITTERAL:
+                values.forEach((value) => {
+                    restriction.triplesContent[0] += ` ( "${value}" ) \n`;
+
+                })
+                break;
+        }
+        restriction.triplesContent[0] += ` }`;
+        return restriction;
+    }
+
+    parseSkeleton(prefix: string = '') {
+        var query = new GraphDefinition(
+            {
+                triplesContent: [
+                    `
+            ${this.sparqlIdentifier('uri', prefix)} a issac:Process .\n
+            ${this.sparqlIdentifier('uri', prefix)} rdfs:label ${this.sparqlIdentifier('name', prefix)} .\n
+            OPTIONAL { ${this.sparqlIdentifier('uri', prefix)} rdfs:label ${this.sparqlIdentifier('description', prefix)} } .\n
+            `
+                ]
+            });
+        query.triplesContent.push(
+            `${this.sparqlIdentifier('uri', prefix)} admin:hasWriteAccess ${this.sparqlIdentifier('owners', prefix)} .\n`
+        );
+
+        let emptyAction = new Action();
+        let actionPattern = new GraphDefinition({
+            triplesContent: [
+                `
+            ${this.sparqlIdentifier('uri', prefix)} issac:hasAction
+            `
+            ]
+        });
+        actionPattern.merge(emptyAction.parseSkeleton('Processus'));
+        query.subPatterns.push([actionPattern, SubPatternType.OPTIONAL]);
+        return query;
+    }
+
+
+    parseIdentity(): GraphDefinition {
+        var query = new GraphDefinition({
+            triplesContent: [
+                `
+            <${this.uri}> a issac:Process .\n
+            <${this.uri}> rdfs:label \"${this.name}\"^^xsd:string .\n
+            
+            `
+            ]
+        });
+        this.owners.forEach((owner) => {
+            query.triplesContent.push(
+                `<${this.uri}> admin:hasWriteAccess <${owner}> .\n`
+            );
+        });
+        let actions = (<Array<Action>>this.inputs).concat(<Array<Action>>this.outputs).concat(<Array<Action>>this.actions);
+        actions.forEach((action) => {
+            // action.generateUri();
+            query.triplesContent.push(
+                `
+            <${this.uri}> issac:hasAction 
+            `
+            );
+            query.merge(action.parseIdentity());
+        })
+        return query;
+    }
+
+    operationDelete() {
+        var operation = new GraphDefinition({
+            triplesContent: [
+                `?s ?p ?o .
+            ?o ?p1 ?o1
+            `
+            ]
+        });
+        let whereClause = new GraphDefinition({
+            triplesContent: [
+                `
+                ?s ?p ?o .
+                OPTIONAL {
+                    ?o ?p1 ?o1 .
+                    FILTER (isBlank(?o))
+                } .
+                VALUES ( ?s ) { (<${this.uri}>) }
+            `
+            ]
+        });
+
+        return { quadPattern: operation, graphPattern: whereClause };
+    }
+
+    generateUri() {
+        if (this.uri !== undefined && this.uri !== '') return;
+        let hashedFingerprint = this.name;
+        this.inputs.forEach(input => {
+            hashedFingerprint += input.agent.uri;
+        });
+        this.outputs.forEach(output => {
+            hashedFingerprint += output.agent.uri;
+        });
+        // Add time to avoid a set of possible collision relying purely on processus attributes
+        hashedFingerprint += (new Date()).getTime();
+        this.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_processus.uri + hash32(hashedFingerprint)
+    }
+
+    generateInputsOutputsFromActions()
+    {
+        // reset input and output field
+        this.inputs = new Array<Input>();
+        this.outputs = new Array<Output>();
+        this.actions.forEach((action) => {
+            switch(action.type) {
+                case ActionType.INPUT:
+                this.inputs.push(action);
+                break;
+                case ActionType.OUTPUT:
+                this.outputs.push(action);
+                break;
+                case ActionType.INOUT:
+                this.inputs.push(action);
+                this.outputs.push(action);
+                break;
+              }
+        })
+    }
+
 }

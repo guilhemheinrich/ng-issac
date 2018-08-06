@@ -1,3 +1,31 @@
+<form #actionForm="ngForm">
+  <div class="form-group">
+      <label> Search:
+          <br/>
+          <input  [(ngModel)]="searchField" placeholder="Search in various field ..." class="form-control" name="searchField" #agentLabel="ngModel"
+               />
+      </label>
+  </div>
+  <button  type="submit"  (click)="searchAllProcessus()" >Search</button>
+
+</form>
+
+
 <div>
-  <li *ngFor="let processus of processusList" (click)="onSelect(processus)"></li>
+  <ul>
+    <li *ngFor="let processus of processusList">
+      {{ processus.name }} 
+    </li>
+  </ul>
+
+  <table style="width:100%">
+      <tr>
+        <th>Processus Name</th>
+        <th>Owners</th> 
+      </tr>
+      <tr *ngFor="let processus of processusList ;">
+        <td >{{ processus.name }}</td>
+        <td >{{ processus.owners | selectField:jsonPattern }}</td> 
+      </tr>
+    </table>
 </div>

@@ -2,6 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 import { LogService } from '../log.service';
 import { Agent } from '../user';
 import {Router} from '@angular/router';
+import {SessionStorageService} from 'ngx-webstorage';
+
 
 @Component({
   selector: 'app-logger',
@@ -15,11 +17,13 @@ export class LoggerComponent implements OnInit {
   @Input()
   loggedUser: Agent;
   constructor(
+    private sessionSt:SessionStorageService,
     private logService: LogService,
     private router: Router
   ) { 
 
     this.loggedUser = JSON.parse(localStorage.getItem('user'));
+    this.loggedUser = JSON.parse(this.sessionSt.retrieve('user'));
 
   }
 
@@ -30,6 +34,7 @@ export class LoggerComponent implements OnInit {
     this.logService.logUpdate$.subscribe(
       value => {
         this.loggedUser = JSON.parse(localStorage.getItem('user'));
+        this.loggedUser = JSON.parse(this.sessionSt.retrieve('user'));
         console.log(this.loggedUser);
         //  this.loggedUser = value;
         //  this.logged = value != null;

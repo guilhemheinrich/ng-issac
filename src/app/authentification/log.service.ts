@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Agent } from './user';
 import {Router} from '@angular/router';
 import { NullAstVisitor } from '@angular/compiler';
-
+import {SessionStorageService} from 'ngx-webstorage';
 @Injectable({
   providedIn: 'root'
 })
@@ -15,11 +15,13 @@ export class LogService {
   public logUpdate$: BehaviorSubject<Agent> = new BehaviorSubject<Agent>(null);
 
   constructor(
-    private router: Router
+    private router: Router,
+    private sessionSt:SessionStorageService
   ) { }
 
   login(user){
     localStorage.setItem('user', JSON.stringify(user));
+    this.sessionSt.store('user', JSON.stringify(user));
     // this.loggedUser = user;
     // this.isLoggedIn = true;
     if (this.redirectUrl) {
@@ -32,6 +34,7 @@ export class LogService {
     this.loggedUser = null;
     this.isLoggedIn = false;
     localStorage.removeItem('user');
+    this.sessionSt.clear('user');
     this.logUpdate$.next(this.loggedUser);
   }
 }

@@ -10,7 +10,7 @@ import { ActionDisplayComponent } from '../action/display/display.component';
 import { ActionDisplayerService } from '../action/action-displayer.service';
 import * as $ from 'jquery';
 import * as _ from 'underscore';
-import { autocomplete } from 'node_modules/jquery-autocomplete/jquery.autocomplete.js';
+import {SessionStorageService} from 'ngx-webstorage';
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
@@ -36,6 +36,7 @@ export class EditComponent implements OnInit {
   @ViewChild('actionComponent') actionComponent: ActionDisplayComponent;
 
   constructor(
+    private sessionSt:SessionStorageService,
     private sparqlClient: SparqlClientService,
     private sparqlParser: SparqlParserService,
     private logService: LogService,
@@ -48,7 +49,9 @@ export class EditComponent implements OnInit {
     let options = Object.values(ActionType);
     this.actionTypes = options;
 
-    let currentProcessus = JSON.parse(localStorage.getItem('currentProcessus'))
+    let currentProcessus = JSON.parse(localStorage.getItem('currentProcessus'));
+    currentProcessus = JSON.parse(this.sessionSt.retrieve('currentProcessus'));
+    
     if (currentProcessus) {
       this.processus = new Processus(<IProcessus>currentProcessus);
     }
@@ -84,12 +87,13 @@ export class EditComponent implements OnInit {
     if (this.user == null) {
       console.log('Handle not connection');
     }
+
     // localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
   }
 
   ngAfterViewInit() 
   {
-    console.log(this.processus);
+    console.log(this.sessionSt.retrieve('currentProcessus'));
   }
 
   onNameChange() {
@@ -103,6 +107,8 @@ export class EditComponent implements OnInit {
       }, this.typingTimeout);
     }
     localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
+    this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
+    console.log(this.sessionSt.retrieve('currentProcessus'));
   }
 
   handleSubmittedAction(oldAndNewAction: [Action, Action]) {
@@ -146,6 +152,7 @@ export class EditComponent implements OnInit {
         console.log('in default, just deleted old action');
     }
     localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
+    this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
   }
 
   openActionPanel() {
@@ -186,7 +193,7 @@ export class EditComponent implements OnInit {
   }
 
   onSubmitProcessus() {
-    this.user = new Agent(JSON.parse(localStorage.getItem('user')));
+    this.user = new Agent(JSON.parse(this.sessionSt.retrieve('user')));
     if (this.processus.owners instanceof Array && this.processus.owners[0] !== undefined ) {
       // console.log(this.user);
       this.processus.owners.reverse().pop();

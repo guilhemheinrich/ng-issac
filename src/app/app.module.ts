@@ -8,7 +8,9 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { FormsModule } from '@angular/forms'; // <-- NgModel lives here
 import { AppRoutingModule } from './/app-routing.module';
 
+import {Ng2Webstorage} from 'ngx-webstorage';
 import { LocalStorageModule } from 'angular-2-local-storage';
+
 import { RegisterComponent } from './authentification/register/register.component';
 import { LoginComponent } from './authentification/login/login.component';
 import { LoggerComponent } from './authentification/logger/logger.component';
@@ -55,7 +57,8 @@ import { MapPipe } from './map.pipe';
       prefix: 'my-app',
       storageType: 'localStorage'
     }),
-    NgPipesModule
+    NgPipesModule,
+    Ng2Webstorage,
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -34,6 +34,7 @@
     "jquery-autocomplete": "^1.2.8",
     "mermaid": "^8.0.0-rc.8",
     "ngx-pipes": "^2.3.5",
+    "ngx-webstorage": "^2.0.1",
     "rxjs": "^6.0.0",
     "sparqljs": "^2.0.3",
     "underscore": "^1.9.1",

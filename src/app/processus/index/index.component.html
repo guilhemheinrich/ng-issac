@@ -10,22 +10,28 @@
 
 </form>
 
+<div class="tooltip">Hola<span class="tooltiptext">Tghere</span>
+</div>
 
 <div>
-  <ul>
-    <li *ngFor="let processus of processusList">
-      {{ processus.name }} 
-    </li>
-  </ul>
-
   <table style="width:100%">
       <tr>
         <th>Processus Name</th>
         <th>Owners</th> 
       </tr>
+      <tr (input)="handleFilter($event)">
+        <th>
+          <input  [(ngModel)]="filter.name" placeholder="Filter by name" class="form-control" name="filterName" #filterName="ngModel"
+          />
+        </th>
+        <th>
+          <input  [(ngModel)]="filter.owner" placeholder="Filter by owner" class="form-control" name="filterOwners" #filterOwners="ngModel"
+          />
+        </th> 
+      </tr>
       <tr *ngFor="let processus of processusList ;">
         <td >{{ processus.name }}</td>
-        <td >{{ processus.owners | selectField:jsonPattern }}</td> 
+        <td >{{ processus.owners | concatenate }}</td>
       </tr>
     </table>
 </div>

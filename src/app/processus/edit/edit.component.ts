@@ -4,7 +4,7 @@ import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 import { LogService } from '../../authentification/log.service';
-import { LoggedUser } from '../../authentification/user';
+import { Agent } from '../../authentification/user';
 import { ViewComponent } from '../view/view.component';
 import { ActionDisplayComponent } from '../action/display/display.component';
 import { ActionDisplayerService } from '../action/action-displayer.service';
@@ -18,7 +18,7 @@ import { autocomplete } from 'node_modules/jquery-autocomplete/jquery.autocomple
 
 })
 export class EditComponent implements OnInit {
-  user = new LoggedUser;
+  user = new Agent;
 
   action: Action = new Action();
   processus: Processus = new Processus();
@@ -73,7 +73,7 @@ export class EditComponent implements OnInit {
     when editing an already existing one`);
 
     this.action.agent = new UniqueIdentifier();
-    this.processus.owners = [this.user.uri];
+    this.processus.owners = [this.user];
     this.actionDisplayerService.oldToNewActions$.subscribe((oldAndNewAction) => 
     {
       this.handleSubmittedAction(oldAndNewAction);
@@ -186,11 +186,11 @@ export class EditComponent implements OnInit {
   }
 
   onSubmitProcessus() {
-    this.user = new LoggedUser(JSON.parse(localStorage.getItem('user')));
-    if (this.processus.owners instanceof Array && this.processus.owners[0] !== undefined && this.processus.owners[0] === '' ) {
+    this.user = new Agent(JSON.parse(localStorage.getItem('user')));
+    if (this.processus.owners instanceof Array && this.processus.owners[0] !== undefined ) {
       // console.log(this.user);
       this.processus.owners.reverse().pop();
-      this.processus.owners.push(this.user.uri);
+      this.processus.owners.push(this.user);
     }
 
     // console.log(this.processus.owners instanceof Array);

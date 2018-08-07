@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { LoggedUser } from './user';
+import { Agent } from './user';
 import {Router} from '@angular/router';
 import { NullAstVisitor } from '@angular/compiler';
 
@@ -9,10 +9,10 @@ import { NullAstVisitor } from '@angular/compiler';
 })
 export class LogService {
   isLoggedIn: boolean = false;
-  loggedUser: LoggedUser = null;
+  loggedUser: Agent = null;
   // store the URL so we can redirect after logging in
   redirectUrl: string;
-  public logUpdate$: BehaviorSubject<LoggedUser> = new BehaviorSubject<LoggedUser>(null);
+  public logUpdate$: BehaviorSubject<Agent> = new BehaviorSubject<Agent>(null);
 
   constructor(
     private router: Router

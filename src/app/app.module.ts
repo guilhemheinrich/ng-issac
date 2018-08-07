@@ -18,7 +18,12 @@ import { ViewComponent } from './processus/view/view.component';
 import { ThesaurusDisplayComponent } from './thesaurus/thesaurus-display/thesaurus-display.component';
 import { MermaidComponent } from './mermaid/mermaid.component';
 import { ActionDisplayComponent } from './processus/action/display/display.component';
-import {selectFieldPipe} from './tools';
+import { selectFieldPipe } from './tools';
+import { ConcatenatePipe } from './concatenate.pipe';
+import { NgPipesModule } from 'ngx-pipes';
+import { PrefixPipe } from './prefix.pipe';
+import { SuffixPipe } from './suffix.pipe';
+import { MapPipe } from './map.pipe';
 
 
 
@@ -35,7 +40,11 @@ import {selectFieldPipe} from './tools';
     ThesaurusDisplayComponent,
     MermaidComponent,
     ActionDisplayComponent,
-    selectFieldPipe
+    selectFieldPipe,
+    ConcatenatePipe,
+    PrefixPipe,
+    SuffixPipe,
+    MapPipe
   ],
   imports: [
     BrowserModule,
@@ -45,7 +54,8 @@ import {selectFieldPipe} from './tools';
     LocalStorageModule.withConfig({
       prefix: 'my-app',
       storageType: 'localStorage'
-  })
+    }),
+    NgPipesModule
   ],
   providers: [],
   bootstrap: [AppComponent]

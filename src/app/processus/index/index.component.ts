@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import {Processus} from '../processus';
+import {Processus, Action} from '../processus';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 import { SparqlClientService } from '../../sparql-client.service';
+import { Agent } from '../../authentification/user';
 
 @Component({
   selector: 'app-index',
@@ -11,27 +12,64 @@ import { SparqlClientService } from '../../sparql-client.service';
 })
 export class IndexComponent implements OnInit {
 
+  // For the filter delay, in millisecond
+  typingTimer: any;
+  typingTimeout: number = 500;
+
   processusList: Processus[];
   processusFilter: Processus = new Processus();
-  public searchField:string;
-  jsonPattern = {
-    "owners": '{{value}}'
+  filter: {
+    owner: string,
+    name: string,
+    action:string
+  } = {
+    owner: "",
+    name: "",
+    action: ""
   };
+  public searchField:string;
+
 
   constructor(
     private sparqlParser: SparqlParserService,
     private sparqlClient: SparqlClientService) {
-    // this.myuri.value = 'http://hello';
+
   }
 
   ngOnInit() {
     this.searchAllProcessus();
   }
 
+  // A mettre dans un innerHtml html tag attribute !
+  myMapping(element: Agent, index: number, arr: Array<Agent>): string {
+    let htmlOutput = `<div class="tooltip">${element.username}
+                        <span class="tooltiptext">${element.email}</span>
+                      </div>`;
+    return htmlOutput;
+  }
+
+
+  handleFilter($event: Event)
+  {
+    if (this.typingTimer < this.typingTimeout) {
+      window.clearTimeout(this.typingTimer);
+    }
+    if (this.processusFilter) {
+      this.typingTimer = window.setTimeout(() => { 
+        this.processusFilter = new Processus();
+        this.processusFilter.name = this.filter.name;
+        this.processusFilter.owners.push(new Agent({username: this.filter.owner}));
+        this.processusFilter.actions.push(new Action({agentLabel: this.filter.action}));
+        console.log(this.processusFilter);
+        this.searchAllProcessus();
+      }, this.typingTimeout);
+    }
+    
+  }
   searchAllProcessus()
   {
     this.sparqlParser.clear();
-    this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
+    // this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
     this.sparqlParser.queryType = QueryType.QUERY;
     this.sparqlParser.prefixes = Processus.requiredPrefixes;
 

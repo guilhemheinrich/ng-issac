@@ -4,7 +4,7 @@ import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-pa
 import {GlobalVariables, hash32} from '../../configuration';
 import { LogService } from '../log.service';
 
-import { User, LoggedUser } from '../user';
+import { User, Agent } from '../user';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +13,7 @@ import { User, LoggedUser } from '../user';
 })
 export class LoginComponent implements OnInit {
   user = new User();
-  loggedUser = new LoggedUser;
+  loggedUser = new Agent;
   
   constructor(    
     private sparqlClient: SparqlClientService,

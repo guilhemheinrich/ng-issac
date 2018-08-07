@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { LogService } from '../log.service';
-import { LoggedUser } from '../user';
+import { Agent } from '../user';
 import {Router} from '@angular/router';
 
 @Component({
@@ -13,7 +13,7 @@ export class LoggerComponent implements OnInit {
 
   logged = false;
   @Input()
-  loggedUser: LoggedUser;
+  loggedUser: Agent;
   constructor(
     private logService: LogService,
     private router: Router

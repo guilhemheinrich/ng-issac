@@ -3,6 +3,7 @@ import { UniqueIdentifier, hash32, GlobalVariables } from '../configuration';
 import { SparqlClientService } from '../sparql-client.service';
 import { Prefix, GraphDefinition, QueryType, Uri, Litteral, SparqlClass, SubPatternType, SparqlType, SparqlObject, Collection } from '../sparql-parser.service';
 import { isArray } from 'util';
+import { Agent } from '../authentification/user';
 
 
 export enum ActionType {
@@ -101,7 +102,7 @@ export class Action extends SparqlClass {
 export interface IAction {
     // uri?: string;
     agent?: UniqueIdentifier;
-    agentUri: string;
+    agentUri?: string;
     agentLabel: string;
     roles?: string[];
     type?: ActionType;
@@ -146,7 +147,7 @@ export interface IProcessus {
     actions?: Action[];
     inputs?: Input[];
     outputs?: Output[]
-    owners: string[];
+    owners: Agent[];
 }
 
 
@@ -165,9 +166,9 @@ export class Processus extends SparqlClass {
     inputs?: Input[] = new Array<Input>();
     outputs?: Output[] = new Array<Output>();
 
-    @Uri()
+    @SparqlObject(Agent)
     @Collection()
-    owners: string[];
+    owners: Agent[];
     static readonly requiredPrefixes: Prefix[] = [
         GlobalVariables.ONTOLOGY_PREFIX.issac,
         GlobalVariables.ONTOLOGY_PREFIX.admin,
@@ -178,14 +179,20 @@ export class Processus extends SparqlClass {
         options?: IProcessus,
     ) {
         super();
+        this.owners = new Array<Agent>();
+        this.actions = new Array<Action>();
+        this.inputs = new Array<Input>();
+        this.outputs = new Array<Output>();
         if (options) {
             this.uri = options.uri;
             this.name = options.name;
             this.description = options.description;
-            this.owners = options.owners;
-            this.actions = new Array<Action>();
-            this.inputs = new Array<Input>();
-            this.outputs = new Array<Output>();
+
+            if (options.owners !== undefined) {
+                options.owners.forEach((owner) => {
+                    this.owners.push(new Agent(owner));
+                });
+            }
             if (options.inputs !== undefined) {
                 options.inputs.forEach((input) => {
                     this.inputs.push(new Input(input));
@@ -222,14 +229,21 @@ export class Processus extends SparqlClass {
         return gather;
     }
 
-    parseFilter() {
+    parseFilter():GraphDefinition {
         var filter = new GraphDefinition();
         ['uri', 'name', 'description'].forEach((attribute) => {
             if (this[attribute] !== undefined && this[attribute] !== '')
                 filter.triplesContent.push(`
             FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${this[attribute]}', 'i')
             `);
-        })
+        });
+        // Here owners is an Array
+        // Should handle array and object
+        ['owners', 'actions'].forEach((attribute) => {
+            if (this[attribute] !== undefined && this[attribute].constructor === Array && this[attribute].length > 0) {
+                filter.merge(this[attribute][0].parseFilter('Processus'));
+            }
+        });
         return filter;
     }
 
@@ -267,10 +281,13 @@ export class Processus extends SparqlClass {
             `
                 ]
             });
-        query.triplesContent.push(
-            `${this.sparqlIdentifier('uri', prefix)} admin:hasWriteAccess ${this.sparqlIdentifier('owners', prefix)} .\n`
-        );
 
+        let emptyUser = new Agent();
+        query.triplesContent.push(
+            `${this.sparqlIdentifier('uri', prefix)} admin:hasWriteAccess ${emptyUser.sparqlIdentifier('uri', 'Processus')} .\n`
+        );
+        let userPattern = emptyUser.parseSkeleton('Processus');
+        query.merge(userPattern);
         let emptyAction = new Action();
         let actionPattern = new GraphDefinition({
             triplesContent: [
@@ -351,24 +368,23 @@ export class Processus extends SparqlClass {
         this.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_processus.uri + hash32(hashedFingerprint)
     }
 
-    generateInputsOutputsFromActions()
-    {
+    generateInputsOutputsFromActions() {
         // reset input and output field
         this.inputs = new Array<Input>();
         this.outputs = new Array<Output>();
         this.actions.forEach((action) => {
-            switch(action.type) {
+            switch (action.type) {
                 case ActionType.INPUT:
-                this.inputs.push(action);
-                break;
+                    this.inputs.push(action);
+                    break;
                 case ActionType.OUTPUT:
-                this.outputs.push(action);
-                break;
+                    this.outputs.push(action);
+                    break;
                 case ActionType.INOUT:
-                this.inputs.push(action);
-                this.outputs.push(action);
-                break;
-              }
+                    this.inputs.push(action);
+                    this.outputs.push(action);
+                    break;
+            }
         })
     }
 

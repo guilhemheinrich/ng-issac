@@ -78,6 +78,7 @@ export class SparqlParserService {
 
 
 const sparqlAtrributeName = '_sparqlAttributes';
+const sparqlIdName = '_sparqlKey';
 const sparqlDelimitter = '_'
 
 export class SparqlAttribute {
@@ -193,6 +194,7 @@ export interface Prefix {
 
 export class SparqlClass {
   readonly _sparqlAttributes;
+  readonly _sparqlKey;
   constructor() {
       this._sparqlAttributes = Object.getPrototypeOf(this)[sparqlAtrributeName];
   }
@@ -334,6 +336,10 @@ export function Collection() {
       _sparqlAttributeSetup(target, propertyKey);
       target[sparqlAtrributeName][propertyKey].isCollection = true;
   })
+}
+
+export function SparqlId(target: Object, propertyKey: string | symbol) {
+  target[sparqlIdName] = propertyKey;
 }
 
 

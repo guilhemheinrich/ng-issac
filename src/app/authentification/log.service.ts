@@ -20,7 +20,7 @@ export class LogService {
   ) { }
 
   login(user){
-    localStorage.setItem('user', JSON.stringify(user));
+    // localStorage.setItem('user', JSON.stringify(user));
     this.sessionSt.store('user', JSON.stringify(user));
     // this.loggedUser = user;
     // this.isLoggedIn = true;
@@ -33,7 +33,7 @@ export class LogService {
   logout(){
     this.loggedUser = null;
     this.isLoggedIn = false;
-    localStorage.removeItem('user');
+    // localStorage.removeItem('user');
     this.sessionSt.clear('user');
     this.logUpdate$.next(this.loggedUser);
   }

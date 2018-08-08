@@ -26,7 +26,7 @@ import { NgPipesModule } from 'ngx-pipes';
 import { PrefixPipe } from './prefix.pipe';
 import { SuffixPipe } from './suffix.pipe';
 import { MapPipe } from './map.pipe';
-
+import 'hammerjs';
 
 
 @NgModule({

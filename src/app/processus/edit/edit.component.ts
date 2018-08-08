@@ -49,8 +49,8 @@ export class EditComponent implements OnInit {
     let options = Object.values(ActionType);
     this.actionTypes = options;
 
-    let currentProcessus = JSON.parse(localStorage.getItem('currentProcessus'));
-    currentProcessus = JSON.parse(this.sessionSt.retrieve('currentProcessus'));
+    // let currentProcessus = JSON.parse(localStorage.getItem('currentProcessus'));
+    let currentProcessus = JSON.parse(this.sessionSt.retrieve('currentProcessus'));
     
     if (currentProcessus) {
       this.processus = new Processus(<IProcessus>currentProcessus);
@@ -106,7 +106,7 @@ export class EditComponent implements OnInit {
         this.viewComponent.computeGraphDefinition();
       }, this.typingTimeout);
     }
-    localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
+    // localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
     console.log(this.sessionSt.retrieve('currentProcessus'));
   }
@@ -151,7 +151,7 @@ export class EditComponent implements OnInit {
       default:
         console.log('in default, just deleted old action');
     }
-    localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
+    // localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
   }
 

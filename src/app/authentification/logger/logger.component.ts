@@ -22,7 +22,7 @@ export class LoggerComponent implements OnInit {
     private router: Router
   ) { 
 
-    this.loggedUser = JSON.parse(localStorage.getItem('user'));
+    // this.loggedUser = JSON.parse(localStorage.getItem('user'));
     this.loggedUser = JSON.parse(this.sessionSt.retrieve('user'));
 
   }
@@ -33,7 +33,7 @@ export class LoggerComponent implements OnInit {
     console.log(this.loggedUser != null);
     this.logService.logUpdate$.subscribe(
       value => {
-        this.loggedUser = JSON.parse(localStorage.getItem('user'));
+        // this.loggedUser = JSON.parse(localStorage.getItem('user'));
         this.loggedUser = JSON.parse(this.sessionSt.retrieve('user'));
         console.log(this.loggedUser);
         //  this.loggedUser = value;

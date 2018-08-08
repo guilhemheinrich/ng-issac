@@ -1,21 +1,19 @@
 
+<span style="font-size:small" id="containerBox">
+    <div [hidden]="!logged" *ngIf="loggedUser">
 
-<div [hidden]="!logged">
-    <li class="nav-item" *ngIf="loggedUser">
-            Logged ({{loggedUser.username}})
-    </li>
-    <li class="nav-item">
-        <button type="button" (click)="onLogout();">Logout</button>
-    </li>
-</div>
+            <div style="font-size: large; padding: 0px">
+                {{loggedUser.username}} 
+            </div> 
+            <button (click)="onLogout();"  class="nav-link" role="button" style=" font-size:small; padding: 0px">
+                Logout
+            </button>
 
-
-<div [hidden]="logged"> 
-    <li class="nav-item">
-        <a routerLink="/authentification/register" class="nav-link">Register</a>
-    </li>
-    <li class="nav-item">
-        <a routerLink="/authentification/login" class="nav-link" >Login</a>
-    </li>
+    </div>
     
-</div>
+    
+    <div [hidden]="logged">
+        <a routerLink="/authentification/register" class="button" role="button" class="nav-link" style=" padding: 0px">Register</a>
+        <a routerLink="/authentification/login" class="button" role="button"  class="nav-link" style=" padding: 0px">Login</a>
+    </div>
+</span>

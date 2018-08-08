@@ -106,9 +106,8 @@ export class EditComponent implements OnInit {
         this.viewComponent.computeGraphDefinition();
       }, this.typingTimeout);
     }
-    // localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
-    console.log(this.sessionSt.retrieve('currentProcessus'));
+
   }
 
   handleSubmittedAction(oldAndNewAction: [Action, Action]) {
@@ -151,7 +150,6 @@ export class EditComponent implements OnInit {
       default:
         console.log('in default, just deleted old action');
     }
-    // localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
   }
 
@@ -187,25 +185,14 @@ export class EditComponent implements OnInit {
     var deleteOperation = this.processus.operationDelete();
     this.sparqlParser.graphDefinition = deleteOperation.quadPattern;
     this.sparqlParser.graphPattern = deleteOperation.graphPattern;
-    console.log(this.sparqlParser.toString());
-    // let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
-    // result.subscribe((response => console.log(response)));
   }
 
   onSubmitProcessus() {
     this.user = new Agent(JSON.parse(this.sessionSt.retrieve('user')));
     if (this.processus.owners instanceof Array && this.processus.owners[0] !== undefined ) {
-      // console.log(this.user);
       this.processus.owners.reverse().pop();
       this.processus.owners.push(this.user);
     }
-
-    // console.log(this.processus.owners instanceof Array);
-    // console.log(this.processus.owners[0] !== undefined);
-    // console.log(this.processus.owners[0] === '');
-    // console.log(this.processus.owners === undefined);
-    // console.log((this.processus.owners instanceof Array && this.processus.owners[0] !== undefined && this.processus.owners[0] === '' ));
-    console.log(this.processus);
     // Add ad hoc verification ...
     this.delete();
     this.save();

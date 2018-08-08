@@ -26,7 +26,7 @@ import { NgPipesModule } from 'ngx-pipes';
 import { PrefixPipe } from './prefix.pipe';
 import { SuffixPipe } from './suffix.pipe';
 import { MapPipe } from './map.pipe';
-import 'hammerjs';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -49,6 +49,7 @@ import 'hammerjs';
     MapPipe
   ],
   imports: [
+
     BrowserModule,
     FormsModule,
     AppRoutingModule,
@@ -59,6 +60,7 @@ import 'hammerjs';
     }),
     NgPipesModule,
     Ng2Webstorage,
+    NgbModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent]

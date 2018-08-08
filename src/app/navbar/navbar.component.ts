@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-
+import * as $ from 'jquery';
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -15,6 +15,7 @@ export class NavbarComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    
   }
 
 }

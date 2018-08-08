@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, EventEmitter, OnChanges, Output, Injectable } from '@angular/core';
 import * as mermaid from 'mermaid';
 import * as $ from 'jquery';
-import { pipeBind1 } from '@angular/core/src/render3/pipe';
+
 
 @Component({
   selector: 'app-mermaid',
@@ -36,6 +36,7 @@ export class MermaidComponent implements OnInit {
 
   ngOnInit() {
     this.mermaidContainer.nativeElement.innerHTML = this.graphDefinition;
+    // this.mermaidContainer.nativeElement
   }
 
   ngOnChanges() {
@@ -46,11 +47,14 @@ export class MermaidComponent implements OnInit {
     // Fix : for unknown reason, the first time a graph should be rendered in thesaurus
     // it just show the unparsed definition graph.
     // Wainting 'a bit' fix it, but a proper fix/understandment would be better 
-    let typingTimeout: number = 100;
-    window.setTimeout(() => { this.renderMermaid() }, typingTimeout);
+    // let typingTimeout: number = 100;
+    // window.setTimeout(() => { this.renderMermaid() }, typingTimeout);
 
   }
-
+  ngAfterContentInit()
+  {
+    this.renderMermaid();
+  }
   renderMermaid()
   {
     // Skip if there is no graph

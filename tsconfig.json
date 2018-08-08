@@ -18,7 +18,7 @@
       "dom"
     ],
     "types": [
-      "hammerjs"
+      "jquery"
     ]
   }
 }

@@ -48,7 +48,13 @@ export class ActionDisplayComponent implements OnInit {
   }
 
   ngAfterViewInit() {
+    this.closeModal();
     this.modal.nativeElement.style.display = "none";
+  }
+  
+
+  ngAfterContentInit() {
+    this.closeModal();
   }
   @HostListener('document:click', ['$event'])
   globalListener(event: Event) {

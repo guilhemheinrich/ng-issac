@@ -1,17 +1,20 @@
-<form #actionForm="ngForm">
-  <div class="form-group">
-      <label> Search:
-          <br/>
-          <input  [(ngModel)]="searchField" placeholder="Search in various field ..." class="form-control" name="searchField" #agentLabel="ngModel"
-               />
-      </label>
-  </div>
-  <button  type="submit"  (click)="searchAllProcessus()" >Search</button>
-
-</form>
-
+<br/>
+<br/>
+<div class="container" style="margin-left: 0px;">
+    <div class="row">
+        <div class="col"style="padding-left: 0px;">
+            <input   [(ngModel)]="searchField" placeholder="Search in various field ..." class="form-control" name="searchField" #agentLabel="ngModel"
+            />        </div>
+        <div class="col">
+            <button  type="submit" class="btn btn-primary" (click)="searchAllProcessus()" style="display:inline-block">Search</button>
+          </div>
+    </div>
+</div>
+<br/>
+<br/>
 <div>
-  <table style="width:100%">
+  <table class="table">
+    <thead>
       <tr>
         <th>Processus Name</th>
         <th>Owners</th> 
@@ -26,9 +29,13 @@
           />
         </th> 
       </tr>
+    </thead>
+    <tbody>
+
       <tr *ngFor="let processus of processusList ;">
         <td >{{ processus.name }}</td>
         <td >{{ processus.owners | concatenate }}</td>
       </tr>
+    </tbody>
     </table>
 </div>

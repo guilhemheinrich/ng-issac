@@ -4,8 +4,8 @@ import { SparqlClass, Uri, Litteral, Prefix, GraphDefinition, SparqlId } from '.
 import { UpperCasePipe } from '@angular/common';
 
 export class User {
-  username = "Bob";
-  email = "bob@email.com";
+  username = "SuperPseudo";
+  email = "astonishing@email.com";
   password = "";
   password_retype = "";
   uri = "";

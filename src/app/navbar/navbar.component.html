@@ -1,54 +1,32 @@
   
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Navbar</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav">
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+    <a class="navbar-brand" href="#">ISSAC</a>
+    <app-logger ></app-logger>
+    <!-- From <https://stackoverflow.com/questions/41736554/responsive-navbar-with-angular-2-and-bootstrap-4> -->
+
+    <button class="navbar-toggler" type="button" (click)="collapse=!collapse"  aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    <div class="navbar-collapse"  [hidden]="collapse">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" (click)="collapse=true" href="#">Home <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Features</a>
+          <a class="nav-link" (click)="collapse=true" href="#">Features</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Pricing</a>
+          <a class="nav-link" (click)="collapse=true" href="#">Pricing</a>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Processus
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item" href="#">Action</a>
-            <a  class="dropdown-item" routerLink="/processus/index"  >Index</a>
-            <a  class="dropdown-item" routerLink="/processus/edit" >Edit</a>
+
+        <div ngbDropdown class="d-inline-block">
+          <button class="btn btn-link nav-link dropdown-toggle" id="dropdownBasic1" ngbDropdownToggle>Processus</button>
+          <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+            <a  class="dropdown-item" (click)="collapse=true" routerLink="/processus/index"  >Index</a>
+            <a  class="dropdown-item" (click)="collapse=true" routerLink="/processus/edit" >Edit</a>
           </div>
-        </li>
+        </div>
+        
       </ul>
     </div>
   </nav>
-
-  <div class="row">
-      <div class="col">
-        <div ngbDropdown class="d-inline-block">
-          <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>Toggle dropdown</button>
-          <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-            <button class="dropdown-item">Action - 1</button>
-            <button class="dropdown-item">Another Action</button>
-            <button class="dropdown-item">Something else is here</button>
-          </div>
-        </div>
-      </div>
-    
-      <div class="col text-right">
-        <div ngbDropdown placement="top-right" class="d-inline-block">
-          <button class="btn btn-outline-primary" id="dropdownBasic2" ngbDropdownToggle>Toggle dropup</button>
-          <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-            <button class="dropdown-item">Action - 1</button>
-            <button class="dropdown-item">Another Action</button>
-            <button class="dropdown-item">Something else is here</button>
-          </div>
-        </div>
-      </div>
-    </div>

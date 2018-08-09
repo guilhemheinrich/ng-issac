@@ -92,11 +92,9 @@ export class MermaidComponent implements OnInit {
         svgGraph = svgGraph.slice(0, svgTagIndex + 4) + ` width="${this.viewPortWidth}"` + svgGraph.slice(svgTagIndex + 4);
       }
       this.mermaidContainer.nativeElement.innerHTML = svgGraph;
-  // console.log('in mermaid render');
-  //     console.log(svgGraph)
+
       this.finishDrawing.emit(this.mermaidContainer);
-      // this.post_process_callback();
-      console.log(this.mermaidContainer.nativeElement);
+
     }
 
     mermaid.mermaidAPI.render(this.graphId,this.graphDefinition, cb, this.mermaidContainer.nativeElement);

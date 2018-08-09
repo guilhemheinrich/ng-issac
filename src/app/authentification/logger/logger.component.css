@@ -1,6 +1,7 @@
-#containerBox
+
+.buttonPair
 {
-   width:100px; /* or whatever width you want. */
-   max-width:100px; /* or whatever width you want. */
-   display: inline-block;
+    font-size:small;
+    padding: 0px;
+
 }

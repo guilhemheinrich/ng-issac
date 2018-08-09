@@ -1,19 +1,27 @@
+<div class="container">
+    <div class="row" >
+        <div class="col-md-12">
+            <p style="font-size: large; min-height: 80%" *ngIf="loggedUser;else other_content">{{loggedUser.username}}</p>
+        </div>
 
-<span style="font-size:small" id="containerBox">
-    <div [hidden]="!logged" *ngIf="loggedUser">
-
-            <div style="font-size: large; padding: 0px">
-                {{loggedUser.username}} 
-            </div> 
-            <button (click)="onLogout();"  class="nav-link" role="button" style=" font-size:small; padding: 0px">
+    </div>
+    <div class="row">
+        <div class="col">
+            <button [hidden]="!logged" class="nav-link btn btn-link buttonPair dropdown-item" role="button">
+                Profile
+            </button>
+            <a [hidden]="logged" routerLink="/authentification/register" class="nav-link  btn btn-link buttonPair dropdown-item" role="button">Register</a>
+        </div>
+        <div class="col">
+            <button [hidden]="!logged" (click)="onLogout();" class="nav-link btn btn-link buttonPair dropdown-item" role="button">
                 Logout
             </button>
+            <a [hidden]="logged" routerLink="/authentification/login" class="nav-link  btn btn-link buttonPair dropdown-item" role="button">Login</a>
+        </div>
+    </div>
+</div>
 
-    </div>
-    
-    
-    <div [hidden]="logged">
-        <a routerLink="/authentification/register" class="button" role="button" class="nav-link" style=" padding: 0px">Register</a>
-        <a routerLink="/authentification/login" class="button" role="button"  class="nav-link" style=" padding: 0px">Login</a>
-    </div>
-</span>
+
+<ng-template #other_content>
+    <p style="font-size: large">Guest</p>
+</ng-template>

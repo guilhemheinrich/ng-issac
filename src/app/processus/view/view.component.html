@@ -1,9 +1,5 @@
-<div style="width:100%;position:relative">
-    <app-mermaid *ngIf="processusGraphDefinition!=''" [graphDefinition]="processusGraphDefinition" [graphId]="'viewProcessusMermaid'" [viewPortWidth]=""
+<div class="parent" >
+    <app-mermaid class="child" *ngIf="processusGraphDefinition!=''" [graphDefinition]="processusGraphDefinition" [graphId]="'viewProcessusMermaid'" [viewPortWidth]=""
     (finishDrawing)="_postProcess($event)" [mermaidId]="'mermaidFromView'" [viewPortHeight]="" [preserveAspectRatio]="'xMinYMin'" 
     style="position:relative;" #mermaidComponent></app-mermaid>
 </div>
-
-<!-- <app-display [action]="action" (outAction)="handleSubmittedAction($event)" [editable]="true" #actionComponent></app-display> -->
-
-

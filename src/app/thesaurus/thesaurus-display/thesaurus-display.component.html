@@ -1,9 +1,21 @@
 <div  style="position: relative; height:500px">
     <div style="position:relative">
-      <input [(ngModel)]="searchField" placeholder="Search skos ontology ..." class="form-control" (input)="delayedAutocomplete()"
-      />
+
+      <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Browse</span>
+          </div>
+          <input [(ngModel)]="searchField" placeholder="skos ontology (NALT) ..." class="form-control" (input)="delayedAutocomplete()"
+          />
+        </div>
     </div>
   <br/>
+  <mat-chip-list>
+      <mat-chip>One fish</mat-chip>
+      <mat-chip>Two fish</mat-chip>
+      <mat-chip color="primary" selected>Primary fish</mat-chip>
+      <mat-chip color="accent" selected>Accent fish</mat-chip>
+    </mat-chip-list>
   <div class="scrollable-vertical" style="position:relative; height:300px; width:50%">
       <table style="width:100%">
           <tr>

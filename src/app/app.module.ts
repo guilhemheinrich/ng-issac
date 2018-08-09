@@ -28,6 +28,9 @@ import { SuffixPipe } from './suffix.pipe';
 import { MapPipe } from './map.pipe';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
+// Material stuff
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MaterialCustomModule} from './material-custom/material-custom.module'
 
 @NgModule({
   declarations: [
@@ -61,6 +64,9 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
     NgPipesModule,
     Ng2Webstorage,
     NgbModule.forRoot(),
+    BrowserAnimationsModule,
+    MaterialCustomModule
+    
   ],
   providers: [],
   bootstrap: [AppComponent]

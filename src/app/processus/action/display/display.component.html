@@ -1,47 +1,44 @@
 <!-- The Modal -->
-<div  id="myModal" class="modal" #modal style="display:none" >
-  <!-- Modal content -->
-  <div class="modal-content">
-      <div class="modal-header">
-          <!-- <h2>{{action.constructor.name}}</h2> -->
-          <span class="close" (click)="closeModal();">&times;</span>
-      </div>
-      <div class="modal-body">
-          <form #actionForm="ngForm">
-              <div class="form-group">
-                  <label> Agent Type:
-                      <br/>
-                      <select [(ngModel)]="action.type" placeholder="Agent Type" class="form-control" required name="actionType"
-                       #agentLabel="ngModel">
-                      <option *ngFor="let type of actionTypes;" value="{{ type }}"> {{ type }}</option>
-                      </select>
-                  </label>
-              </div>
-              <div class="form-group">
-                  <label> Agent Label:
-                      <br/>
-                      <input  [(ngModel)]="action.agent.name" placeholder="Agent Label" class="form-control" required name="agentLabel" #agentLabel="ngModel"
-                          #inputAgentLabel readonly="true" />
-                  </label>
-              </div>
+<div id="myModal" class="modal" #modal style="display:none; background-color: rgba(204, 191, 191, 0.527);">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <div class="modal-header">
+            <!-- <h2>{{action.constructor.name}}</h2> -->
+            <span class="close" (click)="closeModal();">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form #actionForm="ngForm">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Type</span>
+                    </div>
+                    <select [(ngModel)]="action.type" placeholder="Agent Type" class="form-control" required name="actionType" #agentLabel="ngModel">
+                        <option *ngFor="let type of actionTypes;" value="{{ type }}"> {{ type }}</option>
+                    </select>
 
-              <div class="form-group">
-                  <label> Uri:
-                      <b>
-                          {{action.agent.uri}}
-                      </b>
-                      <!-- <input [(ngModel)]="action.uri" placeholder="Agent Uri" class="form-control" readonly="true" name="agentUri" #agentUri="ngModel"
-                      /> -->
-                  </label>
-              </div>
-              <button [hidden]="!editable" type="submit" value="Validate Agent" (click)="onSubmitAction()" [disabled]="!agentLabel.valid">Validate Agent</button>
-              <button [hidden]="!editable" value="Reset" (click)="onReset()" >Reset</button>
-              <button [hidden]="!editable" value="Delete" (click)="onDelete()" >Delete</button>
-          </form>
-          <app-thesaurus-display style="height:700px;width:100%;position:relative"  (result)="onThesaurusResult($event)" #thesaurusComponent></app-thesaurus-display>
-      </div>
-      <div class="modal-footer">
-          <h3>Modal Footer</h3>
-      </div>
-  </div>
+                    <div class="input-group-append" #inputAgentLabel>
+                        <span class="input-group-text">{{action.agent.name}}</span>
+                    </div>
+                    <div class="input-group-append">
+                        <span class="input-group-text">{{action.agent.uri}}</span>
+                    </div>
+                </div>
+
+            </form>
+            <br/>
+            <div class="btn-group" role="group" >
+                    <button [hidden]="!editable" class="btn btn-success"type="submit" value="Validate Agent" (click)="onSubmitAction()" [disabled]="!agentLabel.valid">Validate Agent</button>
+                    <button [hidden]="!editable" class="btn btn-warning"value="Reset" (click)="onReset()">Reset</button>
+                    <button [hidden]="!editable" class="btn btn-danger"value="Delete" (click)="onDelete()">Delete</button>
+            </div>
+
+            <br/>
+            <br/>
+            <br/>
+            <app-thesaurus-display style="height:700px;width:100%;position:relative" (result)="onThesaurusResult($event)" #thesaurusComponent></app-thesaurus-display>
+        </div>
+        <div class="modal-footer">
+            <h3>Modal Footer</h3>
+        </div>
+    </div>
 </div>

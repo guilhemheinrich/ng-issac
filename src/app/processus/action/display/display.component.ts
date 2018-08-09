@@ -3,7 +3,7 @@ import { Action, IAction, ActionType } from '../../processus';
 import { UniqueIdentifier } from '../../../configuration';
 import { ThesaurusDisplayComponent } from '../../../thesaurus/thesaurus-display/thesaurus-display.component';
 import {ActionDisplayerService} from '../action-displayer.service';
-
+import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-display',
   templateUrl: './display.component.html',
@@ -29,15 +29,36 @@ export class ActionDisplayComponent implements OnInit {
 
   actionTypes = [];
 
+  closeResult: string;
+
   @ViewChild('modal') modal: ElementRef;
   @ViewChild('thesaurusComponent') thesaurusComponent: ThesaurusDisplayComponent;
 
   constructor(
     private actionDisplayerService: ActionDisplayerService,
+    private modalService: NgbModal,
   ) { 
     let options = Object.values(ActionType);
     this.actionTypes = options;
 
+  }
+
+  open(content) {
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
+      this.closeResult = `Closed with: ${result}`;
+    }, (reason) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+    });
+  }
+
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return  `with: ${reason}`;
+    }
   }
 
   ngOnInit() {

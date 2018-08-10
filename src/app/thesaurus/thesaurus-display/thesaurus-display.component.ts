@@ -5,6 +5,7 @@ import { GlobalVariables, hash32 } from '../../configuration';
 import {ThesaurusEntry} from '../thesaurusEntry';
 import { UniqueIdentifier } from '../../configuration';
 import {MermaidComponent} from '../../mermaid/mermaid.component';
+import { MatChipList } from '@angular/material';
 // import { Input } from '../../processus/processus';
 // import { Output as pOutput } from '../../processus/processus';
 
@@ -29,12 +30,35 @@ export class ThesaurusDisplayComponent implements OnInit {
   searchInput: ElementRef;
   @Output()
   result = new EventEmitter<UniqueIdentifier>();
+  selectedIndex: number;
 
 
   mapThesaurusEntries: {[uri:string] : ThesaurusEntry} = {};
   thesaurusEntries: ThesaurusEntry[] = <ThesaurusEntry[]>[] ;
   thesaurusEntry: ThesaurusEntry;
-
+  thesaurusEntriesChips: Array<{
+    thesaurusEntry: ThesaurusEntry,
+    selected:boolean
+    }> = [];
+  lastSelectedChip: {
+    thesaurusEntry: ThesaurusEntry,
+    selected:boolean
+    } = Object.create({
+      selected:false
+      });
+  currentIdentiferChip: {
+    id: UniqueIdentifier,
+    selected: boolean,
+  }
+  siblingsIdentifiersChips: Array<{
+    thesaurusEntry: UniqueIdentifier,
+    selected:boolean
+    }> = [];
+  childsIdentifiersChips: Array<{
+    thesaurusEntry: UniqueIdentifier,
+    selected:boolean
+    }> = [];
+  
   graphDefinition: string = ``;
   graphId: string = 'mermaidGraph';
 
@@ -78,6 +102,32 @@ export class ThesaurusDisplayComponent implements OnInit {
     }));
   };
 
+  onMatSelected($event: any)
+  {
+    console.log($event);
+    if ($event.selected == true) 
+    {
+      
+    }
+  }
+
+  onMatClicked(tec) {
+    this.onClickIdentifier(tec.thesaurusEntry.id);
+    // tec.selected = !tec.selected;
+    // if (tec.selected == true) 
+    // {
+    // }
+    // if (this.lastSelectedChip != tec && this.lastSelectedChip.selected == true)
+    // {
+    //   this.lastSelectedChip.selected = false;
+    // }
+    // this.lastSelectedChip = tec;
+    // console.log(this.selectedIndex);
+    // console.log(this.chipList.chips);
+    // console.log(this.chipList.chips[index]);
+    // this.chipList.chips[index].selected = true; 
+  }
+
   onClickIdentifier(identifier: UniqueIdentifier)
   {
     // if (!identifier.uri) return;
@@ -86,6 +136,7 @@ export class ThesaurusDisplayComponent implements OnInit {
     result.subscribe((response => {
       if (response['results']['bindings']) {
         this.computeGraphDefinition(identifier, response['results']['bindings']);
+        console.log(identifier);
       }
     }))
   }
@@ -119,7 +170,7 @@ export class ThesaurusDisplayComponent implements OnInit {
     ];
     var searchQueryLabel = new GraphDefinition({triplesContent : [
       `
-        ?uri skos:prefLabel|skos:altLabel ?label .
+        ?uri skos:prefLabel ?label .
         FILTER regex(STR(?label), \"${input}\", \"i\") . 
         FILTER (lang(?label) = 'en') .
         OPTIONAL {
@@ -143,15 +194,19 @@ export class ThesaurusDisplayComponent implements OnInit {
       GlobalVariables.ONTOLOGY_PREFIX.issac,
       GlobalVariables.ONTOLOGY_PREFIX.skos,
     ];
+
+    /* For the parent */
     var searchQueryLabel = new GraphDefinition({triplesContent : [
       `
-        <${uri}> skos:prefLabel|skos:altLabel ?label .
+        <${uri}> skos:prefLabel ?label .
         OPTIONAL {
           <${uri}> skos:broader ?uriBroader .
           ?uriBroader skos:prefLabel ?labelBroader
         }
         `
     ]});
+
+    /* For the childs */
     searchQueryLabel.triplesContent.push(
       `
       OPTIONAL {
@@ -161,6 +216,8 @@ export class ThesaurusDisplayComponent implements OnInit {
       }
         `
     );
+
+    /* For the siblings */
     searchQueryLabel.triplesContent.push(
       `
       OPTIONAL {
@@ -177,6 +234,8 @@ export class ThesaurusDisplayComponent implements OnInit {
     );
 
     this.sparqlParser.graphPattern = searchQueryLabel;
+    this.sparqlParser.order = '?uriSibling';
+    console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;
   }
@@ -202,6 +261,20 @@ export class ThesaurusDisplayComponent implements OnInit {
       }
     })
     this.thesaurusEntries = Object.values(this.mapThesaurusEntries);
+
+    this.thesaurusEntries.forEach((thesaurusEntry) => {
+      this.thesaurusEntriesChips.push(
+        Object.create({
+          thesaurusEntry: thesaurusEntry,
+          selected: false
+        })
+      );
+    })
+  }
+
+  computeChipList() {
+    this.currentIdentiferChip = Object.create({id: this.thesaurusEntry.id, selected: true});
+    this.thesaurusEntry.childs.forEach((child) => {});
   }
 
   computeGraphDefinition(identifier: UniqueIdentifier, bindings: Array<any>)
@@ -212,8 +285,10 @@ export class ThesaurusDisplayComponent implements OnInit {
     // Not really satisfying method ..
     var uriChilds = <string[]>[];
     var uriSiblings = <string[]>[];
+    var synonyms = <string[]>[];
     this.thesaurusEntry.childs =  <UniqueIdentifier[]>[];
     this.thesaurusEntry.siblings =  <UniqueIdentifier[]>[];
+    let currentSiblingIndex:number = undefined;
     // Filling
     bindings.map(entry => {
       if (entry.uriBroader) {
@@ -225,31 +300,41 @@ export class ThesaurusDisplayComponent implements OnInit {
           uriChilds.push(entry.uriNarrower.value);
       }
       if (entry.labelSibling &&
-        !uriSiblings.includes(entry.uriSibling.value) &&
-        entry.uriSibling.value != identifier.uri) {
+        !uriSiblings.includes(entry.uriSibling.value)) {
           this.thesaurusEntry.siblings.push(<UniqueIdentifier>{ name: entry.labelSibling.value, uri: entry.uriSibling.value});
           uriSiblings.push(entry.uriSibling.value);
       }
+      if (entry.synonym &&
+        !synonyms.includes(entry.synonym.value)) {
+          this.thesaurusEntry.synonyms.push(entry.synonym.value);
+          synonyms.push(entry.synonym.value);
+      }
     })
 
+    console.log(identifier.name);
     this.graphDefinition = `
       graph TB;\n
       classDef thesaurusMermaid:hover cursor:pointer, fill:aquamarine;
     `;
     if (this.thesaurusEntry.parent) {
-      this.graphDefinition += `Parent("${this.thesaurusEntry.parent.name}")-->This("${this.thesaurusEntry.id.name}");\n`
+      this.graphDefinition += `Parent("${this.thesaurusEntry.parent.name}");\n`
       this.graphDefinition += `class Parent thesaurusMermaid;\n`
     }
+    this.thesaurusEntry.siblings.forEach(((sibling, index) => 
+    {
+      // Store the index of the "root" element
+      if (sibling.name == this.thesaurusEntry.id.name) {
+        console.log(sibling.name);
+        currentSiblingIndex = index;
+      }
+      this.graphDefinition += `Parent-->S${index}("${sibling.name}");\n`;
+      this.graphDefinition += `class S${index} thesaurusMermaid;\n`
+    }));
     this.thesaurusEntry.childs.forEach(((child, index) => 
     {
-      this.graphDefinition += `This-->C${index}("${child.name}");\n`;
+      this.graphDefinition += `S${currentSiblingIndex}-->C${index}("${child.name}");\n`;
       this.graphDefinition += `class C${index} thesaurusMermaid;\n`
     }));
-    this.thesaurusEntry.siblings.forEach(((sibling, index) => 
-      {
-        this.graphDefinition += `Parent-->S${index}("${sibling.name}");\n`;
-      this.graphDefinition += `class S${index} thesaurusMermaid;\n`
-      }));
   }
 
 

@@ -10,28 +10,43 @@
         </div>
     </div>
   <br/>
-  <mat-chip-list>
-      <mat-chip>One fish</mat-chip>
-      <mat-chip>Two fish</mat-chip>
-      <mat-chip color="primary" selected>Primary fish</mat-chip>
-      <mat-chip color="accent" selected>Accent fish</mat-chip>
-    </mat-chip-list>
-  <div class="scrollable-vertical" style="position:relative; height:300px; width:50%">
-      <table style="width:100%">
-          <tr>
-            <th>Name</th>
-            <th>Parent</th> 
-          </tr>
-          <tr *ngFor="let thesaurusEntry of thesaurusEntries ;">
-            <td (click)="onClickIdentifier(thesaurusEntry.id)" class="thesaurus">{{ thesaurusEntry.id.name }}</td>
-            <td (click)="onClickIdentifier(thesaurusEntry.parent)" class="thesaurus">{{ thesaurusEntry.parent.name }}</td> 
-          </tr>
-        </table>
-  </div>
-
-<div style="width:75vw;height:100px;overflow:auto" >
-  <app-mermaid *ngIf="graphDefinition!=''"(finishDrawing)="_postProcess($event)" [mermaidId]="'mermaidFromThesaurus'" [graphId]="'viewAgentTree'" [graphDefinition]="graphDefinition" [viewPortWidth]="" [viewPortHeight]="300" [preserveAspectRatio]="'xMinYMin'"  ></app-mermaid>
+  <div style="width:75vw;max-height:250px;overflow-x:hidden" >
+  <mat-chip-list >
+    <mat-chip *ngFor="let thesaurusEntry of thesaurusEntriesChips"
+    (click)="onMatClicked(thesaurusEntry)"
+    >
+    {{ thesaurusEntry.thesaurusEntry.id.name }}</mat-chip>
+  </mat-chip-list>
 </div>
+  
+<br/>
+
+<div *ngIf="thesaurusEntry">
+  {{thesaurusEntry.id.name}} (<p style="display: online-block" *ngFor="let synonym of thesaurusEntry.synonyms">{{synonym}} </p>)
+  {{thesaurusEntry.parent.name}}
+  <mat-chip-list *ngIf="thesaurusEntry.siblings">
+      <mat-chip *ngFor="let sibling of thesaurusEntry.siblings;" 
+      (click)="onClickIdentifier(sibling)"
+      >
+      {{ sibling.name }}</mat-chip>
+    </mat-chip-list>
+  
+  <mat-chip-list *ngIf="thesaurusEntry.childs">
+      <mat-chip *ngFor="let child of thesaurusEntry.childs;" 
+      (click)="onClickIdentifier(child)"
+      >
+      {{ child.name }}</mat-chip>
+    </mat-chip-list>
+</div>
+
+
+
+<br/>
+<br/>
+
+<!-- <div style="width:75vw;;max-height:200px;overflow:auto" >
+  <app-mermaid *ngIf="graphDefinition!=''"(finishDrawing)="_postProcess($event)" [mermaidId]="'mermaidFromThesaurus'" [graphId]="'viewAgentTree'" [graphDefinition]="graphDefinition" [viewPortWidth]="" [viewPortHeight]="300" [preserveAspectRatio]="'xMinYMin'"  ></app-mermaid>
+</div> -->
 
 
 </div>

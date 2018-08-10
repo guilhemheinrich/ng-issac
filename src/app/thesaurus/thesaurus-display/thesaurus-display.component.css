@@ -30,8 +30,12 @@ tr:nth-child(odd) {background: #FFF}
     background-color: aquamarine;
     cursor:pointer;
 }
-.thesaurus:hover {
+
+.mat-chip:hover {
+    background-color: aquamarine;
+    cursor:pointer;
 }
+
 
 
 /* https://stackoverflow.com/questions/2637696/how-to-place-div-side-by-side */

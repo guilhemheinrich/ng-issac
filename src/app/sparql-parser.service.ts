@@ -70,7 +70,9 @@ export class SparqlParserService {
       request += `WHERE \n`;
       request += ` ${this.graphPattern.toString()}`;
     }
-
+    if (this.order) {
+      request += 'ORDER BY ' + this.order;
+    }
     return request;
   }
 

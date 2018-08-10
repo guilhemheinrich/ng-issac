@@ -12,10 +12,10 @@
   <br/>
   <div style="width:75vw;max-height:250px;overflow-x:hidden" >
   <mat-chip-list >
-    <mat-chip *ngFor="let thesaurusEntry of thesaurusEntriesChips"
-    (click)="onMatClicked(thesaurusEntry)"
-    >
-    {{ thesaurusEntry.thesaurusEntry.id.name }}</mat-chip>
+    <mat-chip *ngFor="let identifier of searchResultChips"
+    (click)="onClickIdentifier(identifier)">
+    {{ identifier.name }}
+  </mat-chip>
   </mat-chip-list>
 </div>
   
@@ -43,10 +43,6 @@
 
 <br/>
 <br/>
-
-<!-- <div style="width:75vw;;max-height:200px;overflow:auto" >
-  <app-mermaid *ngIf="graphDefinition!=''"(finishDrawing)="_postProcess($event)" [mermaidId]="'mermaidFromThesaurus'" [graphId]="'viewAgentTree'" [graphDefinition]="graphDefinition" [viewPortWidth]="" [viewPortHeight]="300" [preserveAspectRatio]="'xMinYMin'"  ></app-mermaid>
-</div> -->
 
 
 </div>

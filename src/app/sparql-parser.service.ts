@@ -228,12 +228,12 @@ export class SparqlClass {
   sparqlIdentifier(key: keyof any, prefix?: string) {
       let out: string;
       let sparqlAttribute = this._sparqlAttributes[key];
-      // console.log(sparqlAttribute.identifier);
       if (prefix) {
           out = "?" + prefix + sparqlDelimitter + sparqlAttribute.identifier;
       } else {
           out = "?" + sparqlAttribute.identifier;
       }
+      out = out.replace(/\?+/,"?");
       return out;
   }
 
@@ -271,10 +271,15 @@ export class SparqlClass {
           case SparqlType.IRI:
           case SparqlType.LITTERAL:
           identifier = `"',?${prefix + '_' + sparqlAttribute.attributeName},'"`;
-          break;
-          case SparqlType.OBJECT:
-          let new_prefix = prefix + sparqlDelimitter + sparqlAttribute.sparqlObject.constructor.name;
-          identifier = sparqlAttribute.sparqlObject.processBindings(new_prefix);
+                // Should be reworked, as well as the whole thing
+      // Quick fix to avoir multiple nested question mark
+      // identifier = identifier.replace(/\?+/,"?");
+
+      break;
+      case SparqlType.OBJECT:
+      let new_prefix = prefix + sparqlDelimitter + sparqlAttribute.attributeName + sparqlDelimitter + sparqlAttribute.sparqlObject.constructor.name;
+      identifier = sparqlAttribute.sparqlObject.processBindings(new_prefix);
+      // identifier = identifier.replace(/\?+/,"?");
 
 
 

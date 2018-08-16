@@ -63,6 +63,8 @@ export class ThesaurusDisplayComponent implements OnInit {
   graphDefinition: string = ``;
   graphId: string = 'mermaidGraph';
 
+  @Input('height')
+  height: string = "500px";
 
   // For the autocomplete delay, in millisecond
   typingTimer: any;
@@ -135,53 +137,37 @@ export class ThesaurusDisplayComponent implements OnInit {
     result.subscribe((response => {
       if (response['results']['bindings']) {
         // this.computeGraphDefinition(identifier, response['results']['bindings']);
-        console.log(response['results']['bindings']);
+        console.log(response['results']['bindings'][0].ThesaurusEntry.value);
+        let toObjectify = <string>response['results']['bindings'][0].ThesaurusEntry.value;  
+        // toObjectify = toObjectify.replace(/\"\"/g,"null");
+        console.log(toObjectify);
+        this.thesaurusEntry = new ThesaurusEntry(JSON.parse(toObjectify));
+        console.log(this.thesaurusEntry);
+        
       }
     }));
 
   }
 
-  private _postProcess(eventContent: any) {
-    // Add click event
-    if (this.thesaurusEntry.parent) {
-      let node = document.getElementById('Parent');
-      node.addEventListener("click", () => this.onClickIdentifier(this.thesaurusEntry.parent));
-    }
-    this.thesaurusEntry.childs.forEach(((child, index) => {
-      let node = document.getElementById('C' + index);
-      node.addEventListener("click", () => this.onClickIdentifier(child));
-    }));
-    this.thesaurusEntry.siblings.forEach(((sibling, index) => {
-      let node = document.getElementById('S' + index);
-      node.addEventListener("click", () => this.onClickIdentifier(sibling));
-    }));
-  }
+  // private _postProcess(eventContent: any) {
+  //   // Add click event
+  //   if (this.thesaurusEntry.parent) {
+  //     let node = document.getElementById('Parent');
+  //     node.addEventListener("click", () => this.onClickIdentifier(this.thesaurusEntry.parent));
+  //   }
+  //   this.thesaurusEntry.childs.forEach(((child, index) => {
+  //     let node = document.getElementById('C' + index);
+  //     node.addEventListener("click", () => this.onClickIdentifier(child));
+  //   }));
+  //   this.thesaurusEntry.siblings.forEach(((sibling, index) => {
+  //     let node = document.getElementById('S' + index);
+  //     node.addEventListener("click", () => this.onClickIdentifier(sibling));
+  //   }));
+  // }
 
-  // Query the search filed for identifiers
+  // Query the search filled for identifiers
   search(input: string) {
-    // this.sparqlParser.clear();
-    // this.sparqlParser.queryType = QueryType.QUERY;
-    // this.sparqlParser.prefixes = [
-    //   GlobalVariables.ONTOLOGY_PREFIX.foaf,
-    //   GlobalVariables.ONTOLOGY_PREFIX.issac,
-    //   GlobalVariables.ONTOLOGY_PREFIX.skos,
-    // ];
-    // var searchQueryLabel = new GraphDefinition({triplesContent : [
-    //   `
-    //     ?uri skos:prefLabel ?label .
-    //     FILTER regex(STR(?label), \"${input}\", \"i\") . 
-    //     FILTER (lang(?label) = 'en') .
-    //     OPTIONAL {
-    //       ?uri skos:altLabel ?altLabel .
-    //       FILTER regex(STR(?altLabel), \"${input}\", \"i\") . 
-    //       FILTER (lang(?altLabel) = 'en') .
-    //     }
-    //     `
-    // ]});
-    // this.sparqlParser.graphPattern = searchQueryLabel;
-    // let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
-    // console.log(this.sparqlParser.toString());
-
+   
 
     this.sparqlParser.clear();
     // this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
@@ -211,165 +197,27 @@ export class ThesaurusDisplayComponent implements OnInit {
   }
 
   searchUri(uri: string) {
-    // this.sparqlParser.clear();
-    // this.sparqlParser.queryType = QueryType.QUERY;
-    // this.sparqlParser.prefixes = [
-    //   GlobalVariables.ONTOLOGY_PREFIX.foaf,
-    //   GlobalVariables.ONTOLOGY_PREFIX.issac,
-    //   GlobalVariables.ONTOLOGY_PREFIX.skos,
-    // ];
-
-    // /* For the parent */
-    // var searchQueryLabel = new GraphDefinition({triplesContent : [
-    //   `
-    //     <${uri}> skos:prefLabel ?label .
-    //     OPTIONAL {
-    //       <${uri}> skos:broader ?uriBroader .
-    //       ?uriBroader skos:prefLabel ?labelBroader
-    //     }
-    //     `
-    // ]});
-
-    // /* For the childs */
-    // searchQueryLabel.triplesContent.push(
-    //   `
-    //   OPTIONAL {
-
-    //     ?uriNarrower skos:prefLabel ?labelNarrower.
-    //     FILTER (lang(?labelNarrower) = 'en') .
-    //   }
-    //     `
-    // );
-
-    // /* For the siblings */
-    // searchQueryLabel.triplesContent.push(
-    //   `
-    //   OPTIONAL {
-    //     <${uri}> skos:broader ?uriBroader .
-    //     ?uriBroader skos:prefLabel ?labelBroader.
-    //     FILTER (lang(?labelBroader) = 'en') .
-    //     OPTIONAL {
-    //       ?uriBroader skos:narrower ?uriSibling .
-    //       ?uriSibling skos:prefLabel ?labelSibling.
-    //       FILTER (lang(?labelSibling) = 'en') .
-    //     }
-    //   }
-    //     `
-    // );
-
-    // this.sparqlParser.graphPattern = searchQueryLabel;
-
+    
     this.sparqlParser.clear();
     this.sparqlParser.queryType = QueryType.QUERY;
     this.sparqlParser.prefixes = ThesaurusEntry.requiredPrefixes;
 
-    this.thesaurusEntry = new ThesaurusEntry();
-    this.sparqlParser.graphPattern = this.thesaurusEntry.parseSkeleton();
-    this.sparqlParser.select[0] = this.thesaurusEntry.makeBindings();
-
+    let thesaurusEntryQuerrier = new ThesaurusEntry();
+    this.sparqlParser.graphPattern = thesaurusEntryQuerrier.parseSkeleton();
+    this.sparqlParser.select[0] = thesaurusEntryQuerrier.makeBindings();
+    this.sparqlParser.graphPattern.merge(thesaurusEntryQuerrier.id.parseRestricter("uri", [uri], thesaurusEntryQuerrier.sparqlIdentifier("id")));
     // this.sparqlParser.order = '?uriSibling';
     console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;
   }
 
-  // private _parseResults(bindings: Array<any>)
-  // {
-  //   // Initialisation
-  //   this.mapThesaurusEntries = {};
-  //   bindings.forEach(entry => {
-  //     if (!this.mapThesaurusEntries[entry.uri.value]) {
-  //     this.mapThesaurusEntries[entry.uri.value] = new ThesaurusEntry(
-  //         {
-  //           id: {name: entry.label.value, uri: entry.uri.value},
-  //         }
-  //       );
-  //     }
-  //   });
-  //   // Filling
-  //   bindings.map(entry => {
-  //     if (entry.labelBroader &&
-  //       !this.mapThesaurusEntries[entry.uri.value].parent) {
-  //         this.mapThesaurusEntries[entry.uri.value].parent = <UniqueIdentifier>{ name: entry.labelBroader.value, uri: entry.uriBroader.value};
-  //     }
-  //   })
-  //   this.thesaurusEntries = Object.values(this.mapThesaurusEntries);
-
-  //   this.thesaurusEntries.forEach((thesaurusEntry) => {
-  //     this.thesaurusEntriesChips.push(
-  //       Object.create({
-  //         thesaurusEntry: thesaurusEntry,
-  //         selected: false
-  //       })
-  //     );
-  //   })
-  // }
+ 
 
   computeChipList() {
     this.currentIdentiferChip = Object.create({ id: this.thesaurusEntry.id, selected: true });
     this.thesaurusEntry.childs.forEach((child) => { });
   }
-
-  // computeGraphDefinition(identifier: UniqueIdentifier, bindings: Array<any>)
-  // {
-  //   this.thesaurusEntry = new ThesaurusEntry({
-  //     id: identifier
-  //   })
-  //   // Not really satisfying method ..
-  //   var uriChilds = <string[]>[];
-  //   var uriSiblings = <string[]>[];
-  //   var synonyms = <string[]>[];
-  //   this.thesaurusEntry.childs =  <UniqueIdentifier[]>[];
-  //   this.thesaurusEntry.siblings =  <UniqueIdentifier[]>[];
-  //   let currentSiblingIndex:number = undefined;
-  //   // Filling
-  //   bindings.map(entry => {
-  //     if (entry.uriBroader) {
-  //         this.thesaurusEntry.parent = <UniqueIdentifier>{ name: entry.labelBroader.value, uri: entry.uriBroader.value};
-  //     }
-  //     if (entry.uriNarrower && 
-  //       !uriChilds.includes(entry.uriNarrower.value)) {
-  //         this.thesaurusEntry.childs.push(<UniqueIdentifier>{ name: entry.labelNarrower.value, uri: entry.uriNarrower.value});
-  //         uriChilds.push(entry.uriNarrower.value);
-  //     }
-  //     if (entry.labelSibling &&
-  //       !uriSiblings.includes(entry.uriSibling.value)) {
-  //         this.thesaurusEntry.siblings.push(<UniqueIdentifier>{ name: entry.labelSibling.value, uri: entry.uriSibling.value});
-  //         uriSiblings.push(entry.uriSibling.value);
-  //     }
-  //     if (entry.synonym &&
-  //       !synonyms.includes(entry.synonym.value)) {
-  //         this.thesaurusEntry.synonyms.push(entry.synonym.value);
-  //         synonyms.push(entry.synonym.value);
-  //     }
-  //   })
-
-  //   console.log(identifier.name);
-  //   this.graphDefinition = `
-  //     graph TB;\n
-  //     classDef thesaurusMermaid:hover cursor:pointer, fill:aquamarine;
-  //   `;
-  //   if (this.thesaurusEntry.parent) {
-  //     this.graphDefinition += `Parent("${this.thesaurusEntry.parent.name}");\n`
-  //     this.graphDefinition += `class Parent thesaurusMermaid;\n`
-  //   }
-  //   this.thesaurusEntry.siblings.forEach(((sibling, index) => 
-  //   {
-  //     // Store the index of the "root" element
-  //     if (sibling.name == this.thesaurusEntry.id.name) {
-  //       console.log(sibling.name);
-  //       currentSiblingIndex = index;
-  //     }
-  //     this.graphDefinition += `Parent-->S${index}("${sibling.name}");\n`;
-  //     this.graphDefinition += `class S${index} thesaurusMermaid;\n`
-  //   }));
-  //   this.thesaurusEntry.childs.forEach(((child, index) => 
-  //   {
-  //     this.graphDefinition += `S${currentSiblingIndex}-->C${index}("${child.name}");\n`;
-  //     this.graphDefinition += `class C${index} thesaurusMermaid;\n`
-  //   }));
-  // }
-
 
 
 

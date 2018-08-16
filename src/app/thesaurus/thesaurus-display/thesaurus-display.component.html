@@ -1,48 +1,70 @@
-<div  style="position: relative; height:500px">
-    <div style="position:relative">
+<div style="position: relative;  overflow-x:hidden" [style.height]="height">
+  <div style="position:relative">
 
-      <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Browse</span>
-          </div>
-          <input [(ngModel)]="searchField" placeholder="skos ontology (NALT) ..." class="form-control" (input)="delayedAutocomplete()"
-          />
-        </div>
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text">Browse</span>
+      </div>
+      <input [(ngModel)]="searchField" placeholder="skos ontology (NALT) ..." class="form-control" (input)="delayedAutocomplete()"
+      />
     </div>
+  </div>
   <br/>
-  <div style="width:75vw;max-height:250px;overflow-x:hidden" >
-  <mat-chip-list >
-    <mat-chip *ngFor="let identifier of searchResultChips"
-    (click)="onClickIdentifier(identifier)">
-    {{ identifier.name }}
-  </mat-chip>
-  </mat-chip-list>
-</div>
-  
-<br/>
-
-<div *ngIf="thesaurusEntry">
-  {{thesaurusEntry.id.name}} (<p style="display: online-block" *ngFor="let synonym of thesaurusEntry.synonyms">{{synonym}} </p>)
-  {{thesaurusEntry.parent.name}}
-  <mat-chip-list *ngIf="thesaurusEntry.siblings">
-      <mat-chip *ngFor="let sibling of thesaurusEntry.siblings;" 
-      (click)="onClickIdentifier(sibling)"
-      >
-      {{ sibling.name }}</mat-chip>
+  <div style="width:75vw;min-height: 40px;max-height:250px;overflow-x:hidden">
+    <mat-chip-list>
+      <mat-chip *ngFor="let identifier of searchResultChips" (click)="onClickIdentifier(identifier)">
+        {{ identifier.name }}
+      </mat-chip>
     </mat-chip-list>
-  
-  <mat-chip-list *ngIf="thesaurusEntry.childs">
-      <mat-chip *ngFor="let child of thesaurusEntry.childs;" 
-      (click)="onClickIdentifier(child)"
-      >
-      {{ child.name }}</mat-chip>
-    </mat-chip-list>
-</div>
+  </div>
+
+  <br/>
+
+  <div *ngIf="thesaurusEntry">
+    <div style="font-weight: bold;">
+      {{ thesaurusEntry.id.name }}
+      <div *ngIf="thesaurusEntry.synonyms && thesaurusEntry.synonyms[0] !== ''" style="display:inline-block;font-weight: normal;">
+        (
+        <div style="display: inline-block; font-style: italic;" *ngFor="let synonym of thesaurusEntry.synonyms"> {{synonym}}</div>)
+      </div>
+    </div>
+    <br/>
+    <div *ngIf="thesaurusEntry.parents[0].name !==''" >
+      Parent(s) 
+      <mat-chip-list>
+          <div *ngFor="let parent of thesaurusEntry.parents;">
+            <mat-chip  (click)="onClickIdentifier(parent)">
+              {{ parent.name }}</mat-chip>
+          </div>
+        </mat-chip-list>
+    </div>
+    <br/>
+    <div *ngIf="thesaurusEntry.siblings && thesaurusEntry.siblings[0].name !==''">
+      Siblings
+
+      <mat-chip-list>
+        <div *ngFor="let sibling of thesaurusEntry.siblings;">
+          <mat-chip *ngIf="sibling.name !== '' && sibling.name !== thesaurusEntry.id.name" (click)="onClickIdentifier(sibling)">
+            {{ sibling.name }}</mat-chip>
+        </div>
+      </mat-chip-list>
+    </div>
+    <br/>
+    <div *ngIf="thesaurusEntry.childs && thesaurusEntry.childs[0].name !==''">
+      Childs
+      <mat-chip-list>
+        <div *ngFor="let child of thesaurusEntry.childs;">
+          <mat-chip *ngIf="child.name !== ''" (click)="onClickIdentifier(child)">
+            {{ child.name }}</mat-chip>
+        </div>
+      </mat-chip-list>
+    </div>
+  </div>
 
 
 
-<br/>
-<br/>
+  <br/>
+  <br/>
 
 
 </div>

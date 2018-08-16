@@ -1,5 +1,5 @@
 import { UniqueIdentifier, GlobalVariables } from '../configuration';
-import { Prefix, SparqlClass, Uri, Litteral, SparqlObject, Collection, GraphDefinition, SubPatternType } from '../sparql-parser.service';
+import { Prefix, SparqlClass, Uri, Litteral, SparqlObject, Collection, GraphDefinition, SubPatternType, SparqlType } from '../sparql-parser.service';
 
 export class SkosIdentifier extends SparqlClass{
     @Uri()
@@ -40,15 +40,39 @@ export class SkosIdentifier extends SparqlClass{
             });
         return query;
     }
+
+    parseRestricter(attribute: keyof SkosIdentifier, values: string[], prefix?: string): GraphDefinition {
+        var restriction = new GraphDefinition(
+            {
+                triplesContent: [`VALUES (${this.sparqlIdentifier(attribute.toString(), prefix)}) { \n`]
+            });
+        switch (this._sparqlAttributes[attribute].type) {
+            case SparqlType.IRI:
+                values.forEach((value) => {
+                    restriction.triplesContent[0] += ` ( <${value}> ) \n`;
+
+                })
+                break;
+            case SparqlType.LITTERAL:
+                values.forEach((value) => {
+                    restriction.triplesContent[0] += ` ( "${value}" ) \n`;
+
+                })
+                break;
+        }
+        restriction.triplesContent[0] += ` }`;
+        return restriction;
+    }
 }
 export class ThesaurusEntry extends SparqlClass{
     @SparqlObject(SkosIdentifier)
-    id: SkosIdentifier
+    id: SkosIdentifier = new SkosIdentifier();
     @Litteral()
     @Collection()
     synonyms?: string[];
     @SparqlObject(SkosIdentifier)
-    parent: SkosIdentifier;
+    @Collection()
+    parents: SkosIdentifier[] = <SkosIdentifier[]>[];
     @SparqlObject(SkosIdentifier)
     @Collection()
     childs: SkosIdentifier[] = <SkosIdentifier[]>[];
@@ -69,9 +93,32 @@ export class ThesaurusEntry extends SparqlClass{
             this.synonyms       = IThesaurusEntry.synonyms   ;
             this.childs         = IThesaurusEntry.childs     ;
             this.siblings       = IThesaurusEntry.siblings   ;
-            this.parent         = IThesaurusEntry.parent     ;
+            this.parents         = IThesaurusEntry.parents     ;
             this.description    = IThesaurusEntry.description;
         }
+    }
+
+    parseRestricter(attribute: keyof ThesaurusEntry, values: string[], prefix? : string): GraphDefinition {
+        var restriction = new GraphDefinition(
+            {
+                triplesContent: [`VALUES (${this.sparqlIdentifier(attribute.toString(), prefix)}) { \n`]
+            });
+        switch (this._sparqlAttributes[attribute].type) {
+            case SparqlType.IRI:
+                values.forEach((value) => {
+                    restriction.triplesContent[0] += ` ( <${value}> ) \n`;
+
+                })
+                break;
+            case SparqlType.LITTERAL:
+                values.forEach((value) => {
+                    restriction.triplesContent[0] += ` ( "${value}" ) \n`;
+
+                })
+                break;
+        }
+        restriction.triplesContent[0] += ` }`;
+        return restriction;
     }
 
     parseSkeleton(prefix: string = '') {
@@ -83,27 +130,29 @@ export class ThesaurusEntry extends SparqlClass{
         // Children part
         let childspattern = emptySkosIdentifier.parseSkeleton(this.sparqlIdentifier('childs'));
         childspattern.triplesContent.push(
-            `${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('childs'))} skos:narrower ${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('id'))} .`
+            `${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('childs'))} skos:broader ${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('id'))} .`
         );
         query.subPatterns.push([childspattern, SubPatternType.OPTIONAL]);
 
         // Parent part
-        let parentpattern = emptySkosIdentifier.parseSkeleton(this.sparqlIdentifier('parent'));
+        let parentpattern = emptySkosIdentifier.parseSkeleton(this.sparqlIdentifier('parents'));
         parentpattern.triplesContent.push(
-            `${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('parent'))} skos:broader ${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('id'))} .`
+            `${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('parents'))} skos:narrower ${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('id'))} .`
         );
 
             // Siblings pattern
             let siblingspattern = emptySkosIdentifier.parseSkeleton(this.sparqlIdentifier('siblings'));
             siblingspattern.triplesContent.push(
-                `${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('siblings'))} skos:narrower ${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('parent'))} .`
+                `${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('siblings'))} skos:broader ${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('parents'))} .`
             );
             parentpattern.subPatterns.push([siblingspattern, SubPatternType.OPTIONAL]);
 
         query.subPatterns.push([parentpattern, SubPatternType.OPTIONAL]);
 
         query.triplesContent.push(
-            `${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('id'))} skos:altLabel ${this.sparqlIdentifier('synonyms')} .\n`
+            `OPTIONAL {
+                ${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('id'))} skos:altLabel ${this.sparqlIdentifier('synonyms')} .\n
+            }`
         );
         
         return query;
@@ -113,7 +162,7 @@ export class ThesaurusEntry extends SparqlClass{
 export interface ThesaurusEntryInterface {
     id: SkosIdentifier;
     synonyms?: string[];
-    parent?: SkosIdentifier;
+    parents?: SkosIdentifier[];
     childs?: SkosIdentifier[];
     siblings?: SkosIdentifier[];
     description? :string;

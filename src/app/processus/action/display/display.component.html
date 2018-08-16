@@ -35,7 +35,10 @@
             <br/>
             <br/>
             <br/>
-            <app-thesaurus-display style="height:700px;width:100%;position:relative" (result)="onThesaurusResult($event)" #thesaurusComponent></app-thesaurus-display>
+
+    
+                    <app-thesaurus-display [height]="'500px'" (result)="onThesaurusResult($event)" #thesaurusComponent></app-thesaurus-display>
+
         </div>
         <div class="modal-footer">
             <h3>Modal Footer</h3>

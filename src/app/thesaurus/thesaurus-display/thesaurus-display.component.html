@@ -1,4 +1,13 @@
 <div style="position: relative;  overflow-x:hidden" [style.height]="height">
+<div *ngIf="rootRestrictions" style="position: relative; max-width: 300px; margin: auto">
+    <mat-chip-list >
+        <div *ngFor="let root of rootRestrictions;">
+            <mat-chip class="skosRoot" (click)="onClickIdentifier(root)" [attr.data-id]="root.uri" >
+              {{ root.name }}</mat-chip>
+        </div>
+      </mat-chip-list>
+</div>
+
   <div style="position:relative">
 
     <div class="input-group mb-3">

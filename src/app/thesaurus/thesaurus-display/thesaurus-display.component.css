@@ -35,7 +35,9 @@ tr:nth-child(odd) {background: #FFF}
     background-color: aquamarine;
     cursor:pointer;
 }
-
+.skosRoot.selected {
+    background-color: pink;
+}
 
 
 /* https://stackoverflow.com/questions/2637696/how-to-place-div-side-by-side */

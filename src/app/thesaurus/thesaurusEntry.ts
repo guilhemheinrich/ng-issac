@@ -18,8 +18,6 @@ export class SkosIdentifier extends SparqlClass{
         gather.subPatterns.push([new GraphDefinition(), SubPatternType.EMPTY]);
         ['uri', 'name'].forEach((attribute) => {
             let gathering = new GraphDefinition(JSON.parse(JSON.stringify(graphPattern)));
-            // gathering.triplesContent = graphPattern.triplesContent;
-            // gathering.subPatterns = graphPattern.subPatterns;
             gathering.triplesContent.push(`
             FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${search}', 'i')
             `);
@@ -168,6 +166,40 @@ export interface ThesaurusEntryInterface {
     description? :string;
 }
 
+export function addRootRestriction(childrenIdentifier: string, rootUris: string[] = ['http://lod.nal.usda.gov/nalt/12729'])
+{
+    let rootRestriction = `
+    ?root skos:narrower* ${childrenIdentifier} .
+    VALUES ?root {
+            ${rootUris.map((uri)=>
+            {
+                return '<' + uri +'>';
+            }).join(' ')}
+        }
+    `;
+    let graphRestriction = new GraphDefinition({
+        triplesContent: [rootRestriction],
+        prefixes: [
+            GlobalVariables.ONTOLOGY_PREFIX.skos
+        ]
+    })
+    return graphRestriction;
+}
+
+export function findRoots(childrenIdentifier: string)
+{
+    let rootRestriction = `
+    ?root skos:narrower* <${childrenIdentifier}> .
+    FILTER NOT EXISTS {?god skos:narrower ?root}
+    `;
+    let graphRestriction = new GraphDefinition({
+        triplesContent: [rootRestriction],
+        prefixes: [
+            GlobalVariables.ONTOLOGY_PREFIX.skos
+        ]
+    })
+    return graphRestriction;
+}
 
 
 

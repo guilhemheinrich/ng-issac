@@ -2,7 +2,7 @@ import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef }
 import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32 } from '../../configuration';
-import { ThesaurusEntry, SkosIdentifier } from '../thesaurusEntry';
+import { ThesaurusEntry, SkosIdentifier, addRootRestriction, findRoots } from '../thesaurusEntry';
 import { UniqueIdentifier } from '../../configuration';
 import { MermaidComponent } from '../../mermaid/mermaid.component';
 import { MatChipList } from '@angular/material';
@@ -22,8 +22,8 @@ export class ThesaurusDisplayComponent implements OnInit {
 
 
 
-  // @Input()
-  // currentIdentifier: UniqueIdentifier;
+  @Input('rootRestrictions')
+  rootRestrictions?: {uri:string, name:string}[]
   @ViewChild('mermaidGraph')
   meramidComponent: MermaidComponent
   @ViewChild('searchInput')
@@ -36,29 +36,9 @@ export class ThesaurusDisplayComponent implements OnInit {
   mapThesaurusEntries: { [uri: string]: ThesaurusEntry } = {};
   thesaurusEntries: ThesaurusEntry[] = <ThesaurusEntry[]>[];
   thesaurusEntry: ThesaurusEntry;
-  thesaurusEntriesChips: Array<{
-    thesaurusEntry: ThesaurusEntry,
-    selected: boolean
-  }> = [];
+
   searchResultChips: Array<UniqueIdentifier> = [];
-  lastSelectedChip: {
-    thesaurusEntry: ThesaurusEntry,
-    selected: boolean
-  } = Object.create({
-    selected: false
-  });
-  currentIdentiferChip: {
-    id: UniqueIdentifier,
-    selected: boolean,
-  }
-  siblingsIdentifiersChips: Array<{
-    thesaurusEntry: UniqueIdentifier,
-    selected: boolean
-  }> = [];
-  childsIdentifiersChips: Array<{
-    thesaurusEntry: UniqueIdentifier,
-    selected: boolean
-  }> = [];
+
 
   graphDefinition: string = ``;
   graphId: string = 'mermaidGraph';
@@ -82,6 +62,18 @@ export class ThesaurusDisplayComponent implements OnInit {
 
   ngOnChanges() {
     this.delayedAutocomplete();
+    /* Set the initial thesaurusEntry
+    Only fit the first 'root' if there is more than one
+    */
+    if (this.rootRestrictions !== undefined) {
+      var result = this.searchUri(this.rootRestrictions[0].uri);
+    result.subscribe((response => {
+      if (response['results']['bindings']) {
+        let toObjectify = <string>response['results']['bindings'][0].ThesaurusEntry.value;  
+        this.thesaurusEntry = new ThesaurusEntry(JSON.parse(toObjectify));
+      }
+    })); 
+    }
   }
 
 
@@ -100,7 +92,6 @@ export class ThesaurusDisplayComponent implements OnInit {
     var result = this.search(this.searchField);
     result.subscribe((response => {
       if (response['results']['bindings']) {
-        // this._parseResults(response['results']['bindings']);
         this._parseSearch(response['results']['bindings']);
       }
     }));
@@ -115,67 +106,54 @@ export class ThesaurusDisplayComponent implements OnInit {
 
   onMatClicked(id) {
     this.onClickIdentifier(id);
-    // tec.selected = !tec.selected;
-    // if (tec.selected == true) 
-    // {
-    // }
-    // if (this.lastSelectedChip != tec && this.lastSelectedChip.selected == true)
-    // {
-    //   this.lastSelectedChip.selected = false;
-    // }
-    // this.lastSelectedChip = tec;
-    // console.log(this.selectedIndex);
-    // console.log(this.chipList.chips);
-    // console.log(this.chipList.chips[index]);
-    // this.chipList.chips[index].selected = true; 
   }
 
   onClickIdentifier(identifier: UniqueIdentifier) {
-    // if (!identifier.uri) return;
+
     this.result.emit(identifier);
     var result = this.searchUri(identifier.uri);
     result.subscribe((response => {
       if (response['results']['bindings']) {
-        // this.computeGraphDefinition(identifier, response['results']['bindings']);
-        console.log(response['results']['bindings'][0].ThesaurusEntry.value);
         let toObjectify = <string>response['results']['bindings'][0].ThesaurusEntry.value;  
-        // toObjectify = toObjectify.replace(/\"\"/g,"null");
-        console.log(toObjectify);
         this.thesaurusEntry = new ThesaurusEntry(JSON.parse(toObjectify));
-        console.log(this.thesaurusEntry);
-        
       }
     }));
-
+    var roots = findRoots(identifier.uri);
+    this.sparqlParser.clear();
+    this.sparqlParser.queryType = QueryType.QUERY;
+    this.sparqlParser.prefixes = roots.prefixes;
+    this.sparqlParser.graphPattern = roots;
+    console.log(this.sparqlParser.toString());
+    let rootsResults = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
+    rootsResults.subscribe((response => {
+      if (this.rootRestrictions !== undefined) {
+        this.rootRestrictions.forEach((identifier) => {
+          $(`.skosRoot[data-id="${identifier.uri}"`).removeClass('selected');
+        })
+      }
+      response['results']['bindings'].forEach((element) => {
+        $(`.skosRoot[data-id="${element.root.value}"`).addClass('selected');
+      })
+    }))
   }
-
-  // private _postProcess(eventContent: any) {
-  //   // Add click event
-  //   if (this.thesaurusEntry.parent) {
-  //     let node = document.getElementById('Parent');
-  //     node.addEventListener("click", () => this.onClickIdentifier(this.thesaurusEntry.parent));
-  //   }
-  //   this.thesaurusEntry.childs.forEach(((child, index) => {
-  //     let node = document.getElementById('C' + index);
-  //     node.addEventListener("click", () => this.onClickIdentifier(child));
-  //   }));
-  //   this.thesaurusEntry.siblings.forEach(((sibling, index) => {
-  //     let node = document.getElementById('S' + index);
-  //     node.addEventListener("click", () => this.onClickIdentifier(sibling));
-  //   }));
-  // }
 
   // Query the search filled for identifiers
   search(input: string) {
    
 
     this.sparqlParser.clear();
-    // this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
     this.sparqlParser.queryType = QueryType.QUERY;
     this.sparqlParser.prefixes = SkosIdentifier.requiredPrefixes;
     let emptySkosIdentifier = new SkosIdentifier();
     var query = emptySkosIdentifier.parseSkeleton();
     var gather = emptySkosIdentifier.parseGather(input, query);
+    if (this.rootRestrictions !== undefined) {
+      let uriRootRestrictions = this.rootRestrictions.map((identifier)=> {
+        return identifier.uri;
+      });
+      let graphRestriction = addRootRestriction(emptySkosIdentifier.sparqlIdentifier('uri'), uriRootRestrictions);
+      gather.merge(graphRestriction);
+    }
     this.sparqlParser.graphPattern = gather;
     this.sparqlParser.select[0] = emptySkosIdentifier.makeBindings();
     console.log(this.sparqlParser.toString());
@@ -214,10 +192,10 @@ export class ThesaurusDisplayComponent implements OnInit {
 
  
 
-  computeChipList() {
-    this.currentIdentiferChip = Object.create({ id: this.thesaurusEntry.id, selected: true });
-    this.thesaurusEntry.childs.forEach((child) => { });
-  }
+  // computeChipList() {
+  //   this.currentIdentiferChip = Object.create({ id: this.thesaurusEntry.id, selected: true });
+  //   this.thesaurusEntry.childs.forEach((child) => { });
+  // }
 
 
 

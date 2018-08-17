@@ -124,11 +124,13 @@ export interface IGraphDefinition {
   triplesContent?: string[];
   subPatterns?: Array<[GraphDefinition, SubPatternType]>;
   namedGraph?: string;
+  prefixes?: Array<Prefix>;
 }
 export class GraphDefinition {
   triplesContent: string[];
   subPatterns?: Array<[GraphDefinition, SubPatternType]>;
   namedGraph?: string;
+  prefixes?: Array<Prefix>;
 
   constructor(
     options: IGraphDefinition = {}
@@ -137,11 +139,9 @@ export class GraphDefinition {
       this.triplesContent = [];
     } else {
       this.triplesContent = options.triplesContent;
-
     }
     this.subPatterns = new Array<[GraphDefinition, SubPatternType]>();
     if (options.subPatterns !== undefined) {
-
       options.subPatterns.forEach((pairGraphType) => {
         this.subPatterns.push([new GraphDefinition(JSON.parse(JSON.stringify(pairGraphType[0]))), pairGraphType[1]])
       });
@@ -149,6 +149,11 @@ export class GraphDefinition {
     }
     if (options.namedGraph) {
       this.namedGraph = options.namedGraph;
+    }
+    if (options.prefixes === undefined) {
+      this.prefixes = [];
+    } else {
+      this.prefixes = options.prefixes;
     }
   }
 
@@ -163,6 +168,12 @@ export class GraphDefinition {
     if (otherGraphDefinition.subPatterns) {
       otherGraphDefinition.subPatterns.forEach((graphDefinition) => {
         this.subPatterns.push(graphDefinition);
+      });
+    }
+
+    if (otherGraphDefinition.prefixes) {
+      otherGraphDefinition.prefixes.forEach((prefix) => {
+        this.prefixes.push(prefix);
       });
     }
   }
@@ -240,7 +251,7 @@ export class SparqlClass {
   makeBindings() {
       let jsonBindings = `(concat('`;
       jsonBindings += this.processBindings()
-      jsonBindings += `')) AS ?` + this.constructor.name;
+      jsonBindings += `') AS ?` + this.constructor.name + ')';
       return jsonBindings;
   }
 

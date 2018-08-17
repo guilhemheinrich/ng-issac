@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, Input, EventEmitter, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { Action, IAction, ActionType } from '../../processus';
-import { UniqueIdentifier } from '../../../configuration';
+import { UniqueIdentifier, GlobalVariables } from '../../../configuration';
 import { ThesaurusDisplayComponent } from '../../../thesaurus/thesaurus-display/thesaurus-display.component';
 import {ActionDisplayerService} from '../action-displayer.service';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
@@ -11,7 +11,7 @@ import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 })
 export class ActionDisplayComponent implements OnInit {
 
-
+  agentRootElement = [GlobalVariables.NAMED_INDIVIDUALS.taxonomic_classification_of_organisms]
 
   @Input()
   action: Action;

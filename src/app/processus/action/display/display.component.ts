@@ -89,41 +89,20 @@ export class ActionDisplayComponent implements OnInit {
   }
 
   openModal(action?: Action) {
-    console.log('called open');
+
     this.oldAction = new Action(<IAction>JSON.parse(JSON.stringify(action)));
     this.action = new Action(<IAction>JSON.parse(JSON.stringify(action)));
-    // console.log('Action when opening the modal');
-    // console.log(this.oldAction);
-    // if (this.action.agent && this.action.agent.uri) {
-    //   // this.thesaurusComponent.onClickIdentifier(this.action.agent);
-    //   var result = this.thesaurusComponent.searchUri(this.action.agent.uri);
-    //   result.subscribe((response => {
-    //     console.log("here");
-    //     if (response['results']['bindings']) {
-    //       console.log("or there");
-
-    //       this.thesaurusComponent.computeGraphDefinition(this.action.agent, response['results']['bindings']);
-    //     }
-    //   }))
-    // }
     this.modal.nativeElement.style.display = "block";
   }
 
   onThesaurusResult(thesaurusIdentifier: UniqueIdentifier) {
-    // this.action = new Action(this.action);
     this.action.agent.name = thesaurusIdentifier.name;
     this.action.agent.uri = thesaurusIdentifier.uri;
   }
 
   onSubmitAction()
   {
-    // console.log('Action submitted : ');
-    // console.log(this.action);
-    // console.log('While old action were : ');
-    // console.log(this.oldAction);
-
     if (this.action.agent.uri === "") return;
-    // this.outAction.emit([this.oldAction, this.action]);
     this.actionDisplayerService.output(this.oldAction, this.action);
     this.oldAction = new Action(<IAction>JSON.parse(JSON.stringify(this.action)));
   }
@@ -141,4 +120,16 @@ export class ActionDisplayComponent implements OnInit {
     this.oldAction  = new Action();
   }
 
+  togglePanel(id: string)
+  {
+    let toggledElement = $(`.myCollapse#${id}`);
+    
+    if (toggledElement.css('display') === 'none') {
+      $('.myCollapse').css('display', 'none');
+      toggledElement.css('display', 'inline');
+      console.log(toggledElement);
+    } else {
+      toggledElement.css('display', 'none');
+    }
+  }
 }

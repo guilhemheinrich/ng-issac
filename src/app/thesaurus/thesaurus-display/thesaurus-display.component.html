@@ -1,13 +1,13 @@
-<div style="position: relative;  overflow-x:hidden" [style.height]="height">
-<div *ngIf="rootRestrictions" style="position: relative; max-width: 300px; margin: auto">
-    <mat-chip-list >
-        <div *ngFor="let root of rootRestrictions;">
-            <mat-chip class="skosRoot" (click)="onClickIdentifier(root)" [attr.data-id]="root.uri" >
-              {{ root.name }}</mat-chip>
-        </div>
-      </mat-chip-list>
+<div *ngIf="rootRestrictions" style="position: relative; max-height:200px; margin: auto">
+  <mat-chip-list>
+    <div *ngFor="let root of rootRestrictions;">
+      <mat-chip class="skosRoot" (click)="onClickIdentifier(root)" [attr.data-id]="root.uri">
+        {{ root.name }}</mat-chip>
+    </div>
+  </mat-chip-list>
 </div>
-
+<div style="position: relative;  overflow-x:hidden" [style.height]="height">
+  <br/>
   <div style="position:relative">
 
     <div class="input-group mb-3">
@@ -38,14 +38,14 @@
       </div>
     </div>
     <br/>
-    <div *ngIf="thesaurusEntry.parents[0].name !==''" >
-      Parent(s) 
+    <div *ngIf="thesaurusEntry.parents[0].name !==''">
+      Parent(s)
       <mat-chip-list>
-          <div *ngFor="let parent of thesaurusEntry.parents;">
-            <mat-chip  (click)="onClickIdentifier(parent)">
-              {{ parent.name }}</mat-chip>
-          </div>
-        </mat-chip-list>
+        <div *ngFor="let parent of thesaurusEntry.parents;">
+          <mat-chip (click)="onClickIdentifier(parent)">
+            {{ parent.name }}</mat-chip>
+        </div>
+      </mat-chip-list>
     </div>
     <br/>
     <div *ngIf="thesaurusEntry.siblings && thesaurusEntry.siblings[0].name !==''">

@@ -16,10 +16,17 @@ export class SkosIdentifier extends SparqlClass{
         // We don't do anything if search is empty or undefined
         if (search === undefined || search == '') return graphPattern;
         gather.subPatterns.push([new GraphDefinition(), SubPatternType.EMPTY]);
-        ['uri', 'name'].forEach((attribute) => {
-            let gathering = new GraphDefinition(JSON.parse(JSON.stringify(graphPattern)));
+        let gatheringVariables = ['uri', 'name'];
+        let subselect = gatheringVariables.map((value) => {
+            return this.sparqlIdentifier(value);
+        }).join(' ');
+        gatheringVariables.forEach((attribute) => {
+            let gathering = new GraphDefinition();
             gathering.triplesContent.push(`
-            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${search}', 'i')
+            SELECT ${subselect} WHERE {
+                ${graphPattern.triplesContent.join(' ')}
+                FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${search}', 'i')
+            }
             `);
             gather.subPatterns.push([gathering, SubPatternType.UNION]);
         })
@@ -166,6 +173,9 @@ export interface ThesaurusEntryInterface {
     description? :string;
 }
 
+/*
+Used to add an inheritance restriction on an element based on a skos ontology 
+*/
 export function addRootRestriction(childrenIdentifier: string, rootUris: string[] = ['http://lod.nal.usda.gov/nalt/12729'])
 {
     let rootRestriction = `
@@ -186,6 +196,9 @@ export function addRootRestriction(childrenIdentifier: string, rootUris: string[
     return graphRestriction;
 }
 
+/*
+Find top level node of an element of a skos ontology 
+*/
 export function findRoots(childrenIdentifier: string)
 {
     let rootRestriction = `
@@ -199,6 +212,20 @@ export function findRoots(childrenIdentifier: string)
         ]
     })
     return graphRestriction;
+}
+
+export function findAllRoots(): string
+{
+    let allRootsQuery = `
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#> 
+    SELECT distinct ?firstBorn ?label WHERE {
+    ?firstBorn skos:narrower ?child .
+    ?firstBorn skos:prefLabel ?label .
+    FILTER NOT EXISTS {?god skos:narrower ?firstBorn}
+    FILTER  (lang(?label) = 'en')
+    }
+    `;
+    return allRootsQuery;
 }
 
 

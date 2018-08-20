@@ -2,7 +2,7 @@ import { Component, OnInit, EventEmitter, Output, Input, ViewChild, ElementRef }
 import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32 } from '../../configuration';
-import { ThesaurusEntry, SkosIdentifier, addRootRestriction, findRoots } from '../thesaurusEntry';
+import { ThesaurusEntry, SkosIdentifier, addRootRestriction, findRoots, findAllRoots } from '../thesaurusEntry';
 import { UniqueIdentifier } from '../../configuration';
 import { MermaidComponent } from '../../mermaid/mermaid.component';
 import { MatChipList } from '@angular/material';
@@ -23,7 +23,7 @@ export class ThesaurusDisplayComponent implements OnInit {
 
 
   @Input('rootRestrictions')
-  rootRestrictions?: {uri:string, name:string}[]
+  rootRestrictions?: { uri: string, name: string }[]
   @ViewChild('mermaidGraph')
   meramidComponent: MermaidComponent
   @ViewChild('searchInput')
@@ -55,6 +55,7 @@ export class ThesaurusDisplayComponent implements OnInit {
     private sparqlParser: SparqlParserService,
   ) {
     this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
+
   }
 
   ngOnInit() {
@@ -67,12 +68,22 @@ export class ThesaurusDisplayComponent implements OnInit {
     */
     if (this.rootRestrictions !== undefined) {
       var result = this.searchUri(this.rootRestrictions[0].uri);
-    result.subscribe((response => {
-      if (response['results']['bindings']) {
-        let toObjectify = <string>response['results']['bindings'][0].ThesaurusEntry.value;  
-        this.thesaurusEntry = new ThesaurusEntry(JSON.parse(toObjectify));
-      }
-    })); 
+      result.subscribe((response => {
+        if (response['results']['bindings']) {
+          let toObjectify = <string>response['results']['bindings'][0].ThesaurusEntry.value;
+          this.thesaurusEntry = new ThesaurusEntry(JSON.parse(toObjectify));
+        }
+      }));
+    } else {
+      let allRootsQuerry = findAllRoots();
+      console.log(allRootsQuerry);
+      let rootsResults = this.sparqlClient.queryByUrlEncodedPost(allRootsQuerry);
+      rootsResults.subscribe((response => {
+        this.rootRestrictions = response['results']['bindings'].map((element) => {
+          return {uri: element.firstBorn.value, name: element.label.value} ;
+        })
+      }));
+      
     }
   }
 
@@ -114,7 +125,7 @@ export class ThesaurusDisplayComponent implements OnInit {
     var result = this.searchUri(identifier.uri);
     result.subscribe((response => {
       if (response['results']['bindings']) {
-        let toObjectify = <string>response['results']['bindings'][0].ThesaurusEntry.value;  
+        let toObjectify = <string>response['results']['bindings'][0].ThesaurusEntry.value;
         this.thesaurusEntry = new ThesaurusEntry(JSON.parse(toObjectify));
       }
     }));
@@ -139,7 +150,7 @@ export class ThesaurusDisplayComponent implements OnInit {
 
   // Query the search filled for identifiers
   search(input: string) {
-   
+
 
     this.sparqlParser.clear();
     this.sparqlParser.queryType = QueryType.QUERY;
@@ -148,7 +159,7 @@ export class ThesaurusDisplayComponent implements OnInit {
     var query = emptySkosIdentifier.parseSkeleton();
     var gather = emptySkosIdentifier.parseGather(input, query);
     if (this.rootRestrictions !== undefined) {
-      let uriRootRestrictions = this.rootRestrictions.map((identifier)=> {
+      let uriRootRestrictions = this.rootRestrictions.map((identifier) => {
         return identifier.uri;
       });
       let graphRestriction = addRootRestriction(emptySkosIdentifier.sparqlIdentifier('uri'), uriRootRestrictions);
@@ -175,7 +186,7 @@ export class ThesaurusDisplayComponent implements OnInit {
   }
 
   searchUri(uri: string) {
-    
+
     this.sparqlParser.clear();
     this.sparqlParser.queryType = QueryType.QUERY;
     this.sparqlParser.prefixes = ThesaurusEntry.requiredPrefixes;
@@ -190,7 +201,7 @@ export class ThesaurusDisplayComponent implements OnInit {
     return result;
   }
 
- 
+
 
   // computeChipList() {
   //   this.currentIdentiferChip = Object.create({ id: this.thesaurusEntry.id, selected: true });

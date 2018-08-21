@@ -158,15 +158,24 @@ export class ThesaurusDisplayComponent implements OnInit {
     let emptySkosIdentifier = new SkosIdentifier();
     var query = emptySkosIdentifier.parseSkeleton();
     var gather = emptySkosIdentifier.parseGather(input, query);
+    this.sparqlParser.graphPattern = gather;
     if (this.rootRestrictions !== undefined) {
       let uriRootRestrictions = this.rootRestrictions.map((identifier) => {
         return identifier.uri;
       });
+      let subselect = SkosIdentifier.gatheringVariables.map((value) => {
+        return emptySkosIdentifier.sparqlIdentifier(value);
+    }).join(' ');
+      let wrapedGraph = new GraphDefinition({triplesContent: [`
+      {SELECT DISTINCT${subselect} WHERE
+        ${gather.toString()}
+      }
+      `]});
       let graphRestriction = addRootRestriction(emptySkosIdentifier.sparqlIdentifier('uri'), uriRootRestrictions);
-      gather.merge(graphRestriction);
+      wrapedGraph.merge(graphRestriction);
+      this.sparqlParser.graphPattern = wrapedGraph;
     }
-    this.sparqlParser.graphPattern = gather;
-    this.sparqlParser.select[0] = emptySkosIdentifier.makeBindings();
+    this.sparqlParser.select[0] = ' DISTINCT ' + emptySkosIdentifier.makeBindings();
     console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;

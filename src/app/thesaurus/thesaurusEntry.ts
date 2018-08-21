@@ -11,19 +11,20 @@ export class SkosIdentifier extends SparqlClass{
         GlobalVariables.ONTOLOGY_PREFIX.skos
     ]
 
+    static readonly gatheringVariables = ['uri', 'name'];
+
     parseGather(search: string, graphPattern: GraphDefinition): GraphDefinition {
         var gather = new GraphDefinition();
         // We don't do anything if search is empty or undefined
         if (search === undefined || search == '') return graphPattern;
         gather.subPatterns.push([new GraphDefinition(), SubPatternType.EMPTY]);
-        let gatheringVariables = ['uri', 'name'];
-        let subselect = gatheringVariables.map((value) => {
+        let subselect = SkosIdentifier.gatheringVariables.map((value) => {
             return this.sparqlIdentifier(value);
         }).join(' ');
-        gatheringVariables.forEach((attribute) => {
+        SkosIdentifier.gatheringVariables.forEach((attribute) => {
             let gathering = new GraphDefinition();
             gathering.triplesContent.push(`
-            SELECT ${subselect} WHERE {
+            SELECT DISTINCT ${subselect} WHERE {
                 ${graphPattern.triplesContent.join(' ')}
                 FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${search}', 'i')
             }
@@ -157,6 +158,7 @@ export class ThesaurusEntry extends SparqlClass{
         query.triplesContent.push(
             `OPTIONAL {
                 ${emptySkosIdentifier.sparqlIdentifier('uri', this.sparqlIdentifier('id'))} skos:altLabel ${this.sparqlIdentifier('synonyms')} .\n
+                FILTER  (lang(${this.sparqlIdentifier('synonyms', prefix)}) = 'en')
             }`
         );
         
@@ -218,7 +220,7 @@ export function findAllRoots(): string
 {
     let allRootsQuery = `
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#> 
-    SELECT distinct ?firstBorn ?label WHERE {
+    SELECT DISTINCT ?firstBorn ?label WHERE {
     ?firstBorn skos:narrower ?child .
     ?firstBorn skos:prefLabel ?label .
     FILTER NOT EXISTS {?god skos:narrower ?firstBorn}

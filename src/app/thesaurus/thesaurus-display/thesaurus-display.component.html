@@ -1,4 +1,6 @@
-<div *ngIf="rootRestrictions" style="position: relative; max-height:200px; margin: auto">
+
+<div style="position: relative;  overflow-x:hidden" [style.height]="height">
+<div *ngIf="rootRestrictions" style=" max-height:200px; margin: auto; display: inline-block">
   <mat-chip-list>
     <div *ngFor="let root of rootRestrictions;">
       <mat-chip class="skosRoot" (click)="onClickIdentifier(root)" [attr.data-id]="root.uri">
@@ -6,7 +8,7 @@
     </div>
   </mat-chip-list>
 </div>
-<div style="position: relative;  overflow-x:hidden" [style.height]="height">
+  <br/>
   <br/>
   <div style="position:relative">
 

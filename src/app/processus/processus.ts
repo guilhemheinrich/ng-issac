@@ -284,9 +284,9 @@ export class Processus extends SparqlClass {
 
         let emptyUser = new Agent();
         query.triplesContent.push(
-            `${this.sparqlIdentifier('uri', prefix)} admin:hasWriteAccess ${emptyUser.sparqlIdentifier('uri', 'Processus')} .\n`
+            `${this.sparqlIdentifier('uri', prefix)} admin:hasWriteAccess ${emptyUser.sparqlIdentifier('uri', this.sparqlIdentifier('owners', prefix))} .\n`
         );
-        let userPattern = emptyUser.parseSkeleton('Processus');
+        let userPattern = emptyUser.parseSkeleton(this.sparqlIdentifier('owners', prefix));
         query.merge(userPattern);
         let emptyAction = new Action();
         let actionPattern = new GraphDefinition({
@@ -296,7 +296,7 @@ export class Processus extends SparqlClass {
             `
             ]
         });
-        actionPattern.merge(emptyAction.parseSkeleton('Processus'));
+        actionPattern.merge(emptyAction.parseSkeleton(this.sparqlIdentifier('actions', prefix)));
         query.subPatterns.push([actionPattern, SubPatternType.OPTIONAL]);
         return query;
     }
@@ -314,7 +314,7 @@ export class Processus extends SparqlClass {
         });
         this.owners.forEach((owner) => {
             query.triplesContent.push(
-                `<${this.uri}> admin:hasWriteAccess <${owner}> .\n`
+                `<${this.uri}> admin:hasWriteAccess <${owner.uri}> .\n`
             );
         });
         let actions = (<Array<Action>>this.inputs).concat(<Array<Action>>this.outputs).concat(<Array<Action>>this.actions);

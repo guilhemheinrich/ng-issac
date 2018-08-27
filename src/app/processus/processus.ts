@@ -282,7 +282,7 @@ export class Processus extends SparqlClass {
                     `
             ${this.sparqlIdentifier('uri', prefix)} a issac:Process .\n
             ${this.sparqlIdentifier('uri', prefix)} rdfs:label ${this.sparqlIdentifier('name', prefix)} .\n
-            OPTIONAL { ${this.sparqlIdentifier('uri', prefix)} rdfs:label ${this.sparqlIdentifier('description', prefix)} } .\n
+            OPTIONAL { ${this.sparqlIdentifier('uri', prefix)} skos:definition ${this.sparqlIdentifier('description', prefix)} } .\n
             `
                 ]
             });
@@ -313,7 +313,7 @@ export class Processus extends SparqlClass {
                 `
             <${this.uri}> a issac:Process .\n
             <${this.uri}> rdfs:label \"${this.name}\"^^xsd:string .\n
-            
+            <${this.uri}> skos:definition \"${this.description}\"^^xsd:string .\n
             `
             ]
         });

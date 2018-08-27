@@ -38,7 +38,7 @@
         <td>{{ processus.owners | concatenate }}</td>
         <td> <div class="btn-group" role="group" aria-label="Basic example">
           <a [routerLink]="['/processus/view', processus.uri]" class="btn btn-secondary" >View</a>
-          <button type="button" class="btn btn-secondary">Edit</button>
+          <a [routerLink]="['/processus/edit', processus.uri]" class="btn btn-secondary" >Edit</a>
         </div></td>
       </tr>
     </tbody>

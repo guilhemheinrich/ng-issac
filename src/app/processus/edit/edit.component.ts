@@ -19,6 +19,12 @@ import { Router,ActivatedRoute } from '@angular/router';
 
 })
 export class EditComponent implements OnInit {
+
+  /*
+  id is the uri of the process, in case we come here from the router/:id path
+  */
+  id: string;
+
   user = new Agent;
 
   action: Action = new Action();
@@ -75,6 +81,11 @@ export class EditComponent implements OnInit {
     Don't forget to properly clean old processus data
     when editing an already existing one`);
 
+    if (this._Activatedroute.snapshot.params['id']) {
+      this.id = this._Activatedroute.snapshot.params['id'];
+      this.loadProcessus();
+    }
+    
     this.action.agent = new UniqueIdentifier();
     this.processus.owners = [this.user];
     this.actionDisplayerService.oldToNewActions$.subscribe((oldAndNewAction) => 
@@ -186,6 +197,8 @@ export class EditComponent implements OnInit {
     var deleteOperation = this.processus.operationDelete();
     this.sparqlParser.graphDefinition = deleteOperation.quadPattern;
     this.sparqlParser.graphPattern = deleteOperation.graphPattern;
+    let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
+    result.subscribe((response => console.log(response)));
   }
 
   onSubmitProcessus() {
@@ -237,6 +250,40 @@ export class EditComponent implements OnInit {
       break;
     }
     oldAction = null;
+  }
+
+
+  loadProcessus() {
+    this.processus = new Processus();
+    this.sparqlParser.clear();
+    // this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
+    this.sparqlParser.queryType = QueryType.QUERY;
+    this.sparqlParser.prefixes = Processus.requiredPrefixes;
+
+    var query = this.processus.parseSkeleton();
+    
+    // this.sparqlParser.order = '?uriSibling';
+    this.sparqlParser.graphPattern = query;
+    this.sparqlParser.graphPattern.merge(this.processus.parseRestricter('uri', [this.id]));
+    this.sparqlParser.select[0] = ' DISTINCT ' + this.processus.makeBindings();
+    let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
+    result.subscribe((response => {
+      
+      this.processus = new Processus(JSON.parse(response.results.bindings[0].Processus.value));
+      this.processus.actions.forEach((action) => {
+        switch (action.type)
+        {
+          case ActionType.INPUT:
+          this.processus.inputs.push(new Input({agentUri: action.agentUri, agentLabel: action.agentLabel}));
+          break;
+          case ActionType.OUTPUT:
+          this.processus.outputs.push(new Output({agentUri: action.agentUri, agentLabel: action.agentLabel}));
+          break;
+        }
+      });
+      // this.ngOnChanges();
+      
+    }))
   }
 
 }

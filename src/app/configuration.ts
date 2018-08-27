@@ -24,7 +24,7 @@ export const GlobalVariables = Object.freeze({
         'rdfs'  : {prefix : 'rdfs',  uri : 'http://www.w3.org/2000/01/rdf-schema#' },
         'skos'  : {prefix : 'skos',  uri : 'http://www.w3.org/2004/02/skos/core#' },
         'foaf'  : {prefix : 'foaf',  uri : 'http://xmlns.com/foaf/0.1/' },
-        'admin' : {prefix : 'admin', uri : 'http://www.semanticweb.org/heinrich/ontologies/2018/administration' },
+        'admin' : {prefix : 'admin', uri : 'http://www.semanticweb.org/heinrich/ontologies/2018/administration#' },
 
         // Context and nomination
         'context_processus_added'   : {prefix : 'context_processus_added', uri : 'http://ECPP_models/processus_added/set/' },

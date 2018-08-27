@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {Processus, Action} from '../processus';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
-import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 import { SparqlClientService } from '../../sparql-client.service';
+import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 import { Agent } from '../../authentification/user';
 
 @Component({
@@ -33,7 +33,7 @@ export class IndexComponent implements OnInit {
   constructor(
     private sparqlParser: SparqlParserService,
     private sparqlClient: SparqlClientService) {
-
+      this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
   }
 
   ngOnInit() {
@@ -79,7 +79,7 @@ export class IndexComponent implements OnInit {
     var gather = this.processusFilter.parseGather(this.searchField, query);
     
     this.sparqlParser.graphPattern = gather;
-    this.sparqlParser.select[0] = this.processusFilter.makeBindings();
+    this.sparqlParser.select[0] = ' DISTINCT ' + this.processusFilter.makeBindings();
     console.log(this.sparqlParser.toString());
     console.log(this.sparqlParser);
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());

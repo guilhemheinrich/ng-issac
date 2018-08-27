@@ -11,6 +11,7 @@ import { ActionDisplayerService } from '../action/action-displayer.service';
 import * as $ from 'jquery';
 import * as _ from 'underscore';
 import {SessionStorageService} from 'ngx-webstorage';
+import { Router,ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
@@ -41,10 +42,9 @@ export class EditComponent implements OnInit {
     private sparqlParser: SparqlParserService,
     private logService: LogService,
     private actionDisplayerService: ActionDisplayerService,
+    private _Activatedroute:ActivatedRoute,
   ) {
-    // var values = Object.keys(Action.types).map((key) => {
-    //   this.actionTypes.push({ 'key': key, 'value': Action.types[key] });
-    // });
+
 
     let options = Object.values(ActionType);
     this.actionTypes = options;
@@ -169,6 +169,7 @@ export class EditComponent implements OnInit {
     this.processus.generateUri();
     var saveQuery = this.processus.parseIdentity();
     this.sparqlParser.graphDefinition = saveQuery;
+    console.log(this.processus);
     console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response => console.log(response)));

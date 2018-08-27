@@ -15,6 +15,7 @@ export class Action extends SparqlClass {
 
     agent: UniqueIdentifier;
 
+    @Litteral()
     agentLabel: string;
     @Uri()
     agentUri: string;
@@ -37,13 +38,15 @@ export class Action extends SparqlClass {
             if (options.agent) {
                 this.agentUri = options.agent.uri;
                 this.agentLabel = options.agent.name;
+                this.agent = options.agent;
+            } else {
+                this.agentUri = options.agentUri;
+                this.agentLabel = options.agentLabel;
+                this.agent = {uri: this.agentUri, name: this.agentLabel};
             }
             // this.uri = options.uri;
-            this.agent = options.agent;
             this.roles = options.roles;
             this.type = options.type;
-            this.agentUri = options.agentUri;
-            this.agentLabel = options.agentLabel;
         }
     };
 
@@ -54,6 +57,7 @@ export class Action extends SparqlClass {
                 `
             [
                 issac:hasAgentType <${this.agent.uri}> ;\n
+                issac:hasAgentLabel "${this.agent.name}" ;\n
                 issac:hasActionType "${this.type}" ;\n
             ] .
             `
@@ -68,7 +72,8 @@ export class Action extends SparqlClass {
                 `
             [
                 issac:hasAgentType ${this.sparqlIdentifier('agentUri', prefix)} ;\n
-                issac:hasActionType ${this.sparqlIdentifier('type', prefix)} ;\n    
+                issac:hasActionType ${this.sparqlIdentifier('type', prefix)} ;\n
+                issac:hasAgentLabel ${this.sparqlIdentifier('agentLabel', prefix)} ;\n
             ] .
             `
             ]

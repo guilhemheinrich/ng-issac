@@ -60,3 +60,10 @@ export class selectFieldPipe implements PipeTransform {
 function isPrimitive(test) {
     return (test !== Object(test));
 };
+
+function pathArrayToProperty (path: string[], object: Object)
+{
+    path.reduce((accumulator, currentValue) => {
+        return object[currentValue];
+    });
+}

@@ -1,8 +1,11 @@
 import { HostListener, Component, OnInit, Input, OnChanges, ViewChild, ElementRef, EventEmitter, Output } from '@angular/core';
-import { Processus, Action, ActionType, IAction } from '../processus';
+import { Processus, Action, ActionType, IAction, Input as pInput, Output as pOutput } from '../processus';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 import {MermaidComponent } from '../../mermaid/mermaid.component';
 import { ActionDisplayerService } from '../action/action-displayer.service';
+import { Router,ActivatedRoute } from '@angular/router';
+import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
+import { SparqlClientService } from '../../sparql-client.service';
 
 @Component({
   selector: 'app-view',
@@ -14,6 +17,7 @@ export class ViewComponent implements OnInit {
   @Input()
   editable: boolean = false;
 
+  id: string;
 
   @Output()
   emittedAction: EventEmitter<Action> = new EventEmitter<Action>();
@@ -33,27 +37,29 @@ export class ViewComponent implements OnInit {
 
 
   constructor(
-    private actionDisplayerService: ActionDisplayerService
+    private actionDisplayerService: ActionDisplayerService,
+    private _Activatedroute:ActivatedRoute,
+    private _router:Router,
+    private sparqlParser: SparqlParserService,
+    private sparqlClient: SparqlClientService
   ) {
     let options = Object.values(ActionType);
     this.actionTypes = options;
-
-
+    this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
    }
 
    ngOnInit()
    {
-     
+    if (this._Activatedroute.snapshot.params['id']) {
+      this.id = this._Activatedroute.snapshot.params['id'];
+      this.loadProcessus();
+    }
    }
 
-  ngAfterViewInit() {
-    console.log('called here');
-    // this.mermaidComponent.renderMermaid();
-  }
+
   ngOnChanges() {
-
-
     // console.log('onChange');
+    console.log(this.processus);
     var inputElements = this.processus.inputs.map((input) => {
       return input.agent.uri;
     });
@@ -157,4 +163,36 @@ export class ViewComponent implements OnInit {
     });
   }
 
+  loadProcessus() {
+    this.processus = new Processus();
+    this.sparqlParser.clear();
+    // this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
+    this.sparqlParser.queryType = QueryType.QUERY;
+    this.sparqlParser.prefixes = Processus.requiredPrefixes;
+
+    var query = this.processus.parseSkeleton();
+    
+    // this.sparqlParser.order = '?uriSibling';
+    this.sparqlParser.graphPattern = query;
+    this.sparqlParser.graphPattern.merge(this.processus.parseRestricter('uri', [this.id]));
+    this.sparqlParser.select[0] = ' DISTINCT ' + this.processus.makeBindings();
+    let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
+    result.subscribe((response => {
+      
+      this.processus = new Processus(JSON.parse(response.results.bindings[0].Processus.value));
+      this.processus.actions.forEach((action) => {
+        switch (action.type)
+        {
+          case ActionType.INPUT:
+          this.processus.inputs.push(new pInput({agentUri: action.agentUri, agentLabel: action.agentLabel}));
+          break;
+          case ActionType.OUTPUT:
+          this.processus.outputs.push(new pOutput({agentUri: action.agentUri, agentLabel: action.agentLabel}));
+          break;
+        }
+      });
+      this.ngOnChanges();
+      
+    }))
+  }
 }

@@ -339,7 +339,7 @@ export class Processus extends SparqlClass {
         var operation = new GraphDefinition({
             triplesContent: [
                 `?s ?p ?o .
-            ?o ?p1 ?o1
+                ?o ?p1 ?o1
             `
             ]
         });

@@ -4,6 +4,7 @@ import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-pa
 import { SparqlClientService } from '../../sparql-client.service';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 import { Agent } from '../../authentification/user';
+import {SessionStorageService} from 'ngx-webstorage';
 
 @Component({
   selector: 'app-index',
@@ -32,7 +33,8 @@ export class IndexComponent implements OnInit {
 
   constructor(
     private sparqlParser: SparqlParserService,
-    private sparqlClient: SparqlClientService) {
+    private sparqlClient: SparqlClientService,
+    private sessionSt:SessionStorageService,) {
       this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
   }
 
@@ -94,5 +96,12 @@ export class IndexComponent implements OnInit {
         processus.generateInputsOutputsFromActions();
       })
     }))
+  }
+
+  isProcessusOwned(processus: Processus) {
+    let loggedUser = new Agent(JSON.parse(this.sessionSt.retrieve('user')));
+    return processus.owners.some((owner) => {
+      return owner.uri == loggedUser.uri;
+    });
   }
 }

@@ -58,9 +58,12 @@ export class LoginComponent implements OnInit {
       prefix_agent:${hashedEmail} foaf:nick ?nickname .
       `
     ]});
+    console.log(this.sparqlParser.toString());
+
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response => 
       {
+        console.log(response);
         if (response.results.bindings.length !== 1) {
         } else {
           this.loggedUser.username = response.results.bindings[0].nickname.value;

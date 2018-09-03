@@ -30,7 +30,8 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 // Material stuff
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MaterialCustomModule} from './material-custom/material-custom.module'
+import {MaterialCustomModule} from './material-custom/material-custom.module';
+import { DisplayerComponent } from './messages/displayer/displayer.component'
 
 @NgModule({
   declarations: [
@@ -49,7 +50,8 @@ import {MaterialCustomModule} from './material-custom/material-custom.module'
     ConcatenatePipe,
     PrefixPipe,
     SuffixPipe,
-    MapPipe
+    MapPipe,
+    // DisplayerComponent
   ],
   imports: [
 

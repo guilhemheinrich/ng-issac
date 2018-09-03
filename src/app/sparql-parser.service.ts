@@ -206,6 +206,8 @@ export interface Prefix {
 
 
 export class SparqlClass {
+  uri: string;
+  
   readonly _sparqlAttributes;
   readonly _sparqlKey;
   constructor() {

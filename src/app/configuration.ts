@@ -16,8 +16,8 @@ export class UniqueIdentifier {
 export const GlobalVariables = Object.freeze({
     // Database relative informations
     TRIPLESTORE : {
-            // 'dsn' : 'http://147.99.7.61:8890/sparql',
-            'dsn' : 'http://127.0.0.1:8890/sparql',
+            'dsn' : 'http://147.99.7.61:8890/sparql',
+            // 'dsn' : 'http://127.0.0.1:8890/sparql',
             // 'dsn' : 'http://138.102.159.38:8080/sparql',
         },
     ONTOLOGY_PREFIX : {
@@ -25,6 +25,7 @@ export const GlobalVariables = Object.freeze({
         'issac' : {prefix : 'issac', uri : 'http://www.semanticweb.org/heinrich/ontologies/ECPP#' },
         'rdfs'  : {prefix : 'rdfs',  uri : 'http://www.w3.org/2000/01/rdf-schema#' },
         'skos'  : {prefix : 'skos',  uri : 'http://www.w3.org/2004/02/skos/core#' },
+        'oa' : {prefix : 'oa', uri : 'http://www.w3.org/ns/oa#' },
         'foaf'  : {prefix : 'foaf',  uri : 'http://xmlns.com/foaf/0.1/' },
         'admin' : {prefix : 'admin', uri : 'http://www.semanticweb.org/heinrich/ontologies/2018/administration#' },
 

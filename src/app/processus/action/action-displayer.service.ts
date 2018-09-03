@@ -6,14 +6,14 @@ import { Action } from '../processus';
   providedIn: 'root'
 })
 export class ActionDisplayerService {
-  public displayIn$: BehaviorSubject<Action> = new BehaviorSubject<Action>(null);
+  public displayIn$: BehaviorSubject<{'action' : Action, 'editable' : boolean}> = new BehaviorSubject(null);
   public oldToNewActions$: BehaviorSubject<[Action, Action]> = new BehaviorSubject<[Action, Action]>(null);
 
   constructor() { }
 
-  display(action: Action)
+  display(action: Action, editable = false)
   {
-    this.displayIn$.next(action);
+    this.displayIn$.next({'action' : action, 'editable' : editable});
   }
 
   output(oldAction: Action, action: Action)

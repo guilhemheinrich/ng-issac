@@ -3,6 +3,7 @@ import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import {GlobalVariables, hash32} from '../../configuration';
 import { LogService } from '../log.service';
+import { Router } from '@angular/router';
 
 import { User, Agent } from '../user';
 
@@ -18,7 +19,8 @@ export class LoginComponent implements OnInit {
   constructor(    
     private sparqlClient: SparqlClientService,
     private sparqlParser: SparqlParserService,
-    private logService: LogService
+    private logService: LogService,
+    private router: Router,
   ) { 
     // this.logService.logUpdate$.subscribe(
     //   value => {
@@ -70,6 +72,7 @@ export class LoginComponent implements OnInit {
           this.loggedUser.email = this.user.email;
           this.loggedUser.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_agent.uri + hashedEmail;
           this.logService.login(this.loggedUser);
+          this.router.navigate(['/processus/index']);
         }
       }));
   }

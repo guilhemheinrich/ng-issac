@@ -42,7 +42,7 @@ export class Action extends SparqlClass {
             } else {
                 this.agentUri = options.agentUri;
                 this.agentLabel = options.agentLabel;
-                this.agent = {uri: this.agentUri, name: this.agentLabel};
+                this.agent = { uri: this.agentUri, name: this.agentLabel };
             }
             // this.uri = options.uri;
             this.roles = options.roles;
@@ -234,7 +234,7 @@ export class Processus extends SparqlClass {
         return gather;
     }
 
-    parseFilter():GraphDefinition {
+    parseFilter(): GraphDefinition {
         var filter = new GraphDefinition();
         ['uri', 'name', 'description'].forEach((attribute) => {
             if (this[attribute] !== undefined && this[attribute] !== '')
@@ -393,10 +393,14 @@ export class Processus extends SparqlClass {
 
     generateActionsFromInputsAndOutputs() {
         this.actions = new Array<Action>();
-        this.inputs.forEach((input) => {this.actions.push(new Action(input)
-    )});
-    this.outputs.forEach((output) => {this.actions.push(new Action(output)
-    )})
+        this.inputs.forEach((input) => {
+            this.actions.push(new Action(input)
+            )
+        });
+        this.outputs.forEach((output) => {
+            this.actions.push(new Action(output)
+            )
+        })
     }
 
 }

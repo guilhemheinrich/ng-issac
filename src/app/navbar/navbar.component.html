@@ -1,6 +1,6 @@
   
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">ISSAC</a>
+    <a class="navbar-brand" routerLink="/home">ISSAC</a>
     <app-logger ></app-logger>
     <!-- From <https://stackoverflow.com/questions/41736554/responsive-navbar-with-angular-2-and-bootstrap-4> -->
 
@@ -10,7 +10,7 @@
     <div class="navbar-collapse"  [hidden]="collapse">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" (click)="collapse=true" href="#">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-link" (click)="collapse=true" routerLink="/home">Home <span class="sr-only">(current)</span></a>
         </li>
 
 

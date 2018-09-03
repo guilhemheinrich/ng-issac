@@ -27,8 +27,8 @@
             </form>
             <br/>
             <div class="btn-group" role="group">
-                <button [hidden]="!editable" class="btn btn-success" type="submit" value="Validate Agent" (click)="onSubmitAction()" [disabled]="!agentLabel.valid">Validate Agent</button>
-                <button [hidden]="!editable" class="btn btn-warning" value="Reset" (click)="onReset()">Reset</button>
+                <button class="btn btn-success" type="submit" value="Validate Agent" (click)="onSubmitAction()" [disabled]="!agentLabel.valid">Validate Agent</button>
+                <!-- <button [hidden]="!editable" class="btn btn-warning" value="Reset" (click)="onReset()">Reset</button> -->
                 <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
             </div>
 

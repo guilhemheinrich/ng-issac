@@ -110,7 +110,7 @@ export class ViewComponent implements OnInit {
     });
     // console.log('From view component, cliked action is :')
     // console.log(action);
-    this.actionDisplayerService.display(action);
+    this.actionDisplayerService.display(action, true);
     // this.thesaurus.onClickIdentifier(agent);
   }
 

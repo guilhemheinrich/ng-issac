@@ -43,7 +43,8 @@ export class ActionDisplayComponent implements OnInit {
 
   }
 
-  open(content) {
+  open(content, editable = false) {
+    this.editable = editable;
     this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
       this.closeResult = `Closed with: ${result}`;
     }, (reason) => {
@@ -62,9 +63,12 @@ export class ActionDisplayComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.actionDisplayerService.displayIn$.subscribe((action) =>
+    this.actionDisplayerService.displayIn$.subscribe((actionAndEditable) =>
     {
-      this.openModal(action);
+      if (actionAndEditable) {
+        this.editable = actionAndEditable.editable;
+        this.openModal(actionAndEditable.action);
+      }
     });
   }
 
@@ -105,6 +109,7 @@ export class ActionDisplayComponent implements OnInit {
     if (this.action.agent.uri === "") return;
     this.actionDisplayerService.output(this.oldAction, this.action);
     this.oldAction = new Action(<IAction>JSON.parse(JSON.stringify(this.action)));
+    this.closeModal();
   }
 
   onReset()
@@ -118,6 +123,7 @@ export class ActionDisplayComponent implements OnInit {
     this.action     = new Action();
     this.outAction.emit([this.oldAction, this.action]);
     this.oldAction  = new Action();
+    this.closeModal();
   }
 
   togglePanel(id: string)

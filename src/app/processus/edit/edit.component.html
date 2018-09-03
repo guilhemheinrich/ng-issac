@@ -1,7 +1,7 @@
 <!-- Trigger/Open The Modal -->
 
 
-<app-display [action]="action" (outAction)="handleSubmittedAction($event)" [editable]="true" #actionComponent></app-display>
+<app-display [action]="action" (outAction)="handleSubmittedAction($event)" [editable]="false" #actionComponent></app-display>
 <form #processusForm="ngForm">
 
     <div class="form-group">
@@ -20,7 +20,7 @@
         <textarea style="height:100px; width:100%" [(ngModel)]="processus.description" placeholder="Anything you want to comment about this processus"
             #processusDescription name="processusDescription"></textarea>
     </div>
-    <button (click)="openActionPanel();" class="btn btn-secondary">Add Agent</button>
+    <button (click)="openActionPanel();" class="btn btn-secondary" >Add Agent</button>
     <br/>
     <br/>
 

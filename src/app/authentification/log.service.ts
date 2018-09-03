@@ -22,6 +22,8 @@ export class LogService {
     this.sessionSt.store('user', JSON.stringify(user));
     if (this.redirectUrl) {
       this.router.navigate([this.redirectUrl]);
+    } else {
+      // this.router.navigate([this.redirectUrl]);
     }
     this.logUpdate$.next(user);
   }

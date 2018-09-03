@@ -349,13 +349,11 @@ export class Processus extends SparqlClass {
                 ?s ?p ?o .
                 OPTIONAL {
                     ?o ?p1 ?o1 .
-                    FILTER (isBlank(?o))
                 } .
                 VALUES ( ?s ) { (<${this.uri}>) }
             `
             ]
         });
-
         return { quadPattern: operation, graphPattern: whereClause };
     }
 
@@ -391,6 +389,14 @@ export class Processus extends SparqlClass {
                     break;
             }
         })
+    }
+
+    generateActionsFromInputsAndOutputs() {
+        this.actions = new Array<Action>();
+        this.inputs.forEach((input) => {this.actions.push(new Action(input)
+    )});
+    this.outputs.forEach((output) => {this.actions.push(new Action(output)
+    )})
     }
 
 }

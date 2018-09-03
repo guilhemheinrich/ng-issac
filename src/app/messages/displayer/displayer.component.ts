@@ -1,15 +1,15 @@
-// import { Component, OnInit, Input} from '@angular/core';
-// import * as Annotation from '../annotation';
-// import { SparqlClientService } from '../../sparql-client.service';
-// import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
-// import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
+import { Component, OnInit, Input} from '@angular/core';
+import * as Annotation from '../annotation';
+import { SparqlClientService } from '../../sparql-client.service';
+import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
+import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 
-// @Component({
-//   selector: 'app-displayer',
-//   templateUrl: './displayer.component.html',
-//   styleUrls: ['./displayer.component.css']
-// })
-// export class DisplayerComponent implements OnInit {
+@Component({
+  selector: 'app-displayer',
+  templateUrl: './displayer.component.html',
+  styleUrls: ['./displayer.component.css']
+})
+export class DisplayerComponent implements OnInit {
 
 //   @Input()
 //   uri: string
@@ -23,8 +23,8 @@
 //     this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
 //   }
 
-//   ngOnInit() {
-//   }
+  ngOnInit() {
+  }
 
 
 //   ngOnChanges() {
@@ -59,4 +59,4 @@
       
 //     // }))
 //   }
-// }
+}

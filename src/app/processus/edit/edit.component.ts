@@ -64,11 +64,6 @@ export class EditComponent implements OnInit {
 
     this.logService.logUpdate$.subscribe(
       value => {
-        // if (value) {
-        //   this.user = value;
-        // }
-        // console.log('log is ' + value);
-        // console.log('log is ' + (value != null));
 
       }
     );
@@ -91,12 +86,13 @@ export class EditComponent implements OnInit {
     this.actionDisplayerService.oldToNewActions$.subscribe((oldAndNewAction) => 
     {
       this.handleSubmittedAction(oldAndNewAction);
+      console.log(this.processus);
     });
   }
 
   ngOnChanges() {
     if (this.user == null) {
-      console.log('Handle not connection');
+      // console.log('Handle not connection');
     }
 
     // localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
@@ -104,7 +100,7 @@ export class EditComponent implements OnInit {
 
   ngAfterViewInit() 
   {
-    console.log(this.sessionSt.retrieve('currentProcessus'));
+    // console.log(this.sessionSt.retrieve('currentProcessus'));
   }
 
   onNameChange() {
@@ -127,9 +123,9 @@ export class EditComponent implements OnInit {
     this.processus = new Processus(oldProcessus);
     let oldAction = oldAndNewAction[0];
     this.action = oldAndNewAction[1];
-    // console.log($action);
+    // // console.log($action);
     this.deleteActionFromProcessus(oldAction);
-    // console.log($action);
+    // // console.log($action);
     // Perform deep copy
     let actionInterface = <IAction>JSON.parse(JSON.stringify(this.action));
 
@@ -159,7 +155,7 @@ export class EditComponent implements OnInit {
         }
         break;
       default:
-        console.log('in default, just deleted old action');
+        // console.log('in default, just deleted old action');
     }
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
   }
@@ -180,8 +176,8 @@ export class EditComponent implements OnInit {
     this.processus.generateUri();
     var saveQuery = this.processus.parseIdentity();
     this.sparqlParser.graphDefinition = saveQuery;
-    console.log(this.processus);
-    console.log(this.sparqlParser.toString());
+    // console.log(this.processus);
+    // console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response => console.log(response)));
   }
@@ -197,6 +193,7 @@ export class EditComponent implements OnInit {
     var deleteOperation = this.processus.operationDelete();
     this.sparqlParser.graphDefinition = deleteOperation.quadPattern;
     this.sparqlParser.graphPattern = deleteOperation.graphPattern;
+    // console.log( this.sparqlParser.toString()); 
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response => console.log(response)));
   }
@@ -250,6 +247,8 @@ export class EditComponent implements OnInit {
       break;
     }
     oldAction = null;
+    this.processus.generateActionsFromInputsAndOutputs();
+    // console.log(this.processus);
   }
 
 

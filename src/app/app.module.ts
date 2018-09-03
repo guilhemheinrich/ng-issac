@@ -31,6 +31,12 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 // Material stuff
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MaterialCustomModule} from './material-custom/material-custom.module';
+import {EditorModule} from 'primeng/editor';
+import {OverlayPanelModule} from 'primeng/overlaypanel';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {ButtonModule} from 'primeng/button';
+
+
 import { DisplayerComponent } from './messages/displayer/displayer.component';
 import { HomeComponent } from './home/home.component'
 
@@ -53,7 +59,7 @@ import { HomeComponent } from './home/home.component'
     SuffixPipe,
     MapPipe,
     HomeComponent,
-    // DisplayerComponent
+    DisplayerComponent
   ],
   imports: [
 
@@ -69,7 +75,10 @@ import { HomeComponent } from './home/home.component'
     Ng2Webstorage,
     NgbModule.forRoot(),
     BrowserAnimationsModule,
-    MaterialCustomModule
+    MaterialCustomModule,
+    InputTextareaModule,
+    OverlayPanelModule,
+    ButtonModule
     
   ],
   providers: [],

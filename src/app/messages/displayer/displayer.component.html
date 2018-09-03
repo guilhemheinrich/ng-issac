@@ -1,1 +1,11 @@
+<div>
+    <div *ngFor="let annotation of annotations;">
 
+    </div>
+    <button type="text" pButton (click)="op1.toggle($event)">Add comment</button>
+
+    <p-overlayPanel #op1 [showCloseIcon]="true" [dismissable]="false">
+            <textarea pInputTextarea></textarea>
+            <button type="text" pButton (click)="publish();op1.hide()">Close</button>
+    </p-overlayPanel>
+</div>

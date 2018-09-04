@@ -3,6 +3,7 @@
         <mat-card *ngFor="let annotation of annotations;">
             <mat-card-title>{{ annotation.creator.username }}</mat-card-title>
             <mat-card-content>{{ annotation.bodyValue }}</mat-card-content>
+            <mat-card-footer>{{ annotation.created | xsdDateToDate}}</mat-card-footer>
         </mat-card>
     </div>
 

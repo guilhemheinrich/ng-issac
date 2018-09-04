@@ -38,7 +38,8 @@ import {ButtonModule} from 'primeng/button';
 
 
 import { DisplayerComponent } from './messages/displayer/displayer.component';
-import { HomeComponent } from './home/home.component'
+import { HomeComponent } from './home/home.component';
+import { XsdDateToDatePipe } from './xsd-date-to-date.pipe'
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import { HomeComponent } from './home/home.component'
     SuffixPipe,
     MapPipe,
     HomeComponent,
-    DisplayerComponent
+    DisplayerComponent,
+    XsdDateToDatePipe
   ],
   imports: [
 

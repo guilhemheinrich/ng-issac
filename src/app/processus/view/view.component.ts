@@ -17,6 +17,7 @@ export class ViewComponent implements OnInit {
   @Input()
   editable: boolean = false;
 
+  @Input()
   id: string;
 
   @Output()
@@ -50,6 +51,9 @@ export class ViewComponent implements OnInit {
 
    ngOnInit()
    {
+    if (!this.id && this.processus && this.processus.uri) {
+      this.id = this.processus.uri;
+    }
     if (this._Activatedroute.snapshot.params['id']) {
       this.id = this._Activatedroute.snapshot.params['id'];
       this.loadProcessus();
@@ -58,8 +62,9 @@ export class ViewComponent implements OnInit {
 
 
   ngOnChanges() {
-    // console.log('onChange');
-    console.log(this.processus);
+    if (!this.id && this.processus && this.processus.uri) {
+      this.id = this.processus.uri;
+    }
     var inputElements = this.processus.inputs.map((input) => {
       return input.agent.uri;
     });

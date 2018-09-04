@@ -1,11 +1,15 @@
 <div>
-    <div *ngFor="let annotation of annotations;">
-
+    <div style="max-height: 50vh; overflow-x: hidden">
+        <mat-card *ngFor="let annotation of annotations;">
+            <mat-card-title>{{ annotation.creator.username }}</mat-card-title>
+            <mat-card-content>{{ annotation.bodyValue }}</mat-card-content>
+        </mat-card>
     </div>
-    <button type="text" pButton (click)="op1.toggle($event)">Add comment</button>
+
+    <button type="text" label="Add comment" pButton (click)="op1.toggle($event)"></button>
 
     <p-overlayPanel #op1 [showCloseIcon]="true" [dismissable]="false">
-            <textarea pInputTextarea></textarea>
-            <button type="text" pButton (click)="publish();op1.hide()">Close</button>
+        <textarea pInputTextarea [(ngModel)]="text"></textarea>
+        <button type="text" pButton label="Publish" (click)="publish();op1.hide()"></button>
     </p-overlayPanel>
 </div>

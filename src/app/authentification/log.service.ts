@@ -8,7 +8,7 @@ import {SessionStorageService} from 'ngx-webstorage';
 })
 export class LogService {
   isLoggedIn: boolean = false;
-  loggedUser: Agent = null;
+
   // store the URL so we can redirect after logging in
   redirectUrl: string;
   public logUpdate$: BehaviorSubject<Agent> = new BehaviorSubject<Agent>(null);
@@ -27,11 +27,16 @@ export class LogService {
     }
     this.logUpdate$.next(user);
   }
+  
+  loggedUser(): Agent
+  {
+    return JSON.parse(this.sessionSt.retrieve('user'));
+  }
 
   logout(){
-    this.loggedUser = null;
+
     this.isLoggedIn = false;
     this.sessionSt.clear('user');
-    this.logUpdate$.next(this.loggedUser);
+    this.logUpdate$.next(this.loggedUser());
   }
 }

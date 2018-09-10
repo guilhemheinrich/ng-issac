@@ -17,8 +17,8 @@ const routes: Routes = [
   { path: 'processus/index', component: IndexComponent, canActivate: [AuthGuard] },
   { path: 'processus/edit/:id', component: EditComponent, canActivate: [AuthGuard] },
   { path: 'processus/view/:id', component: ViewComponent, canActivate: [AuthGuard] },
-  // { path: 'home', component: HomeComponent},
-  { path: 'home', component: DisplayerComponent},
+  { path: 'home', component: HomeComponent},
+  // { path: 'home', component: DisplayerComponent},
 
   
 ];

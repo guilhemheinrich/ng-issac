@@ -9,25 +9,20 @@
         <div class="modal-body">
             <form #actionForm="ngForm">
                 <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">Type</span>
-                    </div>
-                    <select [(ngModel)]="action.type" placeholder="Agent Type" class="form-control" required name="actionType" #agentLabel="ngModel">
-                        <option *ngFor="let type of actionTypes;" value="{{ type }}"> {{ type }}</option>
-                    </select>
+
 
                     <div class="input-group-append" #inputAgentLabel>
-                        <span class="input-group-text">{{action.agent.name}}</span>
+                        <span class="input-group-text">{{agent.label}}</span>
                     </div>
                     <div class="input-group-append">
-                        <span class="input-group-text">{{action.agent.uri}}</span>
+                        <span class="input-group-text">{{agent.uri}}</span>
                     </div>
                 </div>
 
             </form>
             <br/>
             <div class="btn-group" role="group">
-                <button class="btn btn-success" type="submit" value="Validate Agent" (click)="onSubmitAction()" [disabled]="!agentLabel.valid">Validate Agent</button>
+                <button class="btn btn-success" type="submit" value="Validate Agent" (click)="onSubmitAgent()" >Validate Agent</button>
                 <!-- <button [hidden]="!editable" class="btn btn-warning" value="Reset" (click)="onReset()">Reset</button> -->
                 <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
             </div>

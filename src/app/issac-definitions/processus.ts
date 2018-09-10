@@ -1,7 +1,8 @@
-import { Uri, Litteral, SparqlClass, GraphDefinition, SubPatternType, Collection, SparqlObject } from 'src/app/sparql-parser.service';
+import { Uri, Litteral, SparqlClass, GraphDefinition, SubPatternType, Collection, SparqlObject, Prefix, SparqlType } from 'src/app/sparql-parser.service';
 import { IssacAgent } from './agent';
 import { IssacContext } from './context';
 import { Agent } from 'src/app/authentification/user';
+import { GlobalVariables } from '../configuration';
 
 export interface IIssacProcessus {
     uri?: string;
@@ -24,15 +25,21 @@ export class IssacProcessus extends SparqlClass {
 
     @Collection()
     @SparqlObject(Agent)
-    owners?: Agent[];
+    owners?: Agent[] = [];
 
     @Collection()
     @SparqlObject(IssacAgent)
-    agents?: IssacAgent[];
+    agents?: IssacAgent[] = [];
 
     @SparqlObject(IssacContext)
     @Collection()
-    contexts?: IssacContext[];
+    contexts?: IssacContext[] = [];
+
+    static readonly requiredPrefixes: Prefix[] = [
+        GlobalVariables.ONTOLOGY_PREFIX.issac,
+        GlobalVariables.ONTOLOGY_PREFIX.admin,
+        GlobalVariables.ONTOLOGY_PREFIX.rdfs
+    ]
 
     constructor(options?: IIssacProcessus) {
         super();
@@ -122,4 +129,85 @@ export class IssacProcessus extends SparqlClass {
         });
         return query;
     }
+
+    parseGather(search: string, graphPattern: GraphDefinition): GraphDefinition {
+        var gather = new GraphDefinition();
+        // We don't do anything if search is empty or undefined
+        if (search === undefined || search == '') return graphPattern;
+        gather.subPatterns.push([new GraphDefinition(), SubPatternType.EMPTY]);
+        ['uri', 'label', 'description'].forEach((attribute) => {
+            let gathering = new GraphDefinition(JSON.parse(JSON.stringify(graphPattern)));
+            // gathering.triplesContent = graphPattern.triplesContent;
+            // gathering.subPatterns = graphPattern.subPatterns;
+            gathering.triplesContent.push(`
+            FILTER regex(STR(${this.sparqlIdentifier(attribute)}), '${search}', 'i')
+            `);
+            gather.subPatterns.push([gathering, SubPatternType.UNION]);
+        })
+        return gather;
+    }
+
+    parseFilter(prefix?: string): GraphDefinition {
+        var filter = new GraphDefinition();
+        ['uri', 'label', 'description'].forEach((attribute) => {
+            if (this[attribute] !== undefined && this[attribute] !== '')
+                filter.triplesContent.push(`
+            FILTER regex(STR(${this.sparqlIdentifier(attribute, prefix)}), '${this[attribute]}', 'i')
+            `);
+        });
+        // Here owners is an Array
+        // Should handle array and object
+        // ['owners', 'agents'].forEach((attribute) => {
+        //     if (this[attribute] !== undefined && this[attribute].constructor === Array && this[attribute].length > 0) {
+        //         filter.merge(this[attribute][0].parseFilter('Processus'));
+        //     }
+        // });
+        return filter;
+    }
+
+    operationDelete() {
+        var operation = new GraphDefinition({
+            triplesContent: [
+                `?s ?p ?o .
+                ?o ?p1 ?o1
+            `
+            ]
+        });
+        let whereClause = new GraphDefinition({
+            triplesContent: [
+                `
+                ?s ?p ?o .
+                OPTIONAL {
+                    ?o ?p1 ?o1 .
+                } .
+                VALUES ( ?s ) { (<${this.uri}>) }
+            `
+            ]
+        });
+        return { quadPattern: operation, graphPattern: whereClause };
+    }
+
+    parseRestricter(attribute: keyof IssacProcessus, values: string[]) {
+        var restriction = new GraphDefinition(
+            {
+                triplesContent: [`VALUES (${this.sparqlIdentifier(attribute.toString())}) { \n`]
+            });
+        switch (this._sparqlAttributes[attribute].type) {
+            case SparqlType.IRI:
+                values.forEach((value) => {
+                    restriction.triplesContent[0] += ` ( <${value}> ) \n`;
+
+                })
+                break;
+            case SparqlType.LITTERAL:
+                values.forEach((value) => {
+                    restriction.triplesContent[0] += ` ( "${value}" ) \n`;
+
+                })
+                break;
+        }
+        restriction.triplesContent[0] += ` }`;
+        return restriction;
+    }
+
 }

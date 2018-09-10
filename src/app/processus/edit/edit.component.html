@@ -1,14 +1,14 @@
 <!-- Trigger/Open The Modal -->
 
 
-<app-display [action]="action" (outAction)="handleSubmittedAction($event)" [editable]="false" #actionComponent></app-display>
+<app-display [agent]="agent" (outAgent)="handleSubmittedAgent($event)" [editable]="false" #actionComponent></app-display>
 <form #processusForm="ngForm">
 
     <div class="form-group">
         <label>
             Processus Name
         </label>
-        <input [(ngModel)]="processus.name" placeholder="Processus' name" class="form-control" required #processusName="ngModel"
+        <input [(ngModel)]="processus.label" placeholder="Processus' name" class="form-control" required #processusName="ngModel"
             name="processusName" (input)="onNameChange()" />
     </div>
     <br/>
@@ -20,7 +20,7 @@
         <textarea style="height:100px; width:100%" [(ngModel)]="processus.description" placeholder="Anything you want to comment about this processus"
             #processusDescription name="processusDescription"></textarea>
     </div>
-    <button (click)="openActionPanel();" class="btn btn-secondary" >Add Agent</button>
+    <button (click)="openAgentPanel();" class="btn btn-secondary" >Add Agent</button>
     <br/>
     <br/>
 
@@ -30,5 +30,5 @@
 
 
 
-    <app-view (emittedAction)="handleSubmittedAction($event)" [processus]="processus" [editable]="true" #viewComponent></app-view>
+    <app-view (emittedAgent)="handleSubmittedAgent($event)" [processus]="processus" [editable]="true" #viewComponent></app-view>
 

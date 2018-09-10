@@ -41,6 +41,8 @@ import { DisplayerComponent } from './messages/displayer/displayer.component';
 import { HomeComponent } from './home/home.component';
 import { XsdDateToDatePipe } from './xsd-date-to-date.pipe'
 
+import {IssacProcessusModule} from './issac-processus/issac-processus.module';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -64,7 +66,6 @@ import { XsdDateToDatePipe } from './xsd-date-to-date.pipe'
     XsdDateToDatePipe
   ],
   imports: [
-
     BrowserModule,
     FormsModule,
     AppRoutingModule,
@@ -80,7 +81,8 @@ import { XsdDateToDatePipe } from './xsd-date-to-date.pipe'
     MaterialCustomModule,
     InputTextareaModule,
     OverlayPanelModule,
-    ButtonModule
+    ButtonModule,
+    IssacProcessusModule
     
   ],
   providers: [],

@@ -1,5 +1,8 @@
 import { HostListener, Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
-import { Processus, Action, Input, Output, IAction, ActionType, IProcessus } from '../processus';
+// import { Processus, Action, Input, Output, IAction, ActionType, IProcessus } from '../processus';
+import {IssacProcessus, IIssacProcessus} from 'src/app/issac-definitions/processus';
+import {IssacAgent, IIssacAgent} from 'src/app/issac-definitions/agent';
+
 import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
@@ -7,7 +10,7 @@ import { LogService } from '../../authentification/log.service';
 import { Agent } from '../../authentification/user';
 import { ViewComponent } from '../view/view.component';
 import { ActionDisplayComponent } from '../action/display/display.component';
-import { ActionDisplayerService } from '../action/action-displayer.service';
+import { AgentDisplayerService } from '../action/agent-displayer.service';
 import { ProcessusHandlerService } from '../processus-handler.service';
 import * as $ from 'jquery';
 import * as _ from 'underscore';
@@ -28,8 +31,8 @@ export class EditComponent implements OnInit {
 
   user = new Agent;
 
-  action: Action = new Action();
-  processus: Processus = new Processus();
+  agent: IssacAgent = new IssacAgent();
+  processus: IssacProcessus = new IssacProcessus();
   change: boolean = false;
 
   // For the autocomplete delay, in millisecond
@@ -49,20 +52,20 @@ export class EditComponent implements OnInit {
     private sparqlClient: SparqlClientService,
     private sparqlParser: SparqlParserService,
     private logService: LogService,
-    private actionDisplayerService: ActionDisplayerService,
+    private agentDisplayerService: AgentDisplayerService,
     private processusHandlerService: ProcessusHandlerService,
     private _Activatedroute: ActivatedRoute,
   ) {
 
 
-    let options = Object.values(ActionType);
-    this.actionTypes = options;
+    // let options = Object.values(ActionType);
+    // this.actionTypes = options;
 
     // let currentProcessus = JSON.parse(localStorage.getItem('currentProcessus'));
     // let currentProcessus = JSON.parse(this.sessionSt.retrieve('currentProcessus'));
 
     // if (currentProcessus) {
-    //   this.processus = new Processus(<IProcessus>currentProcessus);
+    //   this.processus = new IssacProcessus(<IProcessus>currentProcessus);
     // }
 
     this.logService.logUpdate$.subscribe(
@@ -81,18 +84,17 @@ export class EditComponent implements OnInit {
 
     if (this._Activatedroute.snapshot.params['id']) {
       this.id = this._Activatedroute.snapshot.params['id'];
-      this.loadProcessus();
+      this.loadIssacProcessus();
     }
 
-    this.action.agent = new UniqueIdentifier();
+    // this.action.agent = new UniqueIdentifier();
     this.processus.owners = [this.user];
-    this.actionDisplayerService.oldToNewActions$.subscribe((oldAndNewAction) => {
-      this.handleSubmittedAction(oldAndNewAction);
-      console.log(this.processus);
+    this.agentDisplayerService.oldToNewAgent$.subscribe((oldAndNewAgent) => {
+      this.handleSubmittedAgent(oldAndNewAgent);
     });
 
     this.processusHandlerService.currentProcessus$.subscribe((processus) => {
-      this.processus = new Processus(processus);
+      this.processus = new IssacProcessus(processus);
     })
   }
 
@@ -100,19 +102,19 @@ export class EditComponent implements OnInit {
     if (this.user == null) {
       // console.log('Handle not connection');
     }
-
-    // localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
+    console.log(this.processus);
+    localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
   }
 
   ngAfterViewInit() {
-    // console.log(this.sessionSt.retrieve('currentProcessus'));
+    console.log(this.sessionSt.retrieve('currentProcessus'));
   }
 
   onNameChange() {
     if (this.typingTimer < this.typingTimeout) {
       window.clearTimeout(this.typingTimer);
     }
-    if (this.processus.name && this.processus.name.length >= 3) {
+    if (this.processus.label && this.processus.label.length >= 3) {
       this.typingTimer = window.setTimeout(() => {
         this.viewComponent.processus = this.processus;
         this.viewComponent.computeGraphDefinition();
@@ -122,68 +124,45 @@ export class EditComponent implements OnInit {
 
   }
 
-  handleSubmittedAction(oldAndNewAction: [Action, Action]) {
-    if (!oldAndNewAction) return;
+  handleSubmittedAgent(oldAndNewAgent: [IssacAgent, IssacAgent]) {
+    if (!oldAndNewAgent) return;
     let oldProcessus = this.processus;
-    this.processus = new Processus(oldProcessus);
-    let oldAction = oldAndNewAction[0];
-    this.action = oldAndNewAction[1];
+    this.processus = new IssacProcessus(oldProcessus);
+    let oldAgent = oldAndNewAgent[0];
+    this.agent = oldAndNewAgent[1];
     // // console.log($action);
-    this.deleteActionFromProcessus(oldAction);
-    // // console.log($action);
+    this.deleteAgentFromIssacProcessus(oldAgent);
     // Perform deep copy
-    let actionInterface = <IAction>JSON.parse(JSON.stringify(this.action));
-
-    let checkIfActionInArray = (action: Action, actionArray: Action[]) => {
-      let checker = actionArray.some((element) => {
-        return action.agent.uri === element.agent.uri;
+    let agentInterface = <IIssacAgent>JSON.parse(JSON.stringify(this.agent));
+    
+    let checkIfAgentInArray = (agent: IssacAgent, agentArray: IssacAgent[]) => {
+      let checker = agentArray.some((element) => {
+        return agent.uri === element.uri;
       });
       return !checker;
     };
-
-    switch (this.action.type) {
-      case ActionType.INPUT:
-        if (checkIfActionInArray(this.action, this.processus.inputs)) {
-          this.processus.inputs.push(new Input(actionInterface));
-        }
-        break;
-      case ActionType.OUTPUT:
-        if (checkIfActionInArray(this.action, this.processus.outputs)) {
-          this.processus.outputs.push(new Output(actionInterface));
-        }
-        break;
-      case ActionType.INOUT:
-        if (checkIfActionInArray(this.action, this.processus.inputs)) {
-          this.processus.inputs.push(new Input(actionInterface));
-        }
-        if (checkIfActionInArray(this.action, this.processus.outputs)) {
-          this.processus.outputs.push(new Output(actionInterface));
-        }
-        break;
-      default:
-      // console.log('in default, just deleted old action');
-    }
+    this.processus.agents.push(this.agent);
+    console.log(this.processus);
+    // this.viewComponent.ngOnChanges();
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
   }
 
-  openActionPanel() {
-    this.action = new Action();
-    this.action.agent = new UniqueIdentifier();
-    this.action.type = ActionType.INPUT;
+  openAgentPanel() {
+    this.agent = new IssacAgent();
 
-    this.actionDisplayerService.display(this.action, false);
+    this.agentDisplayerService.display(this.agent, false);
   }
 
   save() {
     this.sparqlParser.clear();
     this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
     this.sparqlParser.queryType = QueryType.ADD;
-    this.sparqlParser.prefixes = Processus.requiredPrefixes;
-    this.processus.generateUri();
+    this.sparqlParser.prefixes = IssacProcessus.requiredPrefixes;
+    // this.processus.generateUri();
     var saveQuery = this.processus.parseIdentity();
     this.sparqlParser.graphDefinition = saveQuery;
     // console.log(this.processus);
-    // console.log(this.sparqlParser.toString());
+    console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;
     // result.subscribe((response => console.log(response)));
@@ -194,7 +173,7 @@ export class EditComponent implements OnInit {
     this.sparqlParser.clear();
     this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
     this.sparqlParser.queryType = QueryType.DELETE;
-    this.sparqlParser.prefixes = Processus.requiredPrefixes;
+    this.sparqlParser.prefixes = IssacProcessus.requiredPrefixes;
 
 
     var deleteOperation = this.processus.operationDelete();
@@ -215,7 +194,8 @@ export class EditComponent implements OnInit {
       this.processus.owners = [];
       this.processus.owners.push(this.user);
     }
-    this.processus.generateActionsFromInputsAndOutputs();
+
+    // this.processus.generateActionsFromInputsAndOutputs();
     // Add ad hoc verification ...
     let deleteObservable = this.delete();
     // deleteObservable exists <=> this.processus.uri exists
@@ -236,53 +216,26 @@ export class EditComponent implements OnInit {
     }
   }
 
-  deleteActionFromProcessus(oldAction: Action) {
-    if (!oldAction) return;
-    let newActions: Action[] = [];
-    switch (oldAction.type) {
-      case ActionType.INPUT:
-        this.processus.inputs.forEach((input) => {
-          if (input.agent.uri != oldAction.agent.uri) {
-            newActions.push(input);
-          }
-        });
-        this.processus.inputs = newActions;
-        break;
-      case ActionType.OUTPUT:
-        this.processus.outputs.forEach((output) => {
-          if (output.agent.uri != oldAction.agent.uri) {
-            newActions.push(output);
-          }
-        });
-        this.processus.outputs = newActions;
-        break;
-      case ActionType.INOUT:
-        this.processus.inputs.forEach((input) => {
-          if (input.agent.uri != oldAction.agent.uri) {
-            newActions.push(input);
-          }
-        });
-        this.processus.inputs = newActions;
-        newActions = [];
-        this.processus.outputs.forEach((output) => {
-          if (output.agent.uri != oldAction.agent.uri) {
-            newActions.push(output);
-          }
-        });
-        this.processus.outputs = newActions;
-        break;
-    }
-    oldAction = null;
-    this.processus.generateActionsFromInputsAndOutputs();
+  deleteAgentFromIssacProcessus(oldAgent: IssacAgent) {
+    if (!oldAgent) return;
+    let newAgents: IssacAgent[] = [];
+    this.processus.agents.forEach((agent) => {
+      if (agent.uri != oldAgent.uri) {
+        newAgents.push(agent);
+      }
+    });
+    this.processus.agents = newAgents;
+    // oldAction = null;
+    // this.processus.generateActionsFromInputsAndOutputs();
   }
 
 
-  loadProcessus() {
-    this.processus = new Processus();
+  loadIssacProcessus() {
+    this.processus = new IssacProcessus();
     this.sparqlParser.clear();
     // this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
     this.sparqlParser.queryType = QueryType.QUERY;
-    this.sparqlParser.prefixes = Processus.requiredPrefixes;
+    this.sparqlParser.prefixes = IssacProcessus.requiredPrefixes;
 
     var query = this.processus.parseSkeleton();
 
@@ -292,18 +245,7 @@ export class EditComponent implements OnInit {
     this.sparqlParser.select[0] = ' DISTINCT ' + this.processus.makeBindings();
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response => {
-
-      this.processus = new Processus(JSON.parse(response.results.bindings[0].Processus.value));
-      this.processus.actions.forEach((action) => {
-        switch (action.type) {
-          case ActionType.INPUT:
-            this.processus.inputs.push(new Input({ agentUri: action.agentUri, agentLabel: action.agentLabel }));
-            break;
-          case ActionType.OUTPUT:
-            this.processus.outputs.push(new Output({ agentUri: action.agentUri, agentLabel: action.agentLabel }));
-            break;
-        }
-      });
+      this.processus = new IssacProcessus(JSON.parse(response.results.bindings[0].IssacProcessus.value));
     }))
   }
 

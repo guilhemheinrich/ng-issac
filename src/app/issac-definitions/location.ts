@@ -1,5 +1,5 @@
-import { Uri, Litteral, SparqlClass, GraphDefinition, SubPatternType } from 'src/app/sparql-parser.service';
-
+import { Uri, Litteral, SparqlClass, GraphDefinition, SubPatternType, Prefix } from 'src/app/sparql-parser.service';
+import { GlobalVariables } from '../configuration';
 
 
 export interface IIssacLocation {
@@ -13,6 +13,11 @@ export class IssacLocation extends SparqlClass {
 
     @Litteral()
     label: string;
+
+    static readonly requiredPrefixes: Prefix[] = [
+        GlobalVariables.ONTOLOGY_PREFIX.issac,
+        GlobalVariables.ONTOLOGY_PREFIX.rdfs
+    ]
 
     constructor(options?: IssacLocation) {
         super();

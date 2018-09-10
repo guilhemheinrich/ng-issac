@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {Processus, Action} from '../processus';
+import {IssacProcessus, IIssacProcessus} from 'src/app/issac-definitions/processus';
+import {IssacAgent, IIssacAgent} from 'src/app/issac-definitions/agent';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { SparqlClientService } from '../../sparql-client.service';
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
@@ -17,16 +18,16 @@ export class IndexComponent implements OnInit {
   typingTimer: any;
   typingTimeout: number = 500;
 
-  processusList: Processus[];
-  processusFilter: Processus = new Processus();
+  processusList: IssacProcessus[];
+  processusFilter: IssacProcessus = new IssacProcessus();
   filter: {
     owner: string,
-    name: string,
-    action:string
+    label: string,
+    agentLabel:string
   } = {
     owner: "",
-    name: "",
-    action: ""
+    label: "",
+    agentLabel: ""
   };
   public searchField:string;
 
@@ -58,10 +59,10 @@ export class IndexComponent implements OnInit {
     }
     if (this.processusFilter) {
       this.typingTimer = window.setTimeout(() => { 
-        this.processusFilter = new Processus();
-        this.processusFilter.name = this.filter.name;
+        this.processusFilter = new IssacProcessus();
+        this.processusFilter.label = this.filter.label;
         this.processusFilter.owners.push(new Agent({username: this.filter.owner}));
-        this.processusFilter.actions.push(new Action({agentLabel: this.filter.action}));
+        this.processusFilter.agents.push(new IssacAgent({label: this.filter.agentLabel}));
         console.log(this.processusFilter);
         this.searchAllProcessus();
       }, this.typingTimeout);
@@ -73,7 +74,7 @@ export class IndexComponent implements OnInit {
     this.sparqlParser.clear();
     // this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
     this.sparqlParser.queryType = QueryType.QUERY;
-    this.sparqlParser.prefixes = Processus.requiredPrefixes;
+    this.sparqlParser.prefixes = IssacProcessus.requiredPrefixes;
 
     var query = this.processusFilter.parseSkeleton();
     var filter = this.processusFilter.parseFilter();
@@ -90,15 +91,13 @@ export class IndexComponent implements OnInit {
       let allProcessus = response.results.bindings;
       this.processusList = [];
       <Array<any>>allProcessus.forEach((processusJSON) => {
-        this.processusList.push(new Processus(JSON.parse(processusJSON.Processus.value)));
+        this.processusList.push(new IssacProcessus(JSON.parse(processusJSON.Processus.value)));
       })
-      this.processusList.forEach((processus) => {
-        processus.generateInputsOutputsFromActions();
-      })
+
     }))
   }
 
-  isProcessusOwned(processus: Processus) {
+  isProcessusOwned(processus: IssacProcessus) {
     let loggedUser = new Agent(JSON.parse(this.sessionSt.retrieve('user')));
     return processus.owners.some((owner) => {
       return owner.uri == loggedUser.uri;

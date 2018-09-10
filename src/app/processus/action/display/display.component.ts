@@ -2,8 +2,9 @@ import { Component, OnInit, Output, Input, EventEmitter, ElementRef, ViewChild, 
 import { Action, IAction, ActionType } from '../../processus';
 import { UniqueIdentifier, GlobalVariables } from '../../../configuration';
 import { ThesaurusDisplayComponent } from '../../../thesaurus/thesaurus-display/thesaurus-display.component';
-import {ActionDisplayerService} from '../action-displayer.service';
+import {AgentDisplayerService} from '../agent-displayer.service';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import { IssacAgent, IIssacAgent } from '../../../issac-definitions/agent';
 @Component({
   selector: 'app-display',
   templateUrl: './display.component.html',
@@ -14,20 +15,20 @@ export class ActionDisplayComponent implements OnInit {
   agentRootElement = [GlobalVariables.NAMED_INDIVIDUALS.taxonomic_classification_of_organisms]
 
   @Input()
-  action: Action;
+  agent: IssacAgent;
 
   @Output()
-  outAction: EventEmitter<[Action, Action]> = new EventEmitter<[Action, Action]>();
+  outAgent: EventEmitter<[IssacAgent, IssacAgent]> = new EventEmitter<[IssacAgent, IssacAgent]>();
 
   @Input()
   editable: boolean = false;
 
-  oldAction: Action;
+  oldAgent: IssacAgent;
   // For the autocomplete delay, in millisecond
   typingTimer: any;
   typingTimeout: number = 500;
 
-  actionTypes = [];
+  // actionTypes = [];
 
   closeResult: string;
 
@@ -35,11 +36,10 @@ export class ActionDisplayComponent implements OnInit {
   @ViewChild('thesaurusComponent') thesaurusComponent: ThesaurusDisplayComponent;
 
   constructor(
-    private actionDisplayerService: ActionDisplayerService,
+    private agentDisplayerServiceagent: AgentDisplayerService,
     private modalService: NgbModal,
   ) { 
-    let options = Object.values(ActionType);
-    this.actionTypes = options;
+
 
   }
 
@@ -63,11 +63,11 @@ export class ActionDisplayComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.actionDisplayerService.displayIn$.subscribe((actionAndEditable) =>
+    this.agentDisplayerServiceagent.displayIn$.subscribe((agentAndEditable) =>
     {
-      if (actionAndEditable) {
-        this.editable = actionAndEditable.editable;
-        this.openModal(actionAndEditable.action);
+      if (agentAndEditable) {
+        this.editable = agentAndEditable.editable;
+        this.openModal(agentAndEditable.agent);
       }
     });
   }
@@ -81,6 +81,7 @@ export class ActionDisplayComponent implements OnInit {
   ngAfterContentInit() {
     this.closeModal();
   }
+
   @HostListener('document:click', ['$event'])
   globalListener(event: Event) {
     if (event && event.target == this.modal.nativeElement) {
@@ -89,40 +90,40 @@ export class ActionDisplayComponent implements OnInit {
   }
   closeModal() {
     this.modal.nativeElement.style.display = "none";
-    this.oldAction = null;
+    this.oldAgent = null;
   }
 
-  openModal(action?: Action) {
+  openModal(agent?: IssacAgent) {
 
-    this.oldAction = new Action(<IAction>JSON.parse(JSON.stringify(action)));
-    this.action = new Action(<IAction>JSON.parse(JSON.stringify(action)));
+    this.oldAgent = new IssacAgent(<IIssacAgent>JSON.parse(JSON.stringify(agent)));
+    this.agent = new IssacAgent(<IIssacAgent>JSON.parse(JSON.stringify(agent)));
     this.modal.nativeElement.style.display = "block";
   }
 
   onThesaurusResult(thesaurusIdentifier: UniqueIdentifier) {
-    this.action.agent.name = thesaurusIdentifier.name;
-    this.action.agent.uri = thesaurusIdentifier.uri;
+    this.agent.label = thesaurusIdentifier.name;
+    this.agent.uri = thesaurusIdentifier.uri;
   }
 
-  onSubmitAction()
+  onSubmitAgent()
   {
-    if (this.action.agent.uri === "") return;
-    this.actionDisplayerService.output(this.oldAction, this.action);
-    this.oldAction = new Action(<IAction>JSON.parse(JSON.stringify(this.action)));
+    if (this.agent.uri === "") return;
+    this.agentDisplayerServiceagent.output(this.oldAgent, this.agent);
+    this.oldAgent = new IssacAgent(<IIssacAgent>JSON.parse(JSON.stringify(this.agent)));
     this.closeModal();
   }
 
   onReset()
   {
-    this.action     = new Action();
-    this.oldAction  = new Action();
+    this.agent     = new IssacAgent();
+    this.oldAgent  = new IssacAgent();
   }
 
   onDelete()
   {
-    this.action     = new Action();
-    this.outAction.emit([this.oldAction, this.action]);
-    this.oldAction  = new Action();
+    this.agent     = new IssacAgent();
+    this.outAgent.emit([this.oldAgent, this.agent]);
+    this.oldAgent  = new IssacAgent();
     this.closeModal();
   }
 

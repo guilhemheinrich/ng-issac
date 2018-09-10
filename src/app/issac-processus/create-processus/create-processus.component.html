@@ -1,0 +1,19 @@
+<form #processusForm="ngForm">
+
+  <div class="form-group">
+    <label>
+      Processus Name
+    </label>
+    <input [(ngModel)]="processus.label" placeholder="Processus' name" class="form-control" required #processusName="ngModel"
+      name="processusName" (input)="onNameChange()" />
+  </div>
+  <div class="form-group">
+    <label>
+        Description
+    </label>
+    <br/>
+    <textarea style="height:100px; width:100%" [(ngModel)]="processus.description" placeholder="Anything you want to comment about this processus"
+        #processusDescription name="processusDescription"></textarea>
+</div>
+
+</form>

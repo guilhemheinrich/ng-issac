@@ -3,7 +3,7 @@ import { isArray } from 'util';
 import "reflect-metadata";
 import {GlobalVariables} from './configuration'
 import * as ts from "typescript";
-
+import {hash32} from 'src/app/configuration';
 
 
 export enum QueryType {
@@ -212,6 +212,7 @@ export class SparqlClass {
   readonly _sparqlKey;
   constructor() {
       this._sparqlAttributes = Object.getPrototypeOf(this)[sparqlAtrributeName];
+      this.uri = hash32(Math.random().toString() +  Date.now().toString()).toString();
   }
 
 

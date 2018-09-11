@@ -215,6 +215,12 @@ export class SparqlClass {
       // this.uri = hash32(Math.random().toString() +  Date.now().toString()).toString();
   }
 
+  generateUri() {
+    if (!this.uri || this.uri === '') 
+    {
+      this.uri = this.constructor.name + '#' + hash32(Math.random().toString() +  Date.now().toString()).toString();
+    }
+  }
 
   sparqlParse(key: keyof any, type: string, prefix: string = '') {
     let out:string;

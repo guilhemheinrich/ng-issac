@@ -121,6 +121,7 @@ export class ViewComponent implements OnInit {
     this.sparqlParser.graphPattern = query;
     this.sparqlParser.graphPattern.merge(this.processus.parseRestricter('uri', [this.id]));
     this.sparqlParser.select[0] = ' DISTINCT ' + this.processus.makeBindings();
+    console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response => {
       

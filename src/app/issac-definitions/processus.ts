@@ -45,7 +45,20 @@ export class IssacProcessus extends SparqlClass {
         super();
         if (options) {
             Object.getOwnPropertyNames(options).forEach((propertyName) => {
-                this[propertyName] = options[propertyName];
+                if (this._sparqlAttributes[propertyName].type === SparqlType.OBJECT) {
+                    if (this._sparqlAttributes[propertyName].isCollection) {
+                        this[propertyName] = [];
+                        options[propertyName].forEach((object) => {
+                            let newObject = new this._sparqlAttributes[propertyName].sparqlObject.constructor(object);
+                            this[propertyName].push(newObject);
+                        })
+
+                    } else {
+                        this[propertyName] = new this._sparqlAttributes[propertyName].sparqlObject.constructor(options[propertyName]);
+                    }
+                } else {
+                    this[propertyName] = options[propertyName];
+                }
             });
         }
     }
@@ -84,7 +97,7 @@ export class IssacProcessus extends SparqlClass {
         let agentPattern = new GraphDefinition({
             triplesContent: [
                 `
-            ${this.sparqlIdentifier('uri', prefix)} issac:involve ${emptyContext.sparqlIdentifier('uri', this.sparqlIdentifier('agents', prefix))} .
+            ${this.sparqlIdentifier('uri', prefix)} issac:involve ${emptyAgent.sparqlIdentifier('uri', this.sparqlIdentifier('agents', prefix))} .
             `
             ]
         });
@@ -100,10 +113,14 @@ export class IssacProcessus extends SparqlClass {
                 `
             <${this.uri}> a issac:Processus .\n
             <${this.uri}> rdfs:label \"${this.label}\"^^xsd:string .\n
-            <${this.uri}> skos:definition \"${this.description}\"^^xsd:string .\n
+            
             `
             ]
         });
+        if (this.description) {
+            query.triplesContent.push(`<${this.uri}> skos:definition \"${this.description}\"^^xsd:string .\n `);
+        }
+        
         this.owners.forEach((owner) => {
             query.triplesContent.push(
                 `<${this.uri}> admin:hasWriteAccess <${owner.uri}> .\n`
@@ -113,7 +130,7 @@ export class IssacProcessus extends SparqlClass {
         this.agents.forEach((agent) => {
             query.triplesContent.push(
                 `
-            <${this.uri}> issac:involve <${agent.uri}>
+            <${this.uri}> issac:involve <${agent.uri}> .
             `
             );
             query.merge(agent.parseIdentity());

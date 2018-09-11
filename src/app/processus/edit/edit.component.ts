@@ -142,7 +142,7 @@ export class EditComponent implements OnInit {
       return !checker;
     };
     this.processus.agents.push(this.agent);
-    console.log(this.processus);
+    // console.log(this.processus);
     // this.viewComponent.ngOnChanges();
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
   }
@@ -158,11 +158,11 @@ export class EditComponent implements OnInit {
     this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
     this.sparqlParser.queryType = QueryType.ADD;
     this.sparqlParser.prefixes = IssacProcessus.requiredPrefixes;
-    // this.processus.generateUri();
+    this.processus.generateUri();
+    
     var saveQuery = this.processus.parseIdentity();
     this.sparqlParser.graphDefinition = saveQuery;
-    // console.log(this.processus);
-    console.log(this.sparqlParser.toString());
+    // console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;
     // result.subscribe((response => console.log(response)));
@@ -194,7 +194,7 @@ export class EditComponent implements OnInit {
       this.processus.owners = [];
       this.processus.owners.push(this.user);
     }
-
+    console.log(this.processus);
     // this.processus.generateActionsFromInputsAndOutputs();
     // Add ad hoc verification ...
     let deleteObservable = this.delete();
@@ -203,14 +203,14 @@ export class EditComponent implements OnInit {
     if (deleteObservable) {
       // We chain subscribing here to avoid deleting before inserting ...
       deleteObservable.subscribe((response => {
-        console.log(response);
+        // console.log(response);
         saveObservable.subscribe((response) => console.log(response));
         this.router.navigate(['processus/index']);
 
       }));
     } else {
       saveObservable.subscribe((response) => {
-        console.log(response);
+        // console.log(response);
         this.router.navigate(['processus/index']);
       });
     }
@@ -218,13 +218,15 @@ export class EditComponent implements OnInit {
 
   deleteAgentFromIssacProcessus(oldAgent: IssacAgent) {
     if (!oldAgent) return;
+    console.log(oldAgent);
     let newAgents: IssacAgent[] = [];
     this.processus.agents.forEach((agent) => {
-      if (agent.uri != oldAgent.uri) {
+      if (agent.uri != oldAgent.uri && agent.uri!= '') {
         newAgents.push(agent);
       }
     });
     this.processus.agents = newAgents;
+    console.log(this.processus.agents);
     // oldAction = null;
     // this.processus.generateActionsFromInputsAndOutputs();
   }

@@ -84,16 +84,15 @@ export class IndexComponent implements OnInit {
     this.sparqlParser.graphPattern = gather;
     this.sparqlParser.select[0] = ' DISTINCT ' + this.processusFilter.makeBindings();
     console.log(this.sparqlParser.toString());
-    console.log(this.sparqlParser);
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response => {
       console.log(response.results.bindings);
       let allProcessus = response.results.bindings;
       this.processusList = [];
       <Array<any>>allProcessus.forEach((processusJSON) => {
-        this.processusList.push(new IssacProcessus(JSON.parse(processusJSON.Processus.value)));
-      })
-
+        this.processusList.push(new IssacProcessus(JSON.parse(processusJSON.IssacProcessus.value)));
+      });
+      console.log(this.processusList);
     }))
   }
 

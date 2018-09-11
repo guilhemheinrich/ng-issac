@@ -42,6 +42,7 @@ import { HomeComponent } from './home/home.component';
 import { XsdDateToDatePipe } from './xsd-date-to-date.pipe'
 
 import {IssacProcessusModule} from './issac-processus/issac-processus.module';
+import { PropertyAccessPipe } from './property-access.pipe';
 
 @NgModule({
   declarations: [
@@ -63,7 +64,8 @@ import {IssacProcessusModule} from './issac-processus/issac-processus.module';
     MapPipe,
     HomeComponent,
     DisplayerComponent,
-    XsdDateToDatePipe
+    XsdDateToDatePipe,
+    PropertyAccessPipe
   ],
   imports: [
     BrowserModule,

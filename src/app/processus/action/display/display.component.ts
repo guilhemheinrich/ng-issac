@@ -36,7 +36,7 @@ export class ActionDisplayComponent implements OnInit {
   @ViewChild('thesaurusComponent') thesaurusComponent: ThesaurusDisplayComponent;
 
   constructor(
-    private agentDisplayerServiceagent: AgentDisplayerService,
+    private agentDisplayerServiceAgent: AgentDisplayerService,
     private modalService: NgbModal,
   ) { 
 
@@ -63,7 +63,7 @@ export class ActionDisplayComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.agentDisplayerServiceagent.displayIn$.subscribe((agentAndEditable) =>
+    this.agentDisplayerServiceAgent.displayIn$.subscribe((agentAndEditable) =>
     {
       if (agentAndEditable) {
         this.editable = agentAndEditable.editable;
@@ -108,7 +108,7 @@ export class ActionDisplayComponent implements OnInit {
   onSubmitAgent()
   {
     if (this.agent.uri === "") return;
-    this.agentDisplayerServiceagent.output(this.oldAgent, this.agent);
+    this.agentDisplayerServiceAgent.output(this.oldAgent, this.agent);
     this.oldAgent = new IssacAgent(<IIssacAgent>JSON.parse(JSON.stringify(this.agent)));
     this.closeModal();
   }

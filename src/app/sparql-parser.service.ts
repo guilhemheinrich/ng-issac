@@ -212,7 +212,7 @@ export class SparqlClass {
   readonly _sparqlKey;
   constructor() {
       this._sparqlAttributes = Object.getPrototypeOf(this)[sparqlAtrributeName];
-      this.uri = hash32(Math.random().toString() +  Date.now().toString()).toString();
+      // this.uri = hash32(Math.random().toString() +  Date.now().toString()).toString();
   }
 
 

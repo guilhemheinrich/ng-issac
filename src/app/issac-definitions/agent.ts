@@ -69,4 +69,15 @@ export class IssacAgent extends SparqlClass {
         });
         return query;
     }
+
+    parseFilter(prefix?: string):GraphDefinition {
+        let filter = new GraphDefinition();
+        ['label'].forEach((attribute) => {
+          if (this[attribute] !== undefined && this[attribute] !== '')
+              filter.triplesContent.push(`
+          FILTER regex(STR(${this.sparqlIdentifier(attribute, prefix)}), '${this[attribute]}', 'i')
+          `);
+      });
+        return filter;
+      }
 }

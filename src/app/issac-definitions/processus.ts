@@ -73,7 +73,7 @@ export class IssacProcessus extends SparqlClass {
         let contextPattern = new GraphDefinition({
             triplesContent: [
                 `
-            ${this.sparqlIdentifier('uri', prefix)} issac:hasContext
+            ${this.sparqlIdentifier('uri', prefix)} issac:hasContext ${emptyContext.sparqlIdentifier('uri', this.sparqlIdentifier('contexts', prefix))} .
             `
             ]
         });
@@ -84,7 +84,7 @@ export class IssacProcessus extends SparqlClass {
         let agentPattern = new GraphDefinition({
             triplesContent: [
                 `
-            ${this.sparqlIdentifier('uri', prefix)} issac:involve
+            ${this.sparqlIdentifier('uri', prefix)} issac:involve ${emptyContext.sparqlIdentifier('uri', this.sparqlIdentifier('agents', prefix))} .
             `
             ]
         });
@@ -157,11 +157,12 @@ export class IssacProcessus extends SparqlClass {
         });
         // Here owners is an Array
         // Should handle array and object
-        // ['owners', 'agents'].forEach((attribute) => {
-        //     if (this[attribute] !== undefined && this[attribute].constructor === Array && this[attribute].length > 0) {
-        //         filter.merge(this[attribute][0].parseFilter('Processus'));
-        //     }
-        // });
+        ['owners'].forEach((attribute) => {
+            if (this[attribute] !== undefined && this[attribute].constructor === Array && this[attribute].length > 0) {
+                console.log(this[attribute]);
+                filter.merge(this[attribute][0].parseFilter(this.sparqlIdentifier(attribute, prefix)));
+            }
+        });
         return filter;
     }
 

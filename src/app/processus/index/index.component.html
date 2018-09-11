@@ -22,10 +22,10 @@
       </tr>
       <tr (input)="handleFilter($event)">
         <th>
-          <input  [(ngModel)]="filter.name" placeholder="Filter by name" class="form-control" name="filterName" #filterName="ngModel"
+          <input  [(ngModel)]="filter.label" placeholder="Filter by name" class="form-control" name="filterName" #filterName="ngModel"
           />
         </th>
-        <th>  
+        <th>    
           <input  [(ngModel)]="filter.owner" placeholder="Filter by owner" class="form-control" name="filterOwners" #filterOwners="ngModel"
           />
         </th> 
@@ -34,8 +34,8 @@
     <tbody>
 
       <tr *ngFor="let processus of processusList ;">
-        <td>{{ processus.name }}</td>
-        <td>{{ processus.owners | concatenate }}</td>
+        <td>{{ processus.label }}</td>
+        <td>{{ processus.owners | propertyAccess:'username' | concatenate }}</td>
         <td> <div class="btn-group" role="group" aria-label="Basic example">
           <a [routerLink]="['/processus/view', processus.uri]" class="btn btn-secondary" >View</a>
           <a *ngIf="isProcessusOwned(processus)" [routerLink]="['/processus/edit', processus.uri]" class="btn btn-secondary" >Edit</a>

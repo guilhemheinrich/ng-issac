@@ -18,6 +18,7 @@ export class AgentDisplayerService {
 
   output(oldAgent: IssacAgent, agent: IssacAgent)
   {
+    console.log('in output');
     this.oldToNewAgent$.next([oldAgent, agent]);
   }
 

@@ -1,4 +1,4 @@
-import { Uri, Litteral, SparqlClass, GraphDefinition, SubPatternType, SparqlObject, Prefix } from 'src/app/sparql-parser.service';
+import { Uri, Litteral, SparqlClass, GraphDefinition, SparqlType, SparqlObject, Prefix } from 'src/app/sparql-parser.service';
 import { IssacAgent } from './agent';
 import { IssacLocation } from './location';
 import { GlobalVariables } from '../configuration';
@@ -29,14 +29,32 @@ export class IssacContext extends SparqlClass {
         GlobalVariables.ONTOLOGY_PREFIX.issac,
         GlobalVariables.ONTOLOGY_PREFIX.rdfs
     ]
-    
+
     constructor(options?: ISparqlContext) {
-        super();
-        if (options) {
-            Object.getOwnPropertyNames(options).forEach((propertyName) => {
-                this[propertyName] = options[propertyName];
-            });
-        }
+        super(options);
+        // if (options) {
+        //     Object.getOwnPropertyNames(options).forEach((propertyName) => {
+        //         if (this._sparqlAttributes[propertyName].type === SparqlType.OBJECT) {
+        //             if (this._sparqlAttributes[propertyName].isCollection) {
+        //                 this[propertyName] = [];
+        //                 options[propertyName].forEach((object) => {
+        //                     let newObject = new this._sparqlAttributes[propertyName].sparqlObject.constructor(object);
+        //                     if (newObject.uri !== '') {
+        //                         this[propertyName].push(newObject);
+        //                     }
+        //                 })
+
+        //             } else {
+        //                 let newObject = new this._sparqlAttributes[propertyName].sparqlObject.constructor(options[propertyName]);
+        //                 if (newObject.uri !== '') {
+        //                     this[propertyName] = newObject;
+        //                 }
+        //             }
+        //         } else {
+        //             this[propertyName] = options[propertyName];
+        //         }
+        //     });
+        // }
     }
 
     parseSkeleton(prefix: string = '') {

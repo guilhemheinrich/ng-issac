@@ -25,15 +25,15 @@ export class IssacProcessus extends SparqlClass {
 
     @Collection()
     @SparqlObject(Agent)
-    owners?: Agent[] = [];
+    owners?: Agent[];
 
     @Collection()
     @SparqlObject(IssacAgent)
-    agents?: IssacAgent[] = [];
+    agents?: IssacAgent[];
 
     @SparqlObject(IssacContext)
     @Collection()
-    contexts?: IssacContext[] = [];
+    contexts?: IssacContext[];
 
     static readonly requiredPrefixes: Prefix[] = [
         GlobalVariables.ONTOLOGY_PREFIX.issac,
@@ -42,25 +42,7 @@ export class IssacProcessus extends SparqlClass {
     ]
 
     constructor(options?: IIssacProcessus) {
-        super();
-        if (options) {
-            Object.getOwnPropertyNames(options).forEach((propertyName) => {
-                if (this._sparqlAttributes[propertyName].type === SparqlType.OBJECT) {
-                    if (this._sparqlAttributes[propertyName].isCollection) {
-                        this[propertyName] = [];
-                        options[propertyName].forEach((object) => {
-                            let newObject = new this._sparqlAttributes[propertyName].sparqlObject.constructor(object);
-                            this[propertyName].push(newObject);
-                        })
-
-                    } else {
-                        this[propertyName] = new this._sparqlAttributes[propertyName].sparqlObject.constructor(options[propertyName]);
-                    }
-                } else {
-                    this[propertyName] = options[propertyName];
-                }
-            });
-        }
+        super(options);
     }
 
     parseSkeleton(prefix: string = '') {
@@ -226,6 +208,19 @@ export class IssacProcessus extends SparqlClass {
         }
         restriction.triplesContent[0] += ` }`;
         return restriction;
+    }
+
+    purgeAgents() 
+    {
+        let alreadyExistingUri = [];
+        let purgedAgents = [];
+        this.agents.forEach((agent) => {
+            if (agent.uri && !alreadyExistingUri.includes(agent.uri)) {
+                alreadyExistingUri.push(agent.uri);
+                purgedAgents.push(new IssacAgent(agent));
+            }
+        });
+        this.agents = purgedAgents;
     }
 
 }

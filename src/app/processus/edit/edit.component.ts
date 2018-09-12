@@ -91,23 +91,19 @@ export class EditComponent implements OnInit {
     this.processus.owners = [this.user];
     this.agentDisplayerService.oldToNewAgent$.subscribe((oldAndNewAgent) => {
       this.handleSubmittedAgent(oldAndNewAgent);
+      this.viewComponent.ngOnChanges();
     });
 
     this.processusHandlerService.currentProcessus$.subscribe((processus) => {
       this.processus = new IssacProcessus(processus);
+      this.viewComponent.ngOnChanges();
     })
   }
 
   ngOnChanges() {
-    if (this.user == null) {
-      // console.log('Handle not connection');
-    }
-    console.log(this.processus);
-    localStorage.setItem('currentProcessus', JSON.stringify(this.processus));
   }
 
   ngAfterViewInit() {
-    console.log(this.sessionSt.retrieve('currentProcessus'));
   }
 
   onNameChange() {
@@ -126,24 +122,15 @@ export class EditComponent implements OnInit {
 
   handleSubmittedAgent(oldAndNewAgent: [IssacAgent, IssacAgent]) {
     if (!oldAndNewAgent) return;
-    let oldProcessus = this.processus;
-    this.processus = new IssacProcessus(oldProcessus);
     let oldAgent = oldAndNewAgent[0];
     this.agent = oldAndNewAgent[1];
     // // console.log($action);
     this.deleteAgentFromIssacProcessus(oldAgent);
-    // Perform deep copy
-    let agentInterface = <IIssacAgent>JSON.parse(JSON.stringify(this.agent));
-    
-    let checkIfAgentInArray = (agent: IssacAgent, agentArray: IssacAgent[]) => {
-      let checker = agentArray.some((element) => {
-        return agent.uri === element.uri;
-      });
-      return !checker;
-    };
-    this.processus.agents.push(this.agent);
-    // console.log(this.processus);
-    // this.viewComponent.ngOnChanges();
+    this.processus.agents.push(new IssacAgent(this.agent));
+    this.processus.purgeAgents();
+    console.log(this.processus);
+
+    this.viewComponent.ngOnChanges();
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
   }
 
@@ -218,17 +205,13 @@ export class EditComponent implements OnInit {
 
   deleteAgentFromIssacProcessus(oldAgent: IssacAgent) {
     if (!oldAgent) return;
-    console.log(oldAgent);
     let newAgents: IssacAgent[] = [];
     this.processus.agents.forEach((agent) => {
-      if (agent.uri != oldAgent.uri && agent.uri!= '') {
+      if ( agent.uri != oldAgent.uri) {
         newAgents.push(agent);
       }
     });
     this.processus.agents = newAgents;
-    console.log(this.processus.agents);
-    // oldAction = null;
-    // this.processus.generateActionsFromInputsAndOutputs();
   }
 
 
@@ -250,5 +233,7 @@ export class EditComponent implements OnInit {
       this.processus = new IssacProcessus(JSON.parse(response.results.bindings[0].IssacProcessus.value));
     }))
   }
+
+
 
 }

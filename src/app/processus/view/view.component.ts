@@ -51,7 +51,10 @@ export class ViewComponent implements OnInit {
     if (!this.id && this.processus && this.processus.uri) {
       this.id = this.processus.uri;
     }
-    if (this._Activatedroute.snapshot.params['id']) {
+    // console.log(this._Activatedroute.snapshot.url);
+    let urlFragments = this._Activatedroute.snapshot.url;
+    if (this._Activatedroute.snapshot.params['id'] && 
+    urlFragments[0].path == 'processus' && urlFragments[1].path == 'view') {
       this.id = this._Activatedroute.snapshot.params['id'];
       this.loadProcessus();
     }
@@ -72,12 +75,7 @@ export class ViewComponent implements OnInit {
   }
 
   onClickNode(agent: IssacAgent) {
-
-
-    // console.log('From view component, cliked action is :')
-    // console.log(action);
     this.agentDisplayerService.display(agent, true);
-    // this.thesaurus.onClickIdentifier(agent);
   }
 
   private _postProcess($event: any)
@@ -109,6 +107,7 @@ export class ViewComponent implements OnInit {
   }
 
   loadProcessus() {
+    console.log('inside loadProcessus');
     this.processus = new IssacProcessus();
     this.sparqlParser.clear();
     // this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;
@@ -121,7 +120,7 @@ export class ViewComponent implements OnInit {
     this.sparqlParser.graphPattern = query;
     this.sparqlParser.graphPattern.merge(this.processus.parseRestricter('uri', [this.id]));
     this.sparqlParser.select[0] = ' DISTINCT ' + this.processus.makeBindings();
-    console.log(this.sparqlParser.toString());
+    // console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response => {
       

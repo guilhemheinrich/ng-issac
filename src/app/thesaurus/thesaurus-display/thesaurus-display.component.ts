@@ -205,7 +205,7 @@ export class ThesaurusDisplayComponent implements OnInit {
     this.sparqlParser.select[0] = thesaurusEntryQuerrier.makeBindings();
     this.sparqlParser.graphPattern.merge(thesaurusEntryQuerrier.id.parseRestricter("uri", [uri], thesaurusEntryQuerrier.sparqlIdentifier("id")));
     // this.sparqlParser.order = '?uriSibling';
-    console.log(this.sparqlParser.toString());
+    // console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;
   }

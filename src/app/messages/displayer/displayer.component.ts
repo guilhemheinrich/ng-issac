@@ -41,7 +41,7 @@ export class DisplayerComponent implements OnInit {
   }
 
   insertMessage() {
-    console.log(this.logService.loggedUser);
+//     console.log(this.logService.loggedUser);
     let annotation = new Annotation.SparqlAnnotation(
       {
         target: this.target_uri,
@@ -59,7 +59,7 @@ export class DisplayerComponent implements OnInit {
 
     var saveQuery = annotation.parseIdentity();
     this.sparqlParser.graphDefinition = saveQuery;
-    console.log(this.sparqlParser.toString());
+//     console.log(this.sparqlParser.toString());
 
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     result.subscribe((response) => {
@@ -96,16 +96,16 @@ export class DisplayerComponent implements OnInit {
       this.annotations = [];
       let annotationsResult = response.results.bindings;
       let i = 0;
-      console.log(annotationsResult.length);
+//       console.log(annotationsResult.length);
       annotationsResult.forEach((annotation) => {
-        console.log(i++);
-        console.log(annotation);
+//         console.log(i++);
+//         console.log(annotation);
         function jsonEscape(str)  {
           return str.replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t");
       }
         this.annotations.push(new Annotation.SparqlAnnotation(JSON.parse(jsonEscape(annotation.SparqlAnnotation.value))));
       });
-      console.log(annotationsResult);
+//       console.log(annotationsResult);
     });
   }
 }

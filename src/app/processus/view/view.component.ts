@@ -65,7 +65,7 @@ export class ViewComponent implements OnInit {
     if (!this.id && this.processus && this.processus.uri) {
       this.id = this.processus.uri;
     }
-    console.log(this.processus);
+//     console.log(this.processus);
     this.computeGraphDefinition();
   }
 
@@ -102,12 +102,12 @@ export class ViewComponent implements OnInit {
     this.processusGraphDefinition += `A${index}("${agent.label}")-->This;\n`;
     this.processusGraphDefinition += `class I${index} inputMermaid;\n`
   });
-  console.log(this.processusGraphDefinition);
+//   console.log(this.processusGraphDefinition);
 
   }
 
   loadProcessus() {
-    console.log('inside loadProcessus');
+//     console.log('inside loadProcessus');
     this.processus = new IssacProcessus();
     this.sparqlParser.clear();
     // this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_processus_added.uri;

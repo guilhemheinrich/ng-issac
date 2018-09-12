@@ -134,7 +134,7 @@ export class ActionDisplayComponent implements OnInit {
     if (toggledElement.css('display') === 'none') {
       $('.myCollapse').css('display', 'none');
       toggledElement.css('display', 'inline');
-      console.log(toggledElement);
+//       console.log(toggledElement);
     } else {
       toggledElement.css('display', 'none');
     }

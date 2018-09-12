@@ -27,18 +27,18 @@ export class LoggerComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('onInitLog'); 
-    console.log(this.loggedUser);
-    console.log(this.loggedUser != null);
+//     console.log('onInitLog'); 
+//     console.log(this.loggedUser);
+//     console.log(this.loggedUser != null);
     this.logService.logUpdate$.subscribe(
       value => {
         this.loggedUser = JSON.parse(this.sessionSt.retrieve('user'));
-        console.log(this.loggedUser);
+//         console.log(this.loggedUser);
         if (this.loggedUser != null) {
           this.logged = true;
         }
       });
-      console.log(this.logged);
+//       console.log(this.logged);
   }
 
   onLogout() {

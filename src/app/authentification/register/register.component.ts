@@ -41,7 +41,7 @@ export class RegisterComponent implements OnInit {
     check$.subscribe(
       response => {
         if (!response.boolean) {
-          console.log('Handle form');
+//           console.log('Handle form');
       this.sparqlParser.clear();
       this.sparqlParser.graph = GlobalVariables.ONTOLOGY_PREFIX.context_administration.uri;
       this.sparqlParser.queryType = QueryType.ADD;
@@ -70,10 +70,10 @@ export class RegisterComponent implements OnInit {
 
       let result = this.sparqlClient.updateByUrlEncodedPost(this.sparqlParser.toString());
       result.subscribe((response => console.log(response)));
-      console.log("Submitted !");
+//       console.log("Submitted !");
     } else {
-      console.log(this.emailInput.nativeElement.hidden = false);
-      console.log('Email Already In Use');
+//       console.log(this.emailInput.nativeElement.hidden = false);
+//       console.log('Email Already In Use');
     }
         });
 

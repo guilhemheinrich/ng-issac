@@ -40,7 +40,7 @@ export class MermaidComponent implements OnInit {
   }
 
   ngOnChanges() {
-    console.log('onChange mermaid');
+//     console.log('onChange mermaid');
 
     this.renderMermaid();
 

@@ -128,7 +128,7 @@ export class EditComponent implements OnInit {
     this.deleteAgentFromIssacProcessus(oldAgent);
     this.processus.agents.push(new IssacAgent(this.agent));
     this.processus.purgeAgents();
-    console.log(this.processus);
+//     console.log(this.processus);
 
     this.viewComponent.ngOnChanges();
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
@@ -181,7 +181,7 @@ export class EditComponent implements OnInit {
       this.processus.owners = [];
       this.processus.owners.push(this.user);
     }
-    console.log(this.processus);
+//     console.log(this.processus);
     // this.processus.generateActionsFromInputsAndOutputs();
     // Add ad hoc verification ...
     let deleteObservable = this.delete();

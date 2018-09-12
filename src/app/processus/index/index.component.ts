@@ -63,7 +63,7 @@ export class IndexComponent implements OnInit {
         this.processusFilter.label = this.filter.label;
         this.processusFilter.owners.push(new Agent({username: this.filter.owner}));
         this.processusFilter.agents.push(new IssacAgent({label: this.filter.agentLabel}));
-        console.log(this.processusFilter);
+//         console.log(this.processusFilter);
         this.searchAllProcessus();
       }, this.typingTimeout);
     }
@@ -90,7 +90,7 @@ export class IndexComponent implements OnInit {
       <Array<any>>allProcessus.forEach((processusJSON) => {
         this.processusList.push(new IssacProcessus(JSON.parse(processusJSON.IssacProcessus.value)));
       });
-      console.log(this.processusList);
+//       console.log(this.processusList);
     }))
   }
 

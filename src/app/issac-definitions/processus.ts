@@ -158,7 +158,7 @@ export class IssacProcessus extends SparqlClass {
         // Should handle array and object
         ['owners'].forEach((attribute) => {
             if (this[attribute] !== undefined && this[attribute].constructor === Array && this[attribute].length > 0) {
-                console.log(this[attribute]);
+//                 console.log(this[attribute]);
                 filter.merge(this[attribute][0].parseFilter(this.sparqlIdentifier(attribute, prefix)));
             }
         });

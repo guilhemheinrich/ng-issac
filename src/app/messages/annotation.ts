@@ -52,7 +52,7 @@ export class SparqlAnnotation extends SparqlClass {
 
     }
     parseSkeleton(prefix: string = '') {
-        console.log(this.creator.parseSkeleton(this.sparqlIdentifier('creator', prefix)));
+//         console.log(this.creator.parseSkeleton(this.sparqlIdentifier('creator', prefix)));
         let emptyUser = new Agent();
         var query = new GraphDefinition(
             {

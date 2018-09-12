@@ -76,7 +76,7 @@ export class ThesaurusDisplayComponent implements OnInit {
       }));
     } else {
       let allRootsQuerry = findAllRoots();
-      console.log(allRootsQuerry);
+//       console.log(allRootsQuerry);
       let rootsResults = this.sparqlClient.queryByUrlEncodedPost(allRootsQuerry);
       rootsResults.subscribe((response => {
         this.rootRestrictions = response['results']['bindings'].map((element) => {
@@ -109,7 +109,7 @@ export class ThesaurusDisplayComponent implements OnInit {
   };
 
   onMatSelected($event: any) {
-    console.log($event);
+//     console.log($event);
     if ($event.selected == true) {
 
     }
@@ -134,7 +134,7 @@ export class ThesaurusDisplayComponent implements OnInit {
     this.sparqlParser.queryType = QueryType.QUERY;
     this.sparqlParser.prefixes = roots.prefixes;
     this.sparqlParser.graphPattern = roots;
-    console.log(this.sparqlParser.toString());
+//     console.log(this.sparqlParser.toString());
     let rootsResults = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     rootsResults.subscribe((response => {
       if (this.rootRestrictions !== undefined) {
@@ -176,7 +176,7 @@ export class ThesaurusDisplayComponent implements OnInit {
       this.sparqlParser.graphPattern = wrapedGraph;
     }
     this.sparqlParser.select[0] = ' DISTINCT ' + emptySkosIdentifier.makeBindings();
-    console.log(this.sparqlParser.toString());
+//     console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;
   }
@@ -191,7 +191,7 @@ export class ThesaurusDisplayComponent implements OnInit {
       uniqueIdentifier.name = parsed_identifier.name;
       this.searchResultChips.push(uniqueIdentifier);
     })
-    console.log(this.searchResultChips);
+//     console.log(this.searchResultChips);
   }
 
   searchUri(uri: string) {

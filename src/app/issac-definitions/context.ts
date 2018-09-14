@@ -4,7 +4,7 @@ import { IssacLocation } from './location';
 import { GlobalVariables } from '../configuration';
 
 
-export interface ISparqlContext {
+export interface IIssacContext {
     uri?: string;
     primaryPlant: IssacAgent;
     location: IssacLocation;
@@ -30,7 +30,7 @@ export class IssacContext extends SparqlClass {
         GlobalVariables.ONTOLOGY_PREFIX.rdfs
     ]
 
-    constructor(options?: ISparqlContext) {
+    constructor(options?: IIssacContext) {
         super(options);
         // if (options) {
         //     Object.getOwnPropertyNames(options).forEach((propertyName) => {

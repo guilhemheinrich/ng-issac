@@ -218,39 +218,75 @@ export class SparqlClass {
   constructor(options?: Object) {
     this._sparqlAttributes = Object.getPrototypeOf(this)[sparqlAtrributeName];
 
-    // Initialize collection !!
     (Object.getOwnPropertyNames(this._sparqlAttributes)).forEach((attribute) => {
+      // Initialize collection !!
       if (this._sparqlAttributes[attribute].isCollection) {
         this[attribute] = [];
       }
+
+      let hasInitialValue = options && options[attribute];
+
+
+      if (this._sparqlAttributes[attribute].type === SparqlType.OBJECT) {
+        if (this._sparqlAttributes[attribute].isCollection) {
+          if (hasInitialValue) {
+            options[attribute].forEach((object) => {
+              let newObject = new this._sparqlAttributes[attribute].sparqlObject.constructor(object);
+              if (newObject.uri !== '') {
+                this[attribute].push(newObject);
+              }
+            });
+          }
+        } else {
+          if (hasInitialValue) {
+            let newObject = new this._sparqlAttributes[attribute].sparqlObject.constructor(options[attribute]);
+            if (newObject.uri !== '') {
+              this[attribute] = newObject;
+            }
+
+          } else {
+            let newObject = new this._sparqlAttributes[attribute].sparqlObject.constructor();
+            if (newObject.uri !== '') {
+              this[attribute] = newObject;
+            }
+
+          }
+
+        }
+      } else {
+        if (hasInitialValue) {
+          this[attribute] = options[attribute];
+        }
+      }
+
     });
 
-    if (options) {
-      Object.getOwnPropertyNames(options).forEach((propertyName) => {
-        /* If an incorrect object is passed, this._sparqlAttributes[propertyName] doesn't exist and wreak havoc
-        */
-        if (this._sparqlAttributes[propertyName]) {
-          if (this._sparqlAttributes[propertyName].type === SparqlType.OBJECT) {
-            if (this._sparqlAttributes[propertyName].isCollection) {
-              // this[propertyName] = [];
-              options[propertyName].forEach((object) => {
-                let newObject = new this._sparqlAttributes[propertyName].sparqlObject.constructor(object);
-                if (newObject.uri !== '') {
-                  this[propertyName].push(newObject);
-                }
-              });
-            } else {
-              let newObject = new this._sparqlAttributes[propertyName].sparqlObject.constructor(options[propertyName]);
-              if (newObject.uri !== '') {
-                this[propertyName] = newObject;
-              }
-            }
-          } else {
-            this[propertyName] = options[propertyName];
-          }
-        }
-      });
-    }
+    // if (options) {
+    //   Object.getOwnPropertyNames(options).forEach((propertyName) => {
+    //     /* If an incorrect object is passed, this._sparqlAttributes[propertyName] doesn't exist and wreak havoc
+    //     */
+    //     if (this._sparqlAttributes[propertyName]) {
+    //       if (this._sparqlAttributes[propertyName].type === SparqlType.OBJECT) {
+    //         if (this._sparqlAttributes[propertyName].isCollection) {
+    //           // this[propertyName] = [];
+    //           options[propertyName].forEach((object) => {
+    //             let newObject = new this._sparqlAttributes[propertyName].sparqlObject.constructor(object);
+    //             if (newObject.uri !== '') {
+    //               this[propertyName].push(newObject);
+    //             }
+    //           });
+    //         } else {
+    //           let newObject = new this._sparqlAttributes[propertyName].sparqlObject.constructor(options[propertyName]);
+    //           if (newObject.uri !== '') {
+    //             this[propertyName] = newObject;
+    //           }
+    //         }
+    //       } else {
+    //         this[propertyName] = options[propertyName];
+    //       }
+    //     }
+    //   });
+    // }
   }
 
   generateUri() {

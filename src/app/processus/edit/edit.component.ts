@@ -1,7 +1,7 @@
 import { HostListener, Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 // import { Processus, Action, Input, Output, IAction, ActionType, IProcessus } from '../processus';
-import {IssacProcessus, IIssacProcessus} from 'src/app/issac-definitions/processus';
-import {IssacAgent, IIssacAgent} from 'src/app/issac-definitions/agent';
+import { IssacProcessus, IIssacProcessus } from 'src/app/issac-definitions/processus';
+import { IssacAgent, IIssacAgent } from 'src/app/issac-definitions/agent';
 
 import { SparqlClientService } from '../../sparql-client.service';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
@@ -11,11 +11,13 @@ import { Agent } from '../../authentification/user';
 import { ViewComponent } from '../view/view.component';
 import { ActionDisplayComponent } from '../action/display/display.component';
 import { AgentDisplayerService } from '../action/agent-displayer.service';
+import { ContextDisplayerService } from '../context/context-displayer.service';
 import { ProcessusHandlerService } from '../processus-handler.service';
 import * as $ from 'jquery';
 import * as _ from 'underscore';
 import { SessionStorageService } from 'ngx-webstorage';
 import { Router, ActivatedRoute } from '@angular/router';
+import { IssacContext } from '../../issac-definitions/context';
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
@@ -32,7 +34,8 @@ export class EditComponent implements OnInit {
   user = new Agent;
 
   agent: IssacAgent = new IssacAgent();
-  processus: IssacProcessus = new IssacProcessus();
+  processus: IssacProcessus;
+  context: IssacContext = new IssacContext();
   change: boolean = false;
 
   // For the autocomplete delay, in millisecond
@@ -53,20 +56,10 @@ export class EditComponent implements OnInit {
     private sparqlParser: SparqlParserService,
     private logService: LogService,
     private agentDisplayerService: AgentDisplayerService,
+    private contextDisplayerService: ContextDisplayerService,
     private processusHandlerService: ProcessusHandlerService,
     private _Activatedroute: ActivatedRoute,
   ) {
-
-
-    // let options = Object.values(ActionType);
-    // this.actionTypes = options;
-
-    // let currentProcessus = JSON.parse(localStorage.getItem('currentProcessus'));
-    // let currentProcessus = JSON.parse(this.sessionSt.retrieve('currentProcessus'));
-
-    // if (currentProcessus) {
-    //   this.processus = new IssacProcessus(<IProcessus>currentProcessus);
-    // }
 
     this.logService.logUpdate$.subscribe(
       value => {
@@ -85,10 +78,17 @@ export class EditComponent implements OnInit {
     if (this._Activatedroute.snapshot.params['id']) {
       this.id = this._Activatedroute.snapshot.params['id'];
       this.loadIssacProcessus();
+    } else {
+      this.processus = new IssacProcessus();
     }
-
+    
+    this.contextDisplayerService.oldToNewContext$.subscribe((oldAndNewContext) => {
+      this.handleSubmittedContext(oldAndNewContext);
+      this.viewComponent.ngOnChanges();
+    });
+    
     // this.action.agent = new UniqueIdentifier();
-    this.processus.owners = [this.user];
+
     this.agentDisplayerService.oldToNewAgent$.subscribe((oldAndNewAgent) => {
       this.handleSubmittedAgent(oldAndNewAgent);
       this.viewComponent.ngOnChanges();
@@ -128,16 +128,29 @@ export class EditComponent implements OnInit {
     this.deleteAgentFromIssacProcessus(oldAgent);
     this.processus.agents.push(new IssacAgent(this.agent));
     this.processus.purgeAgents();
-//     console.log(this.processus);
+
 
     this.viewComponent.ngOnChanges();
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
   }
 
+
+  handleSubmittedContext(oldAndNewContext: [IssacContext, IssacContext]) {
+    let oldContext = oldAndNewContext[0];
+    this.context = oldAndNewContext[1];
+    this.processus.contexts.push(new IssacContext(this.context));
+  }
+
   openAgentPanel() {
     this.agent = new IssacAgent();
-
     this.agentDisplayerService.display(this.agent, false);
+  }
+
+  openContextPanel() {
+    console.log('sending context toggling');
+
+    this.context = new IssacContext();
+    this.contextDisplayerService.display(this.context, false);
   }
 
   save() {
@@ -146,7 +159,7 @@ export class EditComponent implements OnInit {
     this.sparqlParser.queryType = QueryType.ADD;
     this.sparqlParser.prefixes = IssacProcessus.requiredPrefixes;
     this.processus.generateUri();
-    
+
     var saveQuery = this.processus.parseIdentity();
     this.sparqlParser.graphDefinition = saveQuery;
     // console.log(this.sparqlParser.toString());
@@ -181,7 +194,7 @@ export class EditComponent implements OnInit {
       this.processus.owners = [];
       this.processus.owners.push(this.user);
     }
-//     console.log(this.processus);
+    //     console.log(this.processus);
     // this.processus.generateActionsFromInputsAndOutputs();
     // Add ad hoc verification ...
     let deleteObservable = this.delete();
@@ -207,7 +220,7 @@ export class EditComponent implements OnInit {
     if (!oldAgent) return;
     let newAgents: IssacAgent[] = [];
     this.processus.agents.forEach((agent) => {
-      if ( agent.uri != oldAgent.uri) {
+      if (agent.uri != oldAgent.uri) {
         newAgents.push(agent);
       }
     });

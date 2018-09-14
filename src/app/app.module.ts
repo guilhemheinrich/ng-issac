@@ -43,6 +43,7 @@ import { XsdDateToDatePipe } from './xsd-date-to-date.pipe'
 
 import {IssacProcessusModule} from './issac-processus/issac-processus.module';
 import { PropertyAccessPipe } from './property-access.pipe';
+import { ContextDisplayComponent } from './processus/context/context-display/context-display.component';
 
 @NgModule({
   declarations: [
@@ -65,7 +66,8 @@ import { PropertyAccessPipe } from './property-access.pipe';
     HomeComponent,
     DisplayerComponent,
     XsdDateToDatePipe,
-    PropertyAccessPipe
+    PropertyAccessPipe,
+    ContextDisplayComponent,
   ],
   imports: [
     BrowserModule,

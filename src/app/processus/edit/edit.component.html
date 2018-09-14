@@ -2,6 +2,7 @@
 
 
 <app-display [agent]="agent" (outAgent)="handleSubmittedAgent($event)" [editable]="false" #actionComponent></app-display>
+<app-context-display [context]="context" (outContext)="handleSubmittedContext($event)" [editable]="false" #contextComponent></app-context-display>
 <form #processusForm="ngForm">
 
     <div class="form-group">
@@ -21,6 +22,8 @@
             #processusDescription name="processusDescription"></textarea>
     </div>
     <button (click)="openAgentPanel();" class="btn btn-secondary" >Add Agent</button>
+    <br/>
+    <button (click)="openContextPanel();" class="btn btn-secondary" >Setup context</button>
     <br/>
     <br/>
 

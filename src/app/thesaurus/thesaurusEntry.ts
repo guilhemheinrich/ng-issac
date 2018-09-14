@@ -180,9 +180,17 @@ Used to add an inheritance restriction on an element based on a skos ontology
 */
 export function addRootRestriction(childrenIdentifier: string, rootUris: string[] = ['http://lod.nal.usda.gov/nalt/12729'])
 {
+    /*
+        There is a whole story behind the following '<>',
+        but the short version is the VALUES didn't worked with
+        a single value in it (and with possibly an interaction with the * propertypath)
+
+        This is the KUICCTHH FIXTHH !!
+    */
     let rootRestriction = `
     ?root skos:narrower* ${childrenIdentifier} .
     VALUES ?root {
+        <> 
             ${rootUris.map((uri)=>
             {
                 return '<' + uri +'>';

@@ -21,12 +21,12 @@ export class IssacAgent extends SparqlClass {
     ]
 
     constructor(options?: IIssacAgent) {
-        super();
-        if (options) {
-            Object.getOwnPropertyNames(options).forEach((propertyName) => {
-                this[propertyName] = options[propertyName];
-            });
-        }
+        super(options);
+        // if (options) {
+        //     Object.getOwnPropertyNames(options).forEach((propertyName) => {
+        //         this[propertyName] = options[propertyName];
+        //     });
+        // }
     }
 
     parseGather(search: string, graphPattern: GraphDefinition): GraphDefinition {

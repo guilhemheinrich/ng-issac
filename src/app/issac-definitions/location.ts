@@ -20,12 +20,7 @@ export class IssacLocation extends SparqlClass {
     ]
 
     constructor(options?: IssacLocation) {
-        super();
-        if (options) {
-            Object.getOwnPropertyNames(options).forEach((propertyName) => {
-                this[propertyName] = options[propertyName];
-            });
-        }
+        super(options);
     }
 
     parseGather(search: string, graphPattern: GraphDefinition): GraphDefinition {

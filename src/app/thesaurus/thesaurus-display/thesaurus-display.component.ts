@@ -176,7 +176,7 @@ export class ThesaurusDisplayComponent implements OnInit {
       this.sparqlParser.graphPattern = wrapedGraph;
     }
     this.sparqlParser.select[0] = ' DISTINCT ' + emptySkosIdentifier.makeBindings();
-//     console.log(this.sparqlParser.toString());
+    console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;
   }
@@ -209,13 +209,6 @@ export class ThesaurusDisplayComponent implements OnInit {
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;
   }
-
-
-
-  // computeChipList() {
-  //   this.currentIdentiferChip = Object.create({ id: this.thesaurusEntry.id, selected: true });
-  //   this.thesaurusEntry.childs.forEach((child) => { });
-  // }
 
 
 

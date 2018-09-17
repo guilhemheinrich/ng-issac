@@ -136,9 +136,16 @@ export class EditComponent implements OnInit {
 
 
   handleSubmittedContext(oldAndNewContext: [IssacContext, IssacContext]) {
-    let oldContext = oldAndNewContext[0];
-    this.context = oldAndNewContext[1];
-    this.processus.contexts.push(new IssacContext(this.context));
+    if (oldAndNewContext) {
+      let oldContext = oldAndNewContext[0];
+      this.context = oldAndNewContext[1];
+      this.deleteContextFromIssacProcessus(oldContext);
+      this.context.generateUri();
+      this.processus.contexts.push(new IssacContext(this.context));
+      this.processus.purgeContexts();
+      this.viewComponent.ngOnChanges();
+      this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
+    }
   }
 
   openAgentPanel() {
@@ -162,7 +169,7 @@ export class EditComponent implements OnInit {
 
     var saveQuery = this.processus.parseIdentity();
     this.sparqlParser.graphDefinition = saveQuery;
-    // console.log(this.sparqlParser.toString());
+    console.log(this.sparqlParser.toString());
     let result = this.sparqlClient.queryByUrlEncodedPost(this.sparqlParser.toString());
     return result;
     // result.subscribe((response => console.log(response)));
@@ -197,6 +204,8 @@ export class EditComponent implements OnInit {
     //     console.log(this.processus);
     // this.processus.generateActionsFromInputsAndOutputs();
     // Add ad hoc verification ...
+    this.processus.purgeAgents();
+    this.processus.purgeContexts();
     let deleteObservable = this.delete();
     // deleteObservable exists <=> this.processus.uri exists
     let saveObservable = this.save();
@@ -227,6 +236,16 @@ export class EditComponent implements OnInit {
     this.processus.agents = newAgents;
   }
 
+  deleteContextFromIssacProcessus(oldContext: IssacContext) {
+    if (!oldContext) return;
+    let newContexts: IssacContext[] = [];
+    this.processus.contexts.forEach((context) => {
+      if (context.uri != oldContext.uri) {
+        newContexts.push(context);
+      }
+    });
+    this.processus.contexts = newContexts;
+  }
 
   loadIssacProcessus() {
     this.processus = new IssacProcessus();

@@ -74,7 +74,7 @@ export class ActionDisplayComponent implements OnInit {
 
   ngAfterViewInit() {
     this.closeModal();
-    this.modal.nativeElement.style.display = "none";
+    // this.modal.nativeElement.style.display = "none";
   }
   
 
@@ -94,7 +94,6 @@ export class ActionDisplayComponent implements OnInit {
   }
 
   openModal(agent?: IssacAgent) {
-
     this.oldAgent = new IssacAgent(<IIssacAgent>JSON.parse(JSON.stringify(agent)));
     this.agent = new IssacAgent(<IIssacAgent>JSON.parse(JSON.stringify(agent)));
     this.modal.nativeElement.style.display = "block";
@@ -134,7 +133,6 @@ export class ActionDisplayComponent implements OnInit {
     if (toggledElement.css('display') === 'none') {
       $('.myCollapse').css('display', 'none');
       toggledElement.css('display', 'inline');
-//       console.log(toggledElement);
     } else {
       toggledElement.css('display', 'none');
     }

@@ -1,18 +1,28 @@
 <div *ngIf="!editable">
     <h2>
-    {{ processus.label}} 
+        {{ processus.label}}
     </h2>
-    <br/>
+    <br />
     <p>
-    {{ processus.description}}
+        {{ processus.description}}
     </p>
 </div>
- 
+                    <div *ngIf="processus.contexts && processus.contexts.length > 0">
+                        <h2>Contexts</h2>
+                        <mat-card *ngFor="let context of processus.contexts" (click)="onClickContext(context)">
+                            <mat-card-title>
+                                {{ context.location.label }}
+                            </mat-card-title>
+                            {{ context.primaryPlant.label }}
+                        </mat-card>
+                    </div>
+
+
 
 <div class="parent" style="max-height: 300px; overflow: auto">
-    <app-mermaid class="child" *ngIf="processusGraphDefinition!=''" [graphDefinition]="processusGraphDefinition" [graphId]="'viewProcessusMermaid'" [viewPortWidth]=""
-    (finishDrawing)="_postProcess($event)" [mermaidId]="'mermaidFromView'" [viewPortHeight]="" [preserveAspectRatio]="'xMinYMin'" 
-    style="position:relative;" #mermaidComponent></app-mermaid>
+    <app-mermaid class="child" *ngIf="processusGraphDefinition!=''" [graphDefinition]="processusGraphDefinition"
+        [graphId]="'viewProcessusMermaid'" [viewPortWidth]="" (finishDrawing)="_postProcess($event)" [mermaidId]="'mermaidFromView'"
+        [viewPortHeight]="" [preserveAspectRatio]="'xMinYMin'" style="position:relative;" #mermaidComponent></app-mermaid>
 </div>
 
 <app-message-displayer [target_uri]="id" *ngIf="id"></app-message-displayer>

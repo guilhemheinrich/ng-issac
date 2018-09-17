@@ -44,12 +44,6 @@ export class MermaidComponent implements OnInit {
 
     this.renderMermaid();
 
-    // Fix : for unknown reason, the first time a graph should be rendered in thesaurus
-    // it just show the unparsed definition graph.
-    // Wainting 'a bit' fix it, but a proper fix/understandment would be better 
-    // let typingTimeout: number = 100;
-    // window.setTimeout(() => { this.renderMermaid() }, typingTimeout);
-
   }
   ngAfterContentInit()
   {

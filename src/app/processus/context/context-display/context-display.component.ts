@@ -32,12 +32,19 @@ export class ContextDisplayComponent implements OnInit {
   ngOnInit() {
     this.contextDisplayerService.displayIn$.subscribe((contextAndEditable) =>
     {
-      console.log('roger context toggling');
       if (contextAndEditable) {
         this.editable = contextAndEditable.editable;
         this.openModal(contextAndEditable.context);
       }
     });
+  }
+  ngAfterViewInit() {
+    this.closeModal();
+  }
+  
+
+  ngAfterContentInit() {
+    this.closeModal();
   }
 
   @HostListener('document:click', ['$event'])
@@ -48,7 +55,6 @@ export class ContextDisplayComponent implements OnInit {
   }
 
   openModal(context?: IssacContext) {
-
     this.oldContext = new IssacContext(<IIssacContext>JSON.parse(JSON.stringify(context)));
     this.context = new IssacContext(<IIssacContext>JSON.parse(JSON.stringify(context)));
     this.modal.nativeElement.style.display = "block";
@@ -74,8 +80,6 @@ export class ContextDisplayComponent implements OnInit {
   onLocationResult(location: UniqueIdentifier) {
     this.context.location.label = location.name;
     this.context.location.uri = location.uri;
-    // console.log(location);
-    // console.log(this.context);
   }
 
   onPrimaryPlantResult(primaryPlant: UniqueIdentifier)
@@ -94,5 +98,13 @@ export class ContextDisplayComponent implements OnInit {
     } else {
       toggledElement.css('display', 'none');
     }
+  }
+
+  onDelete()
+  {
+    this.context     = new IssacContext();
+    this.outContext.emit([this.oldContext, this.context]);
+    this.oldContext  = new IssacContext();
+    this.closeModal();
   }
 }

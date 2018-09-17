@@ -3,11 +3,13 @@ import { Processus, Action, ActionType, IAction, Input as pInput, Output as pOut
 import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 import {MermaidComponent } from '../../mermaid/mermaid.component';
 import { AgentDisplayerService } from '../action/agent-displayer.service';
+import { ContextDisplayerService } from '../context/context-displayer.service';
 import { Router,ActivatedRoute } from '@angular/router';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { SparqlClientService } from '../../sparql-client.service';
 import {IssacAgent, IIssacAgent} from 'src/app/issac-definitions/agent';
 import {IssacProcessus, IIssacProcessus} from 'src/app/issac-definitions/processus';
+import { IssacContext } from '../../issac-definitions/context';
 
 @Component({
   selector: 'app-view',
@@ -36,6 +38,7 @@ export class ViewComponent implements OnInit {
 
   constructor(
     private agentDisplayerService: AgentDisplayerService,
+    private contextDisplayerService: ContextDisplayerService,
     private _Activatedroute:ActivatedRoute,
     private _router:Router,
     private sparqlParser: SparqlParserService,
@@ -83,10 +86,17 @@ export class ViewComponent implements OnInit {
     this.processus.agents.forEach(((agent, index) => 
     {
       let node = document.getElementById('A' + index);
-      node.addEventListener("click", () =>this.onClickNode(agent));
-      // node.dataset.uri 
+      node.addEventListener("click", () =>this.onClickNode(agent)); 
     }));
 
+  }
+
+  onClickContext(context: IssacContext)
+  {
+    console.log(this.processus);
+    if (this.editable) {
+      this.contextDisplayerService.display(context, true);
+    }
   }
 
   computeGraphDefinition() {

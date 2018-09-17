@@ -77,7 +77,7 @@ export class IssacContext extends SparqlClass {
 
         let emptyLocation = new IssacLocation();
         query.triplesContent.push(
-            `${this.sparqlIdentifier('uri', prefix)} issac:takePlace ${emptyPrimaryPlant.sparqlIdentifier('uri', this.sparqlIdentifier('location', prefix))} .\n`
+            `${this.sparqlIdentifier('uri', prefix)} issac:takePlace ${emptyLocation.sparqlIdentifier('uri', this.sparqlIdentifier('location', prefix))} .\n`
         );
         let locationPattern = emptyLocation.parseSkeleton(this.sparqlIdentifier('location', prefix));
         query.merge(locationPattern);

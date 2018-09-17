@@ -17,12 +17,21 @@
                   <div class="input-group-append" >
                       <span class="input-group-text">{{context.location.uri}}</span>
                   </div>
+
               </div>
 
+              <div class="input-group mb-3" *ngIf="context.primaryPlant">
+              <div class="input-group-append">
+                <span class="input-group-text">{{context.primaryPlant.label}}</span>
+            </div>
+            <div class="input-group-append" >
+                <span class="input-group-text">{{context.primaryPlant.uri}}</span>
+            </div>
+        </div>
           </form>
           <br/>
           <div class="btn-group" role="group">
-              <button class="btn btn-success" type="submit" value="Validate Context" (click)="onSubmitContext()" >Validate Context</button>
+              <button class="btn btn-success" type="submit" value="Validate Context" (click)="onSubmitContext()" [disabled]="!context.location.uri || !context.primaryPlant.uri">Validate Context</button>
               <!-- <button [hidden]="!editable" class="btn btn-warning" value="Reset" (click)="onReset()">Reset</button> -->
               <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
           </div>

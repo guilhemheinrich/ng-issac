@@ -121,7 +121,7 @@ export class IssacProcessus extends SparqlClass {
         this.contexts.forEach((context) => {
             query.triplesContent.push(
                 `
-            <${this.uri}> issac:hasContext <${context.uri}>
+            <${this.uri}> issac:hasContext <${context.uri}> .
             `
             );
             query.merge(context.parseIdentity());
@@ -221,6 +221,22 @@ export class IssacProcessus extends SparqlClass {
             }
         });
         this.agents = purgedAgents;
+    }
+
+    purgeContexts()
+    {
+        let alreadyExistingUri = [];
+        let purgedContexts = [];
+        this.contexts.forEach((context) => {
+            if (context.uri && !alreadyExistingUri.includes(context.uri) &&
+            context.location && context.location.uri &&
+            context.primaryPlant && context.primaryPlant.uri
+            ) {
+                alreadyExistingUri.push(context.uri);
+                purgedContexts.push(new IssacContext(context));
+            }
+        });
+        this.contexts = purgedContexts;
     }
 
 }

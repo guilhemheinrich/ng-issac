@@ -35,6 +35,8 @@ import {EditorModule} from 'primeng/editor';
 import {OverlayPanelModule} from 'primeng/overlaypanel';
 import {InputTextareaModule} from 'primeng/inputtextarea';
 import {ButtonModule} from 'primeng/button';
+import {DialogModule} from 'primeng/dialog';
+
 
 
 import { DisplayerComponent } from './messages/displayer/displayer.component';
@@ -86,7 +88,8 @@ import { ContextDisplayComponent } from './processus/context/context-display/con
     InputTextareaModule,
     OverlayPanelModule,
     ButtonModule,
-    IssacProcessusModule
+    IssacProcessusModule,
+    DialogModule
     
   ],
   providers: [],

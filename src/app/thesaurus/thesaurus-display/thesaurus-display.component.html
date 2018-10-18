@@ -1,6 +1,6 @@
 
-<div style="position: relative;  overflow-x:hidden" [style.height]="height">
-<div *ngIf="rootRestrictions" style=" max-height:200px; margin: auto; display: inline-block">
+<div style="position: relative;  overflow-x:hidden" >
+<div *ngIf="rootRestrictions" >
   <mat-chip-list>
     <div *ngFor="let root of rootRestrictions;">
       <mat-chip class="skosRoot" (click)="onClickIdentifier(root)" [attr.data-id]="root.uri">

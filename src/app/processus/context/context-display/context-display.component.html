@@ -1,67 +1,91 @@
 <!-- The Modal -->
 <div id="myModal2" class="modal" #modal2 style="display:none; background-color: rgba(204, 191, 191, 0.527);">
-  <!-- Modal content -->
-  <div class="modal-content">
-      <div class="modal-header">
-          <!-- <h2>{{action.constructor.name}}</h2> -->
-          <span class="close" (click)="closeModal();">&times;</span>
-      </div>
-      <div class="modal-body">
-          <form #actionForm="ngForm">
-              <div class="input-group mb-3" *ngIf="context.location">
-
-
-                  <div class="input-group-append">
-                      <span class="input-group-text">{{context.location.label}}</span>
-                  </div>
-                  <div class="input-group-append" >
-                      <span class="input-group-text">{{context.location.uri}}</span>
-                  </div>
-
-              </div>
-
-              <div class="input-group mb-3" *ngIf="context.primaryPlant">
-              <div class="input-group-append">
-                <span class="input-group-text">{{context.primaryPlant.label}}</span>
-            </div>
-            <div class="input-group-append" >
-                <span class="input-group-text">{{context.primaryPlant.uri}}</span>
-            </div>
+    <!-- Modal content -->
+    <div class="modal-content">
+        <div class="modal-header">
+            <!-- <h2>{{action.constructor.name}}</h2> -->
+            <span class="close" (click)="closeModal();">&times;</span>
         </div>
-          </form>
-          <br/>
-          <div class="btn-group" role="group">
-              <button class="btn btn-success" type="submit" value="Validate Context" (click)="onSubmitContext()" [disabled]="!context.location.uri || !context.primaryPlant.uri">Validate Context</button>
-              <!-- <button [hidden]="!editable" class="btn btn-warning" value="Reset" (click)="onReset()">Reset</button> -->
-              <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
-          </div>
+        <div class="modal-body">
+            <form #actionForm="ngForm">
+                <div class="input-group mb-3" *ngIf="context.location">
 
-          <br/>
-          <br/>
 
-          <p>
-              <button class="btn btn-primary" type="button" data-toggle="collapse" (click)="togglePanel('locationThesaurus')" aria-expanded="false"
-                  aria-controls="multiCollapseExample2">Toggle Location Panel</button>
+                    <div class="input-group-append">
+                        <span class="input-group-text">{{context.location.label}}</span>
+                    </div>
+                    <div class="input-group-append">
+                        <span class="input-group-text">{{context.location.uri}}</span>
+                    </div>
 
-                  <button class="btn btn-primary" type="button" data-toggle="collapse" (click)="togglePanel('primaryPlantThesaurus')" aria-expanded="false"
-                  aria-controls="multiCollapseExample2">Toggle Primary Plant Panel</button>
-          </p>
+                </div>
 
-                  <div class="myCollapse" id="locationThesaurus">
-                        <app-thesaurus-display [rootRestrictions]="contextRootElement" [height]="'500px'" (result)="onLocationResult($event)"></app-thesaurus-display>
-                  </div>
+                <div class="input-group mb-3" *ngIf="context.primaryPlant">
+                    <div class="input-group-append">
+                        <span class="input-group-text">{{context.primaryPlant.label}}</span>
+                    </div>
+                    <div class="input-group-append">
+                        <span class="input-group-text">{{context.primaryPlant.uri}}</span>
+                    </div>
+                </div>
+            </form>
+            <br />
 
-                  <div class="myCollapse" id="primaryPlantThesaurus" style="display: none">
-                    <app-thesaurus-display [rootRestrictions]="agentRootElement" [height]="'500px'" (result)="onPrimaryPlantResult($event)"></app-thesaurus-display>
+            <div class="btn-group" role="group">
+                <button class="btn btn-success" type="submit" value="Validate Context" (click)="onSubmitContext()"
+                    [disabled]="!context.location.uri || !context.primaryPlant.uri">Validate Context</button>
+                <!-- <button [hidden]="!editable" class="btn btn-warning" value="Reset" (click)="onReset()">Reset</button> -->
+                <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
+            </div>
+
+            <br />
+            <br />
+
+
+            <mat-button-toggle-group #group="matButtonToggleGroup">
+                    <mat-button-toggle type="button" (click)="togglePanel('locationThesaurus')"
+                    aria-expanded="false" aria-controls="multiCollapseExample2">Toggle Location Panel</mat-button-toggle>
+                    <mat-button-toggle  type="button"  (click)="togglePanel('primaryPlantThesaurus')"
+                    aria-expanded="false" aria-controls="multiCollapseExample2">Toggle Primary Plant Panel</mat-button-toggle>
+                    
+                </mat-button-toggle-group>
+
+
+            <div class="myCollapse" id="locationThesaurus">
+                <app-thesaurus-display [rootRestrictions]="contextRootElement" [height]="'500px'" (result)="onLocationResult($event)"></app-thesaurus-display>
+            </div>
+
+            <div class="myCollapse" id="primaryPlantThesaurus" style="display: none">
+                <app-thesaurus-display [rootRestrictions]="agentRootElement" [height]="'500px'" (result)="onPrimaryPlantResult($event)"></app-thesaurus-display>
+            </div>
+
+
+
+
+
         </div>
-
-
-
-
-
-      </div>
-      <div class="modal-footer">
-          <h3>Modal Footer</h3>
-      </div>
-  </div>
+        <div class="modal-footer">
+            <h3>Modal Footer</h3>
+        </div>
+    </div>
 </div>
+
+<p-dialog [(visible)]="displayModal" [contentStyle]="{'max-height':'70%'}" [maximizable]="'true'">
+    <p-header>
+        <h2>Context selection </h2>
+        <h3 style="display: inline; color: blueviolet">{{context.location.label}} </h3>
+        <h5 style="display: inline; color: black; font-style:italic">{{context.location.uri}}</h5>
+    </p-header>
+    <div class="myCollapse" id="agentThesaurus">
+        <app-thesaurus-display [rootRestrictions]="agentRootElement" (result)="onThesaurusResult($event)"
+            #thesaurusComponent></app-thesaurus-display>
+    </div>
+    <p-footer>
+        <button class="btn btn-success" type="submit" value="Validate Agent" (click)="onSubmitAgent()">Validate
+            Agent</button>
+        <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
+        <div class="btn-group" role="group">
+        </div>
+
+    </p-footer>
+</p-dialog>

@@ -12,6 +12,7 @@ import { IssacAgent, IIssacAgent } from '../../../issac-definitions/agent';
 })
 export class ActionDisplayComponent implements OnInit {
 
+  displayModal = false;
   agentRootElement = [GlobalVariables.NAMED_INDIVIDUALS.taxonomic_classification_of_organisms]
 
   @Input()
@@ -84,19 +85,21 @@ export class ActionDisplayComponent implements OnInit {
 
   @HostListener('document:click', ['$event'])
   globalListener(event: Event) {
-    if (event && event.target == this.modal.nativeElement) {
-      this.closeModal();
-    }
+    // if (event && event.target == this.modal.nativeElement) {
+    //   this.closeModal();
+    // }
   }
   closeModal() {
-    this.modal.nativeElement.style.display = "none";
+    this.displayModal = false;
+    // this.modal.nativeElement.style.display = "none";
     this.oldAgent = null;
   }
 
   openModal(agent?: IssacAgent) {
     this.oldAgent = new IssacAgent(<IIssacAgent>JSON.parse(JSON.stringify(agent)));
     this.agent = new IssacAgent(<IIssacAgent>JSON.parse(JSON.stringify(agent)));
-    this.modal.nativeElement.style.display = "block";
+    // this.modal.nativeElement.style.display = "block";
+    this.displayModal = true;
   }
 
   onThesaurusResult(thesaurusIdentifier: UniqueIdentifier) {
@@ -137,4 +140,8 @@ export class ActionDisplayComponent implements OnInit {
       toggledElement.css('display', 'none');
     }
   }
+
+  showDialog() {
+    this.displayModal = true;
+}
 }

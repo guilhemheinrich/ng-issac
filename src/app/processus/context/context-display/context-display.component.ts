@@ -49,9 +49,9 @@ export class ContextDisplayComponent implements OnInit {
 
   @HostListener('document:click', ['$event'])
   globalListener(event: Event) {
-    if (event && event.target == this.modal.nativeElement) {
-      this.closeModal();
-    }
+    // if (event && event.target == this.modal.nativeElement) {
+    //   this.closeModal();
+    // }
   }
 
   openModal(context?: IssacContext) {

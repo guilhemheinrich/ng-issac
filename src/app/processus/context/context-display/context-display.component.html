@@ -22,13 +22,6 @@
         </div>
     </p-header>
     <br />
-
-    <!-- <mat-button-toggle-group  class="margin20" #group="matButtonToggleGroup">
-        <mat-button-toggle type="button" (click)="togglePanel('locationThesaurus')" aria-expanded="false" aria-controls="multiCollapseExample2">
-            Location Selection</mat-button-toggle>
-        <mat-button-toggle type="button" (click)="togglePanel('primaryPlantThesaurus')" aria-expanded="false"
-            aria-controls="multiCollapseExample2">Primary Plant Selection</mat-button-toggle>
-    </mat-button-toggle-group> -->
     <div class="myCollapse" id="locationThesaurus">
         <app-thesaurus-display [rootRestrictions]="contextRootElement" (result)="onLocationResult($event)"></app-thesaurus-display>
     </div>
@@ -40,7 +33,6 @@
 
         <button class="btn btn-success" type="submit" value="Validate Context" (click)="onSubmitContext()" [disabled]="!context.location.uri || !context.primaryPlant.uri">Validate
             Context</button>
-        <!-- <button [hidden]="!editable" class="btn btn-warning" value="Reset" (click)="onReset()">Reset</button> -->
         <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
 
     </p-footer>

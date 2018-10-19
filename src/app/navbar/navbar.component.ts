@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+
+import { MenuItem } from 'primeng/api';
 import * as $ from 'jquery';
 import { Agent } from '../authentification/user';
 import { SessionStorage } from 'ngx-webstorage';
@@ -11,6 +13,7 @@ import { SessionStorage } from 'ngx-webstorage';
 })
 export class NavbarComponent implements OnInit {
   collapse: boolean = true;
+  private items: MenuItem[];
 
   constructor(
     private route: ActivatedRoute,
@@ -18,7 +21,17 @@ export class NavbarComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    
+    this.items = [
+{label: "Home", icon: 'fa fa-home', routerLink: "/home"},
+      {
+        label: 'Processus',
+        icon: 'fa fa-cogs',
+        items: [
+          { label: 'New', icon: 'fa fa-plus', routerLink: "/processus/edit" },
+          { label: 'Browse', icon: 'fa fa-search', routerLink: "/processus/index" }
+        ]
+      },
+];
   }
 
 

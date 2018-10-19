@@ -36,7 +36,12 @@ import {OverlayPanelModule} from 'primeng/overlaypanel';
 import {InputTextareaModule} from 'primeng/inputtextarea';
 import {ButtonModule} from 'primeng/button';
 import {DialogModule} from 'primeng/dialog';
+import {TooltipModule} from 'primeng/tooltip';
+import {MenubarModule} from 'primeng/menubar';
+import {SlideMenuModule} from 'primeng/slidemenu';
 
+
+import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 
 import { DisplayerComponent } from './messages/displayer/displayer.component';
@@ -72,6 +77,7 @@ import { ContextDisplayComponent } from './processus/context/context-display/con
     ContextDisplayComponent,
   ],
   imports: [
+    AngularFontAwesomeModule,
     BrowserModule,
     FormsModule,
     AppRoutingModule,
@@ -89,7 +95,10 @@ import { ContextDisplayComponent } from './processus/context/context-display/con
     OverlayPanelModule,
     ButtonModule,
     IssacProcessusModule,
-    DialogModule
+    DialogModule,
+    TooltipModule,
+    MenubarModule,
+    SlideMenuModule
     
   ],
   providers: [],

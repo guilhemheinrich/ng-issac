@@ -12,6 +12,7 @@ import { IssacAgent } from '../../../issac-definitions/agent';
 })
 export class ContextDisplayComponent implements OnInit {
 
+  displayModal = false;
   contextRootElement = [GlobalVariables.NAMED_INDIVIDUALS.geographical_locations]
   agentRootElement = [GlobalVariables.NAMED_INDIVIDUALS.taxonomic_classification_of_organisms]
   @Input()
@@ -57,11 +58,14 @@ export class ContextDisplayComponent implements OnInit {
   openModal(context?: IssacContext) {
     this.oldContext = new IssacContext(<IIssacContext>JSON.parse(JSON.stringify(context)));
     this.context = new IssacContext(<IIssacContext>JSON.parse(JSON.stringify(context)));
-    this.modal.nativeElement.style.display = "block";
+    // this.modal.nativeElement.style.display = "block";
+    this.displayModal = true;
   }
 
   closeModal() {
-    this.modal.nativeElement.style.display = "none";
+    // this.modal.nativeElement.style.display = "none";
+    this.displayModal = false;
+
     this.oldContext = null;
   }
 
@@ -95,9 +99,7 @@ export class ContextDisplayComponent implements OnInit {
     if (toggledElement.css('display') === 'none') {
       $('.myCollapse').css('display', 'none');
       toggledElement.css('display', 'inline');
-    } else {
-      toggledElement.css('display', 'none');
-    }
+    } 
   }
 
   onDelete()

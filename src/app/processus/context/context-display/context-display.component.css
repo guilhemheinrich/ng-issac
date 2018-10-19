@@ -39,3 +39,20 @@
     from {top: -300px; opacity: 0}
     to {top: 0; opacity: 1}
 }
+
+.material-icons
+{
+    font-size: 45px
+}
+
+.margin20
+{
+    margin-left: 20%;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.skosField {
+    padding: 2px;
+    display: inline;
+}

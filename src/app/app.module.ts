@@ -28,6 +28,8 @@ import { SuffixPipe } from './suffix.pipe';
 import { MapPipe } from './map.pipe';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
+
+
 // Material stuff
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MaterialCustomModule} from './material-custom/material-custom.module';
@@ -41,6 +43,7 @@ import {MenubarModule} from 'primeng/menubar';
 import {SlideMenuModule} from 'primeng/slidemenu';
 
 
+
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 
@@ -51,6 +54,8 @@ import { XsdDateToDatePipe } from './xsd-date-to-date.pipe'
 import {IssacProcessusModule} from './issac-processus/issac-processus.module';
 import { PropertyAccessPipe } from './property-access.pipe';
 import { ContextDisplayComponent } from './processus/context/context-display/context-display.component';
+import { BasicComponent } from './gojs/basic/basic.component';
+
 
 @NgModule({
   declarations: [
@@ -75,6 +80,8 @@ import { ContextDisplayComponent } from './processus/context/context-display/con
     XsdDateToDatePipe,
     PropertyAccessPipe,
     ContextDisplayComponent,
+    BasicComponent,
+
   ],
   imports: [
     AngularFontAwesomeModule,
@@ -98,8 +105,8 @@ import { ContextDisplayComponent } from './processus/context/context-display/con
     DialogModule,
     TooltipModule,
     MenubarModule,
-    SlideMenuModule
-    
+    SlideMenuModule,
+    // GojsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

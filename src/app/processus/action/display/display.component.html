@@ -1,12 +1,15 @@
 <p-dialog [(visible)]="displayModal" [contentStyle]="{'max-height':'70%'}"
- [maximizable]="'true'">
+ [maximizable]="'true'"  [minWidth]="700">
     <p-header>
         <h2>Agent selection </h2>
-        <h3 style="display: inline; color: blueviolet">{{agent.label}}  </h3>
-        <h5 style="display: inline; color: black; font-style:italic">{{agent.uri}}</h5>
+        <div *ngIf="agent && agent.label && agent.uri"> 
+            <h3 style="display: inline; color: blueviolet">{{agent.label}}  </h3>
+            <h5 style="display: inline; color: black; font-style:italic">{{agent.uri}}</h5>
+
+        </div>
     </p-header>
     <div class="myCollapse" id="agentThesaurus">
-        <app-thesaurus-display [rootRestrictions]="agentRootElement" (result)="onThesaurusResult($event)"
+        <app-thesaurus-display (result)="onThesaurusResult($event)"
             #thesaurusComponent></app-thesaurus-display>
     </div>
     <p-footer>

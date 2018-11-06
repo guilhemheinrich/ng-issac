@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Agent } from '../../authentification/user';
 import { IssacProcessus } from 'src/app/issac-definitions/processus';
 import { IssacAgent } from 'src/app/issac-definitions/agent';
@@ -21,15 +21,14 @@ export class CreateProcessusComponent implements OnInit {
   */
   processusUri?: string;
 
-  //  user: Agent;
-
-  //  agent: IssacAgent;
   processus: IssacProcessus;
 
-  agentPanelVisibility = false;
   // For the autocomplete delay, in millisecond
   typingTimer: any;
   typingTimeout: number = 500;
+
+  @Input()
+  visible: boolean = false;
 
   constructor(
     private router: Router,

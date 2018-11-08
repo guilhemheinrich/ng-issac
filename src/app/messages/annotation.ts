@@ -97,10 +97,10 @@ export class SparqlAnnotation extends SparqlClass {
         return restriction;
     }
 
-    generateUri() {
-        if (this.uri !== undefined && this.uri !== '') return;
-        this.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_message.uri + uuidv4()
-    }
+    // generateUri() {
+    //     if (this.uri !== undefined && this.uri !== '') return;
+    //     this.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_message.uri + uuidv4()
+    // }
 
 
     parseIdentity() {

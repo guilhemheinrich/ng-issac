@@ -28,6 +28,8 @@ import { SuffixPipe } from './suffix.pipe';
 import { MapPipe } from './map.pipe';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
+
+
 // Material stuff
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MaterialCustomModule} from './material-custom/material-custom.module';
@@ -35,6 +37,15 @@ import {EditorModule} from 'primeng/editor';
 import {OverlayPanelModule} from 'primeng/overlaypanel';
 import {InputTextareaModule} from 'primeng/inputtextarea';
 import {ButtonModule} from 'primeng/button';
+import {DialogModule} from 'primeng/dialog';
+import {TooltipModule} from 'primeng/tooltip';
+import {MenubarModule} from 'primeng/menubar';
+import {SlideMenuModule} from 'primeng/slidemenu';
+import {SelectButtonModule} from 'primeng/selectbutton';
+
+
+
+import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 
 import { DisplayerComponent } from './messages/displayer/displayer.component';
@@ -44,6 +55,8 @@ import { XsdDateToDatePipe } from './xsd-date-to-date.pipe'
 import {IssacProcessusModule} from './issac-processus/issac-processus.module';
 import { PropertyAccessPipe } from './property-access.pipe';
 import { ContextDisplayComponent } from './processus/context/context-display/context-display.component';
+import { BasicComponent } from './gojs/basic/basic.component';
+
 
 @NgModule({
   declarations: [
@@ -68,8 +81,11 @@ import { ContextDisplayComponent } from './processus/context/context-display/con
     XsdDateToDatePipe,
     PropertyAccessPipe,
     ContextDisplayComponent,
+    BasicComponent,
+
   ],
   imports: [
+    AngularFontAwesomeModule,
     BrowserModule,
     FormsModule,
     AppRoutingModule,
@@ -86,8 +102,13 @@ import { ContextDisplayComponent } from './processus/context/context-display/con
     InputTextareaModule,
     OverlayPanelModule,
     ButtonModule,
-    IssacProcessusModule
-    
+    IssacProcessusModule,
+    DialogModule,
+    TooltipModule,
+    MenubarModule,
+    SlideMenuModule,
+    SelectButtonModule
+    // GojsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

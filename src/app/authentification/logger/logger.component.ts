@@ -3,7 +3,7 @@ import { LogService } from '../log.service';
 import { Agent } from '../user';
 import {Router} from '@angular/router';
 import {SessionStorageService} from 'ngx-webstorage';
-
+import {MenuItem} from 'primeng/api';
 
 @Component({
   selector: 'app-logger',
@@ -12,6 +12,9 @@ import {SessionStorageService} from 'ngx-webstorage';
   
 })
 export class LoggerComponent implements OnInit {
+
+  items: MenuItem[]; 
+
 
   logged = false;
   @Input()
@@ -39,6 +42,10 @@ export class LoggerComponent implements OnInit {
         }
       });
 //       console.log(this.logged);
+      this.items = [
+        {label: "Logout"}
+      ]
+
   }
 
   onLogout() {

@@ -1,58 +1,23 @@
-<!-- The Modal -->
-<div id="myModal" class="modal" #modal style="display:none; background-color: rgba(204, 191, 191, 0.527);">
-    <!-- Modal content -->
-    <div class="modal-content">
-        <div class="modal-header">
-            <!-- <h2>{{action.constructor.name}}</h2> -->
-            <span class="close" (click)="closeModal();">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form #actionForm="ngForm">
-                <div class="input-group mb-3">
-
-
-                    <div class="input-group-append" #inputAgentLabel>
-                        <span class="input-group-text">{{agent.label}}</span>
-                    </div>
-                    <div class="input-group-append">
-                        <span class="input-group-text">{{agent.uri}}</span>
-                    </div>
-                </div>
-
-            </form>
-            <br/>
-            <div class="btn-group" role="group">
-                <button class="btn btn-success" type="submit" value="Validate Agent" (click)="onSubmitAgent()" >Validate Agent</button>
-                <!-- <button [hidden]="!editable" class="btn btn-warning" value="Reset" (click)="onReset()">Reset</button> -->
-                <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
-            </div>
-
-            <br/>
-            <br/>
-
-            <p>
-                <button class="btn btn-primary" type="button" data-toggle="collapse" (click)="togglePanel('agentThesaurus')" aria-expanded="false"
-                    aria-controls="multiCollapseExample2">Toggle Agent Panel</button>
-                <button class="btn btn-primary" type="button" data-toggle="collapse" (click)="togglePanel('browser')" aria-expanded="false"
-                    >Full browse</button>
-            </p>
-
-                    <div class="myCollapse" id="agentThesaurus">
-                                <app-thesaurus-display [rootRestrictions]="agentRootElement" [height]="'500px'" (result)="onThesaurusResult($event)" #thesaurusComponent></app-thesaurus-display>
-                    </div>
-
-                    <div class="myCollapse" id="browser" style="display: none">
-                            <app-thesaurus-display  [height]="'500px'" (result)="onThesaurusResult($event)" #thesaurusComponentBrowse></app-thesaurus-display>
-                </div>
-
-
-
-
-
+<p-dialog [(visible)]="displayModal" [contentStyle]="{'max-height':'70%'}"
+ [maximizable]="'true'"  [minWidth]="700">
+    <p-header>
+        <h2>Agent selection </h2>
+        <div *ngIf="agent && agent.label && agent.uri"> 
+            <h3 style="display: inline; color: blueviolet">{{agent.label}}  </h3>
+            <h5 style="display: inline; color: black; font-style:italic">{{agent.uri}}</h5>
 
         </div>
-        <div class="modal-footer">
-            <h3>Modal Footer</h3>
-        </div>
+    </p-header>
+    <div class="myCollapse" id="agentThesaurus">
+        <app-thesaurus-display (result)="onThesaurusResult($event)"
+            #thesaurusComponent></app-thesaurus-display>
     </div>
-</div>
+    <p-footer>
+        <button class="btn btn-success" type="submit" value="Validate Agent" (click)="onSubmitAgent()">Validate
+            Agent</button>
+            <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
+                    <div class="btn-group" role="group">
+        </div>
+
+    </p-footer>
+</p-dialog>

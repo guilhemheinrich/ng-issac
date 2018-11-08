@@ -357,19 +357,19 @@ export class Processus extends SparqlClass {
         return { quadPattern: operation, graphPattern: whereClause };
     }
 
-    generateUri() {
-        if (this.uri !== undefined && this.uri !== '') return;
-        let hashedFingerprint = this.name;
-        this.inputs.forEach(input => {
-            hashedFingerprint += input.agent.uri;
-        });
-        this.outputs.forEach(output => {
-            hashedFingerprint += output.agent.uri;
-        });
-        // Add time to avoid a set of possible collision relying purely on processus attributes
-        hashedFingerprint += (new Date()).getTime();
-        this.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_processus.uri + hash32(hashedFingerprint)
-    }
+    // generateUri() {
+    //     if (this.uri !== undefined && this.uri !== '') return;
+    //     let hashedFingerprint = this.name;
+    //     this.inputs.forEach(input => {
+    //         hashedFingerprint += input.agent.uri;
+    //     });
+    //     this.outputs.forEach(output => {
+    //         hashedFingerprint += output.agent.uri;
+    //     });
+    //     // Add time to avoid a set of possible collision relying purely on processus attributes
+    //     hashedFingerprint += (new Date()).getTime();
+    //     this.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_processus.uri + hash32(hashedFingerprint)
+    // }
 
     generateInputsOutputsFromActions() {
         // reset input and output field

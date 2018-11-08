@@ -12,7 +12,7 @@
 
     <div class="form-group">
       <label> Password:
-        <input [(ngModel)]="user.password" placeholder="Password" class="form-control" required name="password" #password="ngModel"/>
+        <input [(ngModel)]="user.password" placeholder="Password" class="form-control" type="password" name="password" #password="ngModel"/>
       </label>
     </div>
     <button type="submit" class="btn btn-success" [disabled]="!userFrom.form.valid">Login</button>

@@ -1,27 +1,24 @@
-<div class="container">
-    <div class="row" >
-        <div class="col-md-12">
-            <p style="font-size: large; min-height: 80%" *ngIf="loggedUser;else other_content">{{loggedUser.username}}</p>
-        </div>
+<div style="padding-right: 3px">
+    <ng-template #other_content>
+        <fa size="2x" name="user-secret"></fa>
+        <h2 style="display: inline;">  Guest  </h2>
 
-    </div>
-    <div class="row">
-        <div class="col">
-            <button [hidden]="!logged" class="nav-link btn btn-link buttonPair dropdown-item" role="button">
-                Profile
-            </button>
-            <a [hidden]="logged" routerLink="/authentification/register" class="nav-link  btn btn-link buttonPair dropdown-item" role="button">Register</a>
-        </div>
-        <div class="col">
-            <button [hidden]="!logged" (click)="onLogout();" class="nav-link btn btn-link buttonPair dropdown-item" role="button">
-                Logout
-            </button>
-            <a [hidden]="logged" routerLink="/authentification/login" class="nav-link  btn btn-link buttonPair dropdown-item" role="button">Login</a>
-        </div>
-    </div>
+        <p-slideMenu #menu [viewportHeight]="100" [popup]="true" [model]="items"></p-slideMenu>
+        <a class="btn btn-success alignedButton" routerLink="/authentification/login" pTooltip="Log in">
+            <fa name="sign-in"></fa>
+        </a>
+        <a class="btn alignedButton" routerLink="/authentification/register" pTooltip="Register">
+            <fa name="user-plus"></fa>
+        </a>
+    </ng-template>
+
+    <ng-container *ngIf="loggedUser;else other_content">
+        <fa size="2x" name="user-circle"></fa>
+        <h2 style="display: inline;">{{loggedUser.username}}</h2>
+
+        <!-- <p-slideMenu #menu [viewportHeight]="100" [popup]="true" [model]="items"></p-slideMenu> -->
+        <button class="btn btn-warning alignedButton" (click)="onLogout();" pTooltip="Logout" tooltipPosition="top">
+            <fa name="sign-out"></fa>
+        </button>
+    </ng-container>
 </div>
-
-
-<ng-template #other_content>
-    <p style="font-size: large">Guest</p>
-</ng-template>

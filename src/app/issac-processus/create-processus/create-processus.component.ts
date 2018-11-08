@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Agent } from '../../authentification/user';
 import { IssacProcessus } from 'src/app/issac-definitions/processus';
 import { IssacAgent } from 'src/app/issac-definitions/agent';
@@ -8,6 +8,7 @@ import { GlobalVariables, hash32, UniqueIdentifier } from '../../configuration';
 import { LogService } from '../../authentification/log.service';
 import { SessionStorageService } from 'ngx-webstorage';
 import { Router, ActivatedRoute } from '@angular/router';
+import {ProcessusService} from '../processus.service';
 
 
 @Component({
@@ -21,15 +22,16 @@ export class CreateProcessusComponent implements OnInit {
   */
   processusUri?: string;
 
-  //  user: Agent;
+  editable = true;
 
-  //  agent: IssacAgent;
   processus: IssacProcessus;
 
-  agentPanelVisibility = false;
   // For the autocomplete delay, in millisecond
   typingTimer: any;
   typingTimeout: number = 500;
+
+  @Input()
+  visible: boolean;
 
   constructor(
     private router: Router,
@@ -38,10 +40,19 @@ export class CreateProcessusComponent implements OnInit {
     private sparqlParser: SparqlParserService,
     private logService: LogService,
     private _Activatedroute: ActivatedRoute,
+    private processusService: ProcessusService,
   ) { }
 
   ngOnInit() {
     this.processus = new IssacProcessus();
+    this.processusService.displayIn$.subscribe((processusAndEditable) =>
+    {
+      if (processusAndEditable) {
+        this.editable = processusAndEditable.editable;
+        this.processus = processusAndEditable.processus;
+        this.visible = true;
+      }
+    });
   }
 
   onNameChange() {
@@ -50,14 +61,14 @@ export class CreateProcessusComponent implements OnInit {
     }
     if (this.processus.label && this.processus.label.length >= 3) {
       this.typingTimer = window.setTimeout(() => {
-        // this.viewComponent.processus = this.processus;
-        // this.viewComponent.computeGraphDefinition();
       }, this.typingTimeout);
     }
     this.sessionSt.store('currentProcessus', JSON.stringify(this.processus));
   }
 
-  openAgentPanel() {
-    
+  onSubmitProcessus()
+  {
+    this.processusService.output(this.processus);
+    this.visible = false;
   }
 }

@@ -1,6 +1,7 @@
 
-<div style="position: relative;  overflow-x:hidden" [style.height]="height">
-<div *ngIf="rootRestrictions" style=" max-height:200px; margin: auto; display: inline-block">
+<div style="position: relative;  overflow-x:hidden" >
+<div *ngIf="rootRestrictions" >
+  <h4>Top level elements (roots elements)</h4>
   <mat-chip-list>
     <div *ngFor="let root of rootRestrictions;">
       <mat-chip class="skosRoot" (click)="onClickIdentifier(root)" [attr.data-id]="root.uri">
@@ -9,9 +10,7 @@
   </mat-chip-list>
 </div>
   <br/>
-  <br/>
   <div style="position:relative">
-
     <div class="input-group mb-3">
       <div class="input-group-prepend">
         <span class="input-group-text">Browse</span>
@@ -21,7 +20,7 @@
     </div>
   </div>
   <br/>
-  <div style="width:75vw;min-height: 40px;max-height:250px;overflow-x:hidden">
+  <div>
     <mat-chip-list>
       <mat-chip *ngFor="let identifier of searchResultChips" (click)="onClickIdentifier(identifier)">
         {{ identifier.name }}
@@ -33,7 +32,10 @@
 
   <div *ngIf="thesaurusEntry">
     <div style="font-weight: bold;">
-      {{ thesaurusEntry.id.name }}
+      <h2>
+
+        {{ thesaurusEntry.id.name }}
+      </h2>
       <div *ngIf="thesaurusEntry.synonyms && thesaurusEntry.synonyms[0] !== ''" style="display:inline-block;font-weight: normal;">
         (
         <div style="display: inline-block; font-style: italic;" *ngFor="let synonym of thesaurusEntry.synonyms"> {{synonym}}</div>)
@@ -41,7 +43,7 @@
     </div>
     <br/>
     <div *ngIf="thesaurusEntry.parents[0].name !==''">
-      Parent(s)
+      <h3>Parent(s)</h3>
       <mat-chip-list>
         <div *ngFor="let parent of thesaurusEntry.parents;">
           <mat-chip (click)="onClickIdentifier(parent)">
@@ -51,7 +53,7 @@
     </div>
     <br/>
     <div *ngIf="thesaurusEntry.siblings && thesaurusEntry.siblings[0].name !==''">
-      Siblings
+      <h3>Siblings</h3>
 
       <mat-chip-list>
         <div *ngFor="let sibling of thesaurusEntry.siblings;">
@@ -62,7 +64,7 @@
     </div>
     <br/>
     <div *ngIf="thesaurusEntry.childs && thesaurusEntry.childs[0].name !==''">
-      Childs
+      <h3>Childs</h3>
       <mat-chip-list>
         <div *ngFor="let child of thesaurusEntry.childs;">
           <mat-chip *ngIf="child.name !== ''" (click)="onClickIdentifier(child)">
@@ -75,7 +77,7 @@
 
 
   <br/>
-  <br/>
+
 
 
 </div>

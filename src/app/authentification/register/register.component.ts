@@ -4,6 +4,7 @@ import { SparqlParserService, Prefix, GraphDefinition, QueryType } from '../../s
 import { User } from '../user';
 import {GlobalVariables, hash32} from '../../configuration';
 import { Observable, Subscription } from 'rxjs';
+import {Router} from '@angular/router';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -16,7 +17,8 @@ export class RegisterComponent implements OnInit {
 
   constructor(
     private sparqlClient: SparqlClientService,
-    private sparqlParser: SparqlParserService
+    private sparqlParser: SparqlParserService,
+    private router: Router
   ) {
     this.sparqlClient.sparqlEndpoint = GlobalVariables.TRIPLESTORE.dsn;
   }
@@ -70,10 +72,12 @@ export class RegisterComponent implements OnInit {
 
       let result = this.sparqlClient.updateByUrlEncodedPost(this.sparqlParser.toString());
       result.subscribe((response => console.log(response)));
+
+      this.router.navigate(['/home']);
 //       console.log("Submitted !");
     } else {
-//       console.log(this.emailInput.nativeElement.hidden = false);
-//       console.log('Email Already In Use');
+      console.log(this.emailInput.nativeElement.hidden = false);
+      console.log('Email Already In Use');
     }
         });
 

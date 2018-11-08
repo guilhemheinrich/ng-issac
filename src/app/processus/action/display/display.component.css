@@ -23,7 +23,7 @@
 
 /* Modal Content */
 .modal-content {
-    position: relative;
+    position: fixed;
     background-color: #fefefe;
     margin: auto;
     padding: 0;

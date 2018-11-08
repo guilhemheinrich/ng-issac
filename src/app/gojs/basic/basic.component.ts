@@ -2,11 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import * as go from 'gojs';
 import { IssacAgent, IIssacAgent } from 'src/app/issac-definitions/agent';
 import { AgentDisplayerService } from 'src/app/processus/action/agent-displayer.service';
-<<<<<<< HEAD
 import { ProcessusService } from 'src/app/issac-processus/processus.service';
 import { IssacProcessus } from 'src/app/issac-definitions/processus';
-=======
->>>>>>> 68c68034f412d4da11c09fda893f393dc7f067d5
 @Component({
   selector: 'app-basic',
   templateUrl: './basic.component.html',
@@ -22,7 +19,6 @@ export class BasicComponent implements OnInit {
   _diagram: go.Diagram;
   _currentLocation = new go.Point();
 
-<<<<<<< HEAD
   // Displayer
   public displayer = undefined;
 
@@ -45,15 +41,6 @@ export class BasicComponent implements OnInit {
   ) {
     this._diagram = new go.Diagram();
 
-=======
-  // Agent creation information
-  _agent: IssacAgent;
-
-  constructor(
-    private agentDisplayerService: AgentDisplayerService,
-  ) {
-    this._diagram = new go.Diagram();
->>>>>>> 68c68034f412d4da11c09fda893f393dc7f067d5
     this._diagram.initialContentAlignment = go.Spot.Center;
     this._diagram.undoManager.isEnabled = true;
   }
@@ -66,7 +53,6 @@ export class BasicComponent implements OnInit {
     this.agentDisplayerService.oldToNewAgent$.subscribe((oldAndNewAgent) => {
       this.handleSubmittedAgent(oldAndNewAgent);
     });
-<<<<<<< HEAD
     this.processusService.newProcessus$.subscribe((newProcessus) => {
       this.handleSubmittedProcessus(newProcessus);
     });
@@ -129,20 +115,10 @@ export class BasicComponent implements OnInit {
           function (e, obj) { e.diagram.commandHandler.ungroupSelection(); },
           function (o) { return o.diagram.commandHandler.canUngroupSelection(); })
       );
-=======
-
->>>>>>> 68c68034f412d4da11c09fda893f393dc7f067d5
 
 
     this._diagram.nodeTemplate =
       $(go.Node, "Auto",  // the Shape automatically fits around the TextBlock
-<<<<<<< HEAD
-        {
-          // this context menu Adornment is shared by all nodes
-          contextMenu: partContextMenu
-        },
-=======
->>>>>>> 68c68034f412d4da11c09fda893f393dc7f067d5
         $(go.Shape, "RoundedRectangle",  // use this kind of figure for the Shape
           // bind Shape.fill to Node.data.color
           new go.Binding("fill", "type", this.typeToCssProp),
@@ -249,7 +225,6 @@ export class BasicComponent implements OnInit {
     }
   }
 
-<<<<<<< HEAD
   setLinkData(part: go.Link) {
     // Open dialog with data
 
@@ -272,28 +247,22 @@ export class BasicComponent implements OnInit {
     console.log((<go.GraphLinksModel>this._diagram.model).linkDataArray);
   }
 
-=======
->>>>>>> 68c68034f412d4da11c09fda893f393dc7f067d5
   openAgentPanel() {
     console.log('opening agent panel');
     this._agent = new IssacAgent();
     this.agentDisplayerService.display(this._agent, false);
   }
 
-<<<<<<< HEAD
   openProcessusPanel() {
     console.log('opening processus panel');
     let processus = new IssacProcessus();
     this.processusService.display(processus, false);
   }
 
-=======
->>>>>>> 68c68034f412d4da11c09fda893f393dc7f067d5
   handleSubmittedAgent(oldAndNewAgent: [IssacAgent, IssacAgent]) {
     if (!oldAndNewAgent) return;
     let oldAgent = oldAndNewAgent[0];
     this._agent = oldAndNewAgent[1];
-<<<<<<< HEAD
     // Check that the agent is not already in the model
     let nodeExist = this._diagram.model.nodeDataArray.filter((node: { type, key }) => {
       return node.type === 'agent';
@@ -327,29 +296,4 @@ export class BasicComponent implements OnInit {
     this.processusDialogDisplay = false;
   }
 
-=======
-    this._diagram.model.addNodeData({
-      loc: this._currentLocation,
-      type: 'agent',
-      title: this._agent.label,
-      uri: this._agent.uri,
-      key: this._agent.uri,
-    });
-  }
-  addProcessus(loc?: go.Point, data?: Object) {
-
-    let location;
-    if (loc) {
-      location = loc;
-    } else {
-      location = this._currentLocation;
-    }
-    this._diagram.model.addNodeData({
-      loc: location,
-      type: 'processus',
-      title: 'First Processus'
-    });
-
-  }
->>>>>>> 68c68034f412d4da11c09fda893f393dc7f067d5
 }

@@ -41,7 +41,10 @@ import {DialogModule} from 'primeng/dialog';
 import {TooltipModule} from 'primeng/tooltip';
 import {MenubarModule} from 'primeng/menubar';
 import {SlideMenuModule} from 'primeng/slidemenu';
+<<<<<<< HEAD
 import {SelectButtonModule} from 'primeng/selectbutton';
+=======
+>>>>>>> 68c68034f412d4da11c09fda893f393dc7f067d5
 
 
 

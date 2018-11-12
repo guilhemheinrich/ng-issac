@@ -37,8 +37,8 @@
             "scripts": [ 
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/mermaid/dist/mermaid.min.js",
-              "node_modules/quill/dist/quill.js"
-
+              "node_modules/quill/dist/quill.js",
+              "src/assets/externals/jit.js"
 
             ]
           },

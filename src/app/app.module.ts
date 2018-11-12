@@ -56,6 +56,8 @@ import {IssacProcessusModule} from './issac-processus/issac-processus.module';
 import { PropertyAccessPipe } from './property-access.pipe';
 import { ContextDisplayComponent } from './processus/context/context-display/context-display.component';
 import { BasicComponent } from './gojs/basic/basic.component';
+import { MainComponent } from './vis/main/main.component';
+import { ProcessusFormComponent } from './vis/processus-form/processus-form.component';
 
 
 @NgModule({
@@ -82,6 +84,8 @@ import { BasicComponent } from './gojs/basic/basic.component';
     PropertyAccessPipe,
     ContextDisplayComponent,
     BasicComponent,
+    MainComponent,
+    ProcessusFormComponent,
 
   ],
   imports: [

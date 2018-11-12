@@ -58,6 +58,7 @@ import { ContextDisplayComponent } from './processus/context/context-display/con
 import { BasicComponent } from './gojs/basic/basic.component';
 import { MainComponent } from './vis/main/main.component';
 import { ProcessusFormComponent } from './vis/processus-form/processus-form.component';
+import { AgentFormComponent } from './vis/agent-form/agent-form.component';
 
 
 @NgModule({
@@ -86,6 +87,7 @@ import { ProcessusFormComponent } from './vis/processus-form/processus-form.comp
     BasicComponent,
     MainComponent,
     ProcessusFormComponent,
+    AgentFormComponent,
 
   ],
   imports: [

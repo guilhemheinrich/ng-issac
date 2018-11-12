@@ -102,6 +102,7 @@ export class ThesaurusDisplayComponent implements OnInit {
   autocomplete() {
     var result = this.search(this.searchField);
     result.subscribe((response => {
+      console.log(response);
       if (response['results']['bindings']) {
         this._parseSearch(response['results']['bindings']);
       }
@@ -182,6 +183,7 @@ export class ThesaurusDisplayComponent implements OnInit {
   }
 
   _parseSearch(bindings: Array<any>) {
+    console.log('into parseSearch');
     let allSkosIdentifier = bindings;
     this.searchResultChips = [];
     allSkosIdentifier.forEach((skosIdentifierJSON) => {

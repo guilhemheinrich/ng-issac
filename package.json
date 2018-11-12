@@ -48,6 +48,7 @@
     "rxjs": "^6.0.0",
     "sparqljs": "^2.0.3",
     "underscore": "^1.9.1",
+    "vis": "^4.21.0",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {

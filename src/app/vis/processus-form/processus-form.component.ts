@@ -16,7 +16,7 @@ export class ProcessusFormComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    this.canal.flowOut$.subscribe((obj) => {
+    this.canal.flowIn$.subscribe((obj) => {
       if (!obj) return;
       console.log(obj.data.label);
       let processus = obj.data;

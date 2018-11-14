@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { Canal } from 'src/app/communication';
 import { IssacProcessus } from 'src/app/issac-definitions/processus';
 import { IssacAgent } from 'src/app/issac-definitions/agent';
-declare let $jit: any;
+import { IssacRelationship, IIssacRelationship } from 'src/app/issac-definitions/relationship';
+import * as vis from 'vis';
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
@@ -10,11 +11,82 @@ declare let $jit: any;
 })
 export class MainComponent implements OnInit {
 
+  // Communications canal
   processusCanal = new Canal<IssacProcessus>();
   agentCanal = new Canal<IssacAgent>();
 
-  public fd;
-  private _agent = new IssacAgent();
+  // Data
+  agents: IssacAgent[] = [];
+  processus: IssacProcessus[] = [];
+  relationships: { processusUri: string, agentUri: string, data: {} }[] = [];
+
+  // Data - visualisation bindings
+  private _usedIds: Set<number> = new Set();
+  private _agentsId: Set<{ id: any, data: IssacAgent }> = new Set();
+  private _processusId: Set<{ id: any, data: IssacProcessus }> = new Set();
+  private _relationshipsId: Set<{ id: any, data: IssacRelationship }> = new Set();
+
+
+  // Graph stuff
+  public network: vis.Network;
+  @ViewChild('visContainer')
+  public container: ElementRef;
+
+  public nodes = new vis.DataSet<vis.Node>([
+    { id: "bdkljcfheriu", label: "one" },
+    { id: -2, label: "two" },
+    { id: -3, label: "three" },
+    { id: -4, label: "four" },
+    { id: -5, label: "fivr" },
+  ]);
+
+  public edges = new vis.DataSet<vis.Edge>([
+    // { from: 1, to: 3 },
+  ]);
+
+
+  public options = {
+    // configure: {enabled: true},
+    edges: { smooth: false },
+    physics: { enabled: false },
+    interaction: {
+      zoomView: false,
+      dragView: false,
+      // navigationButtons: true
+    }
+  };
+  private shiftPress = false;
+
+
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(ev: KeyboardEvent) {
+    // console.log(`The user just pressed ${ev.key}!`);
+    this.shiftPress = ev.shiftKey;
+    // if (ev.shiftKey) {
+    //   console.log('here')
+    //   this.network.setOptions({
+    //     interaction: {
+    //       dragNodes: false
+    //     }
+    //   });
+    // }
+  }
+
+  @HostListener('document:keyup', ['$event'])
+  onKeyUp(ev: KeyboardEvent) {
+    this.shiftPress = ev.shiftKey;
+    // this.network.setOptions({
+    //   interaction: {
+    //     dragNodes: true
+    //   }
+    // });
+  }
+  private _canvasPosition: { x: number, y: number } = { x: 0, y: 0 };
+  // Used in drag event
+  private _lastSelected: any;
+  private _nodeSelectedStart: number;
+  private _nodeSelectedEnd: number;
+
   constructor() {
 
   }
@@ -23,20 +95,9 @@ export class MainComponent implements OnInit {
     let processus = new IssacProcessus();
     processus.label = 'awesome';
     this.processusCanal.passIn(processus);
+
   }
 
-  // init data
-  public json = [
-    {
-      "data": {
-        "$color": "#83548B",
-        "$type": "none",
-        "$alpha": 0
-      },
-      "id": "graphnode0",
-      "name": "graphnode0"
-    }
-  ];
 
 
   ngOnInit() {
@@ -54,190 +115,51 @@ export class MainComponent implements OnInit {
       this.addAgent(obj.data);
     })
 
-    var fd = new $jit.ForceDirected({
-      //id of the visualization container
-      injectInto: 'infovis',
-      //Enable zooming and panning
-      //with scrolling and DnD
-      Navigation: {
-        enable: true,
-        type: 'Native',
-        //Enable panning events only if we're dragging the empty
-        //canvas (and not a node).
-        panning: 'avoid nodes',
-        zooming: 40 //zoom speed. higher is more sensible
-      },
-      // Change node and edge styles such as
-      // color and width.
-      // These properties are also set per node
-      // with dollar prefixed data-properties in the
-      // JSON structure.
-      Node: {
-        overridable: true,
-        dim: 7
-      },
-      Edge: {
-        overridable: true,
-        color: '#23A4FF',
-        lineWidth: 1
-      },
-      // Add node events
-      Events: {
-        enable: true,
-        enableForEdges: true,
-        type: 'Native',
-        onClick: (nodeOrEdge, eventInfo, e) => {
-          console.log(nodeOrEdge)
-          console.log(eventInfo)
-          console.log(e)
-          if (nodeOrEdge === false) {
-            // I am in the background
-            console.log('I am the background')
-          } else {
-            if (!nodeOrEdge.nodeFrom) {
-              console.log('I am a Node')
-            } else {
-              console.log('I am an edge')
-            }
-          }
-        },
-        //Change cursor style when hovering a node
-        onMouseEnter: (node) => {
-          if (node.nodeFrom) return;
-          fd.canvas.getElement().style.cursor = 'move';
-        },
-        onMouseLeave: (node) => {
-          if (node.nodeFrom) return;
-          fd.canvas.getElement().style.cursor = '';
-        },
-        //Update node positions when dragged
-        onDragMove: (node, eventInfo, e) => {
-          // Add shift checking to draw new edge
-          if (node.nodeFrom) return;
-          var pos = eventInfo.getPos();
-          node.pos.setc(pos.x, pos.y);
-          fd.plot();
-        },
-        //Implement the same handler for touchscreens
-        // onTouchMove: (node, eventInfo, e) => {
-        //   if (node.nodeFrom) return;
-        //   $jit.util.event.stop(e); //stop default touchmove event
-        //   this.onDragMove(node, eventInfo, e);
-        // }
-      },
-      //Number of iterations for the FD algorithm
-      iterations: 200,
-      //Edge length
-      levelDistance: 130,
-      // This method is only triggered
-      // on label creation and only for DOM labels (not native canvas ones).
-      onCreateLabel: (domElement, node) => {
-        // Create a 'name' and 'close' buttons and add them
-        // to the main node label
-        var nameContainer = document.createElement('span'),
-          closeButton = document.createElement('span'),
-          style = nameContainer.style;
-        nameContainer.className = 'name';
-        nameContainer.innerHTML = node.name;
-        closeButton.className = 'close';
-        closeButton.innerHTML = 'x';
-        domElement.appendChild(nameContainer);
-        domElement.appendChild(closeButton);
-        style.fontSize = "0.8em";
-        style.color = "black";
+    // provide the data in the vis format
+    let data = {
+      nodes: this.nodes,
+      edges: this.edges
+    };
 
-        //Fade the node and its connections when
-        //clicking the close button
-        closeButton.onclick = () => {
-          node.setData('alpha', 0, 'end');
-          node.eachAdjacency(function (adj) {
-            adj.setData('alpha', 0, 'end');
-          });
-          fd.fx.animate({
-            modes: ['node-property:alpha',
-              'edge-property:alpha'],
-            duration: 500
-          });
-        };
-        //Toggle a node selection when clicking
-        //its name. This is done by animating some
-        //node styles like its dimension and the color
-        //and lineWidth of its adjacencies.
-        nameContainer.onclick = (thing) => {
-          //set final styles
-          fd.graph.eachNode(function (n) {
-            if (n.id != node.id) delete n.selected;
-            n.setData('dim', 7, 'end');
-            n.eachAdjacency(function (adj) {
-              adj.setDataset('end', {
-                lineWidth: 0.4,
-                color: '#23a4ff'
-              });
-            });
-          });
-          if (!node.selected) {
-            node.selected = true;
-            node.setData('dim', 17, 'end');
-            node.eachAdjacency(function (adj) {
-              adj.setDataset('end', {
-                lineWidth: 3,
-                color: '#36acfb'
-              });
-            });
-          } else {
-            delete node.selected;
-          }
-          //trigger animation to final styles
-          fd.fx.animate({
-            modes: ['node-property:dim',
-              'edge-property:lineWidth:color'],
-            duration: 500
-          });
-          // Build the right column relations list.
-          // This is done by traversing the clicked node connections.
-          var html = "<h4>" + node.name + "</h4><b> connections:</b><ul><li>",
-            list = [];
-          node.eachAdjacency(function (adj) {
-            if (adj.getData('alpha')) list.push(adj.nodeTo.name);
-          });
-          //append connections information
-          // $jit.id('inner-details').innerHTML = html + list.join("</li><li>") + "</li></ul>";
-        };
-      },
-      // Change node styles when DOM labels are placed
-      // or moved.
-      onPlaceLabel: function (domElement, node) {
-        var style = domElement.style;
-        var left = parseInt(style.left);
-        var top = parseInt(style.top);
-        var w = domElement.offsetWidth;
-        style.left = (left - w / 2) + 'px';
-        style.top = (top + 10) + 'px';
-        style.display = '';
+    this.network = new vis.Network(this.container.nativeElement, data, this.options);
+
+    // Events
+    this.network.on("click", (params) => {
+      new IssacAgent();
+      new IssacRelationship();
+      console.log(this._lastSelected)
+      console.log(this.network.getSelectedNodes())
+      if (this.network.getSelectedNodes().length > 0) {
+        if (this._lastSelected && this.shiftPress) {          
+          // this.addRelationship(this._lastSelected, this.network.getSelectedNodes()[0]);
+        }
+        this._lastSelected = this.network.getSelectedNodes()[0];
+
+      } else {
+        this._lastSelected = undefined;
       }
+      // if (this.network.getSelectedNodes()[0] && this._lastSelected && this.shiftPress) {
+      //   console.log('edging !');
+      //   this.addRelationship(params.nodes[0], Number(this.network.getSelectedNodes()[0]);
+      // }
+
+      // console.log(this._nodeSelectedStart);
+      // console.log(this._nodeSelectedEnd);
+      // if (this._nodeSelectedStart) {
+      //   this._nodeSelectedEnd = params.nodes[0];
+      //   if (this.shiftPress) {
+      //     this.addRelationship(this._nodeSelectedStart, this._nodeSelectedEnd);
+      //   }
+      //   this._nodeSelectedStart = undefined;
+      //   this._nodeSelectedEnd = undefined;
+      // } else {
+      //   this._nodeSelectedStart = params.nodes[0];
+      // }
+    })
+    this.network.on("doubleClick", (params) => {
+      this._canvasPosition = params.pointer.canvas;
+      this.agentCanal.passIn(new IssacAgent());
     });
-
-
-    // load JSON data.
-    fd.loadJSON(this.json);
-    // compute positions incrementally and animate.
-    fd.computeIncremental({
-      iter: 40,
-      property: 'end',
-      onStep: function (perc) {
-      },
-      onComplete: () => {
-
-        fd.animate({
-          modes: ['linear'],
-          transition: $jit.Trans.Elastic.easeOut,
-          duration: 2500
-        });
-      }
-    });
-
-    this.fd = fd;
-    // this.fd.graph.removeNode('graphnode0');
   }
 
   ngAfterViewInit() {
@@ -245,10 +167,22 @@ export class MainComponent implements OnInit {
 
   }
 
+
+  // Graph related function
+
+  // getUniqueId() {
+  //   // Don't put an id to 0 !
+  //   let cpt = 1;
+  //   while (this._usedIds.has(cpt) && cpt < 10000) {
+  //     cpt++;
+  //   }
+  //   return cpt;
+  // }
+
   addNode() {
     console.log('add node');
-    this.fd.graph.addNode({ id: "added", name: "addedNode", data: { "$color": "#557EAA", type: "olol"} })
-    this.fd.graph.plot();
+
+
   }
 
   openAgentPanel() {
@@ -256,16 +190,108 @@ export class MainComponent implements OnInit {
   }
 
   addAgent(agent: IssacAgent) {
-    this.fd.graph.addNode({ id: agent.uri, name: agent.label, data: { "$color": "#557EAA", type: "agent", id: agent.uri, name: agent.label} })
+    // Find an available id
+    // let agentUniquenessCheck = !Array.from(this._agentsId).some((ele) => {
+    //   return ele.data.uri === agent.uri;
+    // })
+    // if (agentUniquenessCheck) {
+    //   // Proceed
+    // } else {
+    //   return;
+    // }
+    // Register it
+    // this._usedIds.add(_id);
+    let _id = agent.uri;
+    
+    // Associate data to the id
+    this._agentsId.add({ id: _id, data: agent });
+    // Draw
+    this.nodes.add({ id: _id, label: agent.label, x: this._canvasPosition.x, y: this._canvasPosition.y });
   }
 
-  getData() {
-    // console.log(this.json);
-    // console.log(this.fd.graph.getData());
-    this.fd.graph.each(function (node) {
-      console.log(node);
-    });
+  addProcessus(processus: IssacProcessus) {
+    // Find an available id
+    let _id = processus.uri;
+    // Register it
+    // this._usedIds.add(_id);
+    // Associate data to the id
+    this._processusId.add({ id: _id, data: processus });
+    // Draw
+    this.nodes.add({ id: _id, label: processus.label, x: this._canvasPosition.x, y: this._canvasPosition.y });
+  }
 
+  // addRelationship(relationship: IssacRelationship) {
+  //   // Logical check
+  //   if (!this.checkRelationship(relationship)) return;
+  //   // Find an available id
+  //   let _id = this.getUniqueId();
+  //   // Register it
+  //   this._usedIds.add(_id);
+  //   // Associate data to the id
+  //   this._relationshipsId.add({ id: _id, data: relationship });
+  //   // Draw
+  //   let node1Id = this.retrieveObjectFromPropriety<{ uri: string }>(relationship.subject.uri, new Set([...this._processusId, ...this._agentsId]), "uri").id;
+  //   let node2Id = this.retrieveObjectFromPropriety<{ uri: string }>(relationship.object.uri, new Set([...this._processusId, ...this._agentsId]), "uri").id;
+  //   this.edges.add({ from: node1Id, to: node2Id });
+  // }
+
+  addRelationship(node1Id: any, node2Id: any, options?: Object) {
+    // // Find an available id
+    // let _id = this.getUniqueId();
+    // // Register it
+    // this._usedIds.add(_id);
+    // Create realationship instance
+
+    let allNodes = new Set([...Array.from(this._processusId), ...Array.from(this._agentsId)]);
+    let subject = this.retrieveObjectFromId(node1Id, allNodes);
+    let object = this.retrieveObjectFromId(node2Id, allNodes);
+    console.log(subject.data)
+    console.log(object.data)
+    // let relationship = new IssacRelationship({ subject: subject.data, object: object.data });
+    // // // Associate data to the id
+    console.log('should edging')
+    let out = this.edges.add({ from: node1Id, to: node2Id });
+    // let out = this.edges.add({ from: node1Id, to: node2Id });
+    // this._relationshipsId.add({ id: out[0], data: relationship });
+    console.log(this.edges);
+  }
+
+  checkRelationship(relationship: IssacRelationship) {
+    if ((relationship.subject instanceof IssacAgent && relationship.object instanceof IssacProcessus) ||
+      (relationship.object instanceof IssacAgent && relationship.subject instanceof IssacProcessus)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  retrieveObjectFromPropriety<OBJ>(proprietyValue: any, set: Set<{ id: number, data: OBJ }>, propriety: keyof OBJ) {
+    return Array.from(set).reduce((previousValue, currentValue, currentIndex) => {
+      if (currentValue.data[propriety] === proprietyValue) {
+        return currentValue;
+      } else {
+        return previousValue;
+      }
+    }, undefined);
+  }
+
+  retrieveObjectFromId(id: any, set: Set<{ id: any, data: any }>) {
+    return Array.from(set).reduce((previousValue, currentValue, currentIndex) => {
+      if (currentValue.id === id) {
+        return currentValue;
+      } else {
+        return previousValue;
+      }
+    }, undefined);
+  }
+
+
+  getData() {
+    new IssacAgent();
+    new IssacRelationship();
+    console.log(this.nodes);
+    console.log(this.edges);
+    console.log(this.network.getSelection());
   }
 
 }

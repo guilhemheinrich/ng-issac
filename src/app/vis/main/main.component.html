@@ -1,10 +1,10 @@
 
-<button type="button" pButton icon="fa fa-cog" (click)="sendSomeProcessus();getData();" label="Send something"></button>
+<button type="button" pButton icon="fa fa-cog" (click)="getData();" label="Send something"></button>
 <button type="button" pButton icon="fa fa-cog" (click)="addNode();" label="Add Node"></button>
 <button type="button" pButton icon="fa fa-cog" (click)="openAgentPanel();" label="Add Agent"></button>
 
 <app-processus-form [canal]='processusCanal'></app-processus-form>
-<div id='infovis' style='height: 1000px;'>
+<div id='visContainer' style='height: 700px;' #visContainer>
 
 </div>
 

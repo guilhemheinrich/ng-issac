@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import {UriBased} from 'src/app/models/UriBased';
+import {Processus} from 'src/app/models/Processus';
+import {IssacAgent} from 'src/app/issac-definitions/agent';
 
 @Component({
   selector: 'app-home',
@@ -10,6 +13,9 @@ export class HomeComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    console.log('h')
+    let p = new Processus()
+    console.log(p)
   }
 
 }

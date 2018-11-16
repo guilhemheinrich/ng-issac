@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import {Canal} from 'src/app/communication';
-import { IssacAgent } from 'src/app/issac-definitions/agent';
+// import { IssacAgent } from 'src/app/issac-definitions/agent';
+import { Agent } from 'src/app/models/Agent';
 @Component({
   selector: 'app-agent-form',
   templateUrl: './agent-form.component.html',
@@ -10,10 +11,10 @@ export class AgentFormComponent implements OnInit {
 
   public editable = false;  
   public displayModal = false;
-  public agent: IssacAgent;
+  public agent: Agent;
 
   @Input()
-  canal: Canal<IssacAgent> = new Canal<IssacAgent>();
+  canal: Canal<Agent> = new Canal<Agent>();
 
   constructor() { }
 
@@ -28,7 +29,7 @@ export class AgentFormComponent implements OnInit {
   }
 
   onThesaurusResult(thesaurusIdentifier: {name, uri}) {
-    this.agent.label = thesaurusIdentifier.name;
+    this.agent.prefLabel = thesaurusIdentifier.name;
     this.agent.uri = thesaurusIdentifier.uri;
   }
 

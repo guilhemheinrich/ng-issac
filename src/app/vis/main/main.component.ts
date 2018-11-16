@@ -1,8 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { Canal } from 'src/app/communication';
-import { IssacProcessus } from 'src/app/issac-definitions/processus';
-import { IssacAgent } from 'src/app/issac-definitions/agent';
-import { IssacRelationship, IIssacRelationship } from 'src/app/issac-definitions/relationship';
+import { Agent } from 'src/app/models/Agent';
+import { Processus } from 'src/app/models/Processus';
+import { APRelationship } from 'src/app/models/APRelationship';
+// import { IssacProcessus } from 'src/app/issac-definitions/processus';
+// import { IssacAgent } from 'src/app/issac-definitions/agent';
+// import { IssacRelationship, IIssacRelationship } from 'src/app/issac-definitions/relationship';
 import * as vis from 'vis';
 @Component({
   selector: 'app-main',
@@ -12,19 +15,19 @@ import * as vis from 'vis';
 export class MainComponent implements OnInit {
 
   // Communications canal
-  processusCanal = new Canal<IssacProcessus>();
-  agentCanal = new Canal<IssacAgent>();
+  processusCanal = new Canal<Processus>();
+  agentCanal = new Canal<Agent>();
 
   // Data
-  agents: IssacAgent[] = [];
-  processus: IssacProcessus[] = [];
+  agents: Agent[] = [];
+  processus: Processus[] = [];
   relationships: { processusUri: string, agentUri: string, data: {} }[] = [];
 
   // Data - visualisation bindings
   private _usedIds: Set<number> = new Set();
-  private _agentsId: Set<{ id: any, data: IssacAgent }> = new Set();
-  private _processusId: Set<{ id: any, data: IssacProcessus }> = new Set();
-  private _relationshipsId: Set<{ id: any, data: IssacRelationship }> = new Set();
+  private _agentsId: Set<{ id: any, data: Agent }> = new Set();
+  private _processusId: Set<{ id: any, data: Processus }> = new Set();
+  // private _relationshipsId: Set<{ id: any, data: IssacRelationship }> = new Set();
 
 
   // Graph stuff
@@ -92,7 +95,7 @@ export class MainComponent implements OnInit {
   }
 
   sendSomeProcessus() {
-    let processus = new IssacProcessus();
+    let processus = new Processus();
     processus.label = 'awesome';
     this.processusCanal.passIn(processus);
 
@@ -110,7 +113,7 @@ export class MainComponent implements OnInit {
 
     this.agentCanal.flowOut$.subscribe((obj) => {
       if (!obj) return;
-      console.log(obj.data.label);
+      console.log(obj.data.prefLabel);
 
       this.addAgent(obj.data);
     })
@@ -125,8 +128,8 @@ export class MainComponent implements OnInit {
 
     // Events
     this.network.on("click", (params) => {
-      new IssacAgent();
-      new IssacRelationship();
+      new Agent();
+      // new IssacRelationship();
       console.log(this._lastSelected)
       console.log(this.network.getSelectedNodes())
       if (this.network.getSelectedNodes().length > 0) {
@@ -158,7 +161,7 @@ export class MainComponent implements OnInit {
     })
     this.network.on("doubleClick", (params) => {
       this._canvasPosition = params.pointer.canvas;
-      this.agentCanal.passIn(new IssacAgent());
+      this.agentCanal.passIn(new Agent());
     });
   }
 
@@ -186,10 +189,10 @@ export class MainComponent implements OnInit {
   }
 
   openAgentPanel() {
-    this.agentCanal.passIn(new IssacAgent());
+    this.agentCanal.passIn(new Agent());
   }
 
-  addAgent(agent: IssacAgent) {
+  addAgent(agent: Agent) {
     // Find an available id
     // let agentUniquenessCheck = !Array.from(this._agentsId).some((ele) => {
     //   return ele.data.uri === agent.uri;
@@ -206,10 +209,10 @@ export class MainComponent implements OnInit {
     // Associate data to the id
     this._agentsId.add({ id: _id, data: agent });
     // Draw
-    this.nodes.add({ id: _id, label: agent.label, x: this._canvasPosition.x, y: this._canvasPosition.y });
+    this.nodes.add({ id: _id, label: agent.prefLabel, x: this._canvasPosition.x, y: this._canvasPosition.y });
   }
 
-  addProcessus(processus: IssacProcessus) {
+  addProcessus(processus: Processus) {
     // Find an available id
     let _id = processus.uri;
     // Register it
@@ -256,14 +259,14 @@ export class MainComponent implements OnInit {
     console.log(this.edges);
   }
 
-  checkRelationship(relationship: IssacRelationship) {
-    if ((relationship.subject instanceof IssacAgent && relationship.object instanceof IssacProcessus) ||
-      (relationship.object instanceof IssacAgent && relationship.subject instanceof IssacProcessus)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  // checkRelationship(relationship: IssacRelationship) {
+  //   if ((relationship.subject instanceof IssacAgent && relationship.object instanceof IssacProcessus) ||
+  //     (relationship.object instanceof IssacAgent && relationship.subject instanceof IssacProcessus)) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   retrieveObjectFromPropriety<OBJ>(proprietyValue: any, set: Set<{ id: number, data: OBJ }>, propriety: keyof OBJ) {
     return Array.from(set).reduce((previousValue, currentValue, currentIndex) => {
@@ -287,8 +290,8 @@ export class MainComponent implements OnInit {
 
 
   getData() {
-    new IssacAgent();
-    new IssacRelationship();
+    new Agent();
+    // new IssacRelationship();
     console.log(this.nodes);
     console.log(this.edges);
     console.log(this.network.getSelection());

@@ -14,6 +14,9 @@ import * as vis from 'vis';
 })
 export class MainComponent implements OnInit {
 
+  // Displaying
+  nodeDialogDisplay = false;
+
   // Communications canal
   processusCanal = new Canal<Processus>();
   agentCanal = new Canal<Agent>();
@@ -27,7 +30,7 @@ export class MainComponent implements OnInit {
   private _usedIds: Set<number> = new Set();
   private _agentsId: Set<{ id: any, data: Agent }> = new Set();
   private _processusId: Set<{ id: any, data: Processus }> = new Set();
-  // private _relationshipsId: Set<{ id: any, data: IssacRelationship }> = new Set();
+  private _relationshipsId: Set<{ id: any, data: APRelationship }> = new Set();
 
 
   // Graph stuff
@@ -48,9 +51,32 @@ export class MainComponent implements OnInit {
   ]);
 
 
+  private _processusColor = {
+    border:"#b27608",
+    background:"#ffb01e",
+    highlight:{
+      border:"#b27608",
+      background:"#ffc251",
+    },
+    hover: {
+      border:"#b27608",
+      background:"#ffb01e",
+    }
+
+  }
+
   public options = {
     // configure: {enabled: true},
-    edges: { smooth: false },
+    nodes: {
+      shape: 'box',
+      borderWidth: 1
+    },
+    edges: { 
+      smooth: false,
+      color: {
+        color: 'black'
+      }
+       },
     physics: { enabled: false },
     interaction: {
       zoomView: false,
@@ -63,26 +89,12 @@ export class MainComponent implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   onKeyDown(ev: KeyboardEvent) {
-    // console.log(`The user just pressed ${ev.key}!`);
     this.shiftPress = ev.shiftKey;
-    // if (ev.shiftKey) {
-    //   console.log('here')
-    //   this.network.setOptions({
-    //     interaction: {
-    //       dragNodes: false
-    //     }
-    //   });
-    // }
   }
 
   @HostListener('document:keyup', ['$event'])
   onKeyUp(ev: KeyboardEvent) {
     this.shiftPress = ev.shiftKey;
-    // this.network.setOptions({
-    //   interaction: {
-    //     dragNodes: true
-    //   }
-    // });
   }
   private _canvasPosition: { x: number, y: number } = { x: 0, y: 0 };
   // Used in drag event
@@ -107,14 +119,11 @@ export class MainComponent implements OnInit {
 
     this.processusCanal.flowOut$.subscribe((obj) => {
       if (!obj) return;
-      console.log(obj.data.label);
-
+      this.addProcessus(obj.data)
     });
 
     this.agentCanal.flowOut$.subscribe((obj) => {
       if (!obj) return;
-      console.log(obj.data.prefLabel);
-
       this.addAgent(obj.data);
     })
 
@@ -128,82 +137,33 @@ export class MainComponent implements OnInit {
 
     // Events
     this.network.on("click", (params) => {
-      new Agent();
-      // new IssacRelationship();
-      console.log(this._lastSelected)
-      console.log(this.network.getSelectedNodes())
       if (this.network.getSelectedNodes().length > 0) {
-        if (this._lastSelected && this.shiftPress) {          
-          // this.addRelationship(this._lastSelected, this.network.getSelectedNodes()[0]);
+        if (this._lastSelected && this.shiftPress) {
+          this.addRelationship(this._lastSelected, this.network.getSelectedNodes()[0]);
+          this.network.selectNodes([this._lastSelected]);
         }
         this._lastSelected = this.network.getSelectedNodes()[0];
 
       } else {
         this._lastSelected = undefined;
       }
-      // if (this.network.getSelectedNodes()[0] && this._lastSelected && this.shiftPress) {
-      //   console.log('edging !');
-      //   this.addRelationship(params.nodes[0], Number(this.network.getSelectedNodes()[0]);
-      // }
-
-      // console.log(this._nodeSelectedStart);
-      // console.log(this._nodeSelectedEnd);
-      // if (this._nodeSelectedStart) {
-      //   this._nodeSelectedEnd = params.nodes[0];
-      //   if (this.shiftPress) {
-      //     this.addRelationship(this._nodeSelectedStart, this._nodeSelectedEnd);
-      //   }
-      //   this._nodeSelectedStart = undefined;
-      //   this._nodeSelectedEnd = undefined;
-      // } else {
-      //   this._nodeSelectedStart = params.nodes[0];
-      // }
     })
     this.network.on("doubleClick", (params) => {
       this._canvasPosition = params.pointer.canvas;
-      this.agentCanal.passIn(new Agent());
+      this.nodeDialogDisplay = true;
     });
-  }
-
-  ngAfterViewInit() {
-
-
-  }
-
-
-  // Graph related function
-
-  // getUniqueId() {
-  //   // Don't put an id to 0 !
-  //   let cpt = 1;
-  //   while (this._usedIds.has(cpt) && cpt < 10000) {
-  //     cpt++;
-  //   }
-  //   return cpt;
-  // }
-
-  addNode() {
-    console.log('add node');
-
-
   }
 
   openAgentPanel() {
     this.agentCanal.passIn(new Agent());
   }
 
+  openProcessusPanel() {
+    this.processusCanal.passIn(new Processus());
+  }
+
   addAgent(agent: Agent) {
-    // Find an available id
-    // let agentUniquenessCheck = !Array.from(this._agentsId).some((ele) => {
-    //   return ele.data.uri === agent.uri;
-    // })
-    // if (agentUniquenessCheck) {
-    //   // Proceed
-    // } else {
-    //   return;
-    // }
-    // Register it
-    // this._usedIds.add(_id);
+
     let _id = agent.uri;
     
     // Associate data to the id
@@ -220,53 +180,49 @@ export class MainComponent implements OnInit {
     // Associate data to the id
     this._processusId.add({ id: _id, data: processus });
     // Draw
-    this.nodes.add({ id: _id, label: processus.label, x: this._canvasPosition.x, y: this._canvasPosition.y });
+    this.nodes.add({ id: _id, label: processus.label, x: this._canvasPosition.x, y: this._canvasPosition.y, color: this._processusColor});
   }
 
-  // addRelationship(relationship: IssacRelationship) {
-  //   // Logical check
-  //   if (!this.checkRelationship(relationship)) return;
-  //   // Find an available id
-  //   let _id = this.getUniqueId();
-  //   // Register it
-  //   this._usedIds.add(_id);
-  //   // Associate data to the id
-  //   this._relationshipsId.add({ id: _id, data: relationship });
-  //   // Draw
-  //   let node1Id = this.retrieveObjectFromPropriety<{ uri: string }>(relationship.subject.uri, new Set([...this._processusId, ...this._agentsId]), "uri").id;
-  //   let node2Id = this.retrieveObjectFromPropriety<{ uri: string }>(relationship.object.uri, new Set([...this._processusId, ...this._agentsId]), "uri").id;
-  //   this.edges.add({ from: node1Id, to: node2Id });
-  // }
+
+  relationshipValidity(item1, item2) {
+    // Check if the grammar is correct : we want an agent and a processus
+    if (item1 instanceof Processus && item2 instanceof Agent ||
+      item1 instanceof Agent && item2 instanceof Processus) {
+        return {
+          agent: item1 instanceof Agent ? item1 : item2,
+          processus: item2 instanceof Processus ? item2 : item1,
+        };
+      } else {
+        return false;
+      }
+  }
 
   addRelationship(node1Id: any, node2Id: any, options?: Object) {
-    // // Find an available id
-    // let _id = this.getUniqueId();
-    // // Register it
-    // this._usedIds.add(_id);
-    // Create realationship instance
-
     let allNodes = new Set([...Array.from(this._processusId), ...Array.from(this._agentsId)]);
     let subject = this.retrieveObjectFromId(node1Id, allNodes);
     let object = this.retrieveObjectFromId(node2Id, allNodes);
-    console.log(subject.data)
-    console.log(object.data)
-    // let relationship = new IssacRelationship({ subject: subject.data, object: object.data });
-    // // // Associate data to the id
-    console.log('should edging')
-    let out = this.edges.add({ from: node1Id, to: node2Id });
-    // let out = this.edges.add({ from: node1Id, to: node2Id });
-    // this._relationshipsId.add({ id: out[0], data: relationship });
-    console.log(this.edges);
+    let valid = this.relationshipValidity(subject.data, object.data)
+    if (valid) {
+      console.log(valid);
+      let relationship = new APRelationship(options = valid);
+      if (!Array.from(this._relationshipsId)
+                .map(ele => ele.id)
+                .some(id => id === relationship.uri)
+        ){
+          console.log(relationship.uri + ' in ' )
+          console.log(this._relationshipsId)
+          // Associate data to the id
+         let out = this.edges.add({ from: node1Id, to: node2Id }, relationship.uri);
+         this._relationshipsId.add({ id: relationship.uri, data: relationship });
+        } else {
+          console.log('Link already exits')
+        }
+    } else {
+      console.log('Not a valide link');
+    }
+
   }
 
-  // checkRelationship(relationship: IssacRelationship) {
-  //   if ((relationship.subject instanceof IssacAgent && relationship.object instanceof IssacProcessus) ||
-  //     (relationship.object instanceof IssacAgent && relationship.subject instanceof IssacProcessus)) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
 
   retrieveObjectFromPropriety<OBJ>(proprietyValue: any, set: Set<{ id: number, data: OBJ }>, propriety: keyof OBJ) {
     return Array.from(set).reduce((previousValue, currentValue, currentIndex) => {

@@ -1,11 +1,16 @@
-
-<button type="button" pButton icon="fa fa-cog" (click)="getData();" label="Send something"></button>
-<button type="button" pButton icon="fa fa-cog" (click)="addNode();" label="Add Node"></button>
-<button type="button" pButton icon="fa fa-cog" (click)="openAgentPanel();" label="Add Agent"></button>
-
+    
 <app-processus-form [canal]='processusCanal'></app-processus-form>
+<app-agent-form [canal]="agentCanal" #actionComponent></app-agent-form>
 <div id='visContainer' style='height: 700px;' #visContainer>
 
 </div>
 
-<app-agent-form [canal]="agentCanal" #actionComponent></app-agent-form>
+
+<p-dialog header="Node creation" [(visible)]="nodeDialogDisplay" [modal]="true" [responsive]="true" [width]="350"
+        [minWidth]="200" [minY]="70" [maximizable]="true" [baseZIndex]="10000">
+        <button type="button" pButton icon="fa fa-cogs" (click)="nodeDialogDisplay=false;openProcessusPanel()" label="Processus"></button>
+        <button type="button" pButton icon="fa fa-cog" (click)="nodeDialogDisplay=false;openAgentPanel()" label="Agent"></button>
+        <p-footer>
+                No footer
+        </p-footer>
+</p-dialog>

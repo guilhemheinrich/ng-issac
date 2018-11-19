@@ -11,7 +11,7 @@ export class Processus extends UriBased {
     @settable
     label: string;
     @settable
-    slots: SkosNode[];
+    slots: Agent[];
     @settable
     relationships: APRelationship[]
     @settable

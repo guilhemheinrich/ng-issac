@@ -22,7 +22,6 @@ export class AgentFormComponent implements OnInit {
     this.canal.flowIn$.subscribe((agentAndOptions) => {
       if (!agentAndOptions) return;
       this.agent = agentAndOptions.data;
-      console.log(agentAndOptions);
       (<{editable}>agentAndOptions.options).editable ? this.editable = true : this.editable = false;
       this.displayModal = true;
     })

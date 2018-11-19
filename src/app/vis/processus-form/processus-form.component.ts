@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 import {Canal} from 'src/app/communication';
-import { IssacProcessus } from 'src/app/issac-definitions/processus';
+import { Processus } from 'src/app/models/Processus';
 
 @Component({
   selector: 'app-processus-form',
@@ -11,17 +11,22 @@ import { IssacProcessus } from 'src/app/issac-definitions/processus';
 export class ProcessusFormComponent implements OnInit {
 
   @Input()
-  canal: Canal<IssacProcessus> = new Canal<IssacProcessus>();
+  canal: Canal<Processus> = new Canal<Processus>();
+
+  public editable = false;  
+  public displayModal = false;
+  public processus: Processus;
+  
 
   constructor() { }
 
   ngOnInit() {
-    this.canal.flowIn$.subscribe((obj) => {
-      if (!obj) return;
-      console.log(obj.data.label);
-      let processus = obj.data;
-      processus.label = 'Oh really ?';
-      this.canal.passOut(processus);
+    this.canal.flowIn$.subscribe((processusAndOptions) => {
+      if (!processusAndOptions) return;
+      console.log(processusAndOptions);
+      this.processus = processusAndOptions.data;
+      (<{editable}>processusAndOptions.options).editable ? this.editable = true : this.editable = false;
+      this.displayModal = true;
     })
   };
 
@@ -29,4 +34,9 @@ export class ProcessusFormComponent implements OnInit {
 
   }
 
+
+  onSubmitProcessus() {
+    this.displayModal = false;
+    this.canal.passOut(this.processus);
+  }
 }

@@ -1,34 +1,32 @@
-<!-- 
+<p-dialog header="Processus" [(visible)]="displayModal" [modal]="true" [responsive]="true" [width]="350" [minWidth]="200"
+  [minY]="70" [maximizable]="true" [baseZIndex]="10000">
 
-<p-dialog header="Processus" [(visible)]="visible" [modal]="true" [responsive]="true" [width]="350" [minWidth]="200" [minY]="70" 
-[maximizable]="true" [baseZIndex]="10000">
+  <form #processusForm="ngForm" *ngIf="processus">
 
-<form #processusForm="ngForm">
+    <div class="form-group" >
+      <label>
+        Processus Name
+      </label>
+      <input [(ngModel)]="processus.label" placeholder="Processus' name" class="form-control" required #processusName="ngModel"
+        name="processusName" />
+    </div>
+    <div class="form-group">
+      <label> 
+        Description
+      </label>
+      <br />
+      <textarea style="height:100px; width:100%" [(ngModel)]="processus.description" placeholder="Anything you want to comment about this processus"
+        #processusDescription name="processusDescription"></textarea>
+    </div>
 
-  <div class="form-group">
-    <label>
-      Processus Name
-    </label>
-    <input [(ngModel)]="processus.label" placeholder="Processus' name" class="form-control" required #processusName="ngModel"
-      name="processusName" (input)="onNameChange()" />
-  </div>
-  <div class="form-group">
-    <label>
-      Description
-    </label>
-    <br />
-    <textarea style="height:100px; width:100%" [(ngModel)]="processus.description" placeholder="Anything you want to comment about this processus"
-      #processusDescription name="processusDescription"></textarea>
-  </div>
+  </form>
 
-</form>
-
-<p-footer>
-  <button class="btn btn-success" type="submit" value="Validate Processus" (click)="onSubmitProcessus()">Validate
-    Processus</button>
+  <p-footer>
+    <button class="btn btn-success" type="submit" value="Validate Processus" (click)="onSubmitProcessus()">Validate
+      Processus</button>
     <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
-            <div class="btn-group" role="group">
-</div>
+    <div class="btn-group" role="group">
+    </div>
 
-</p-footer>
-</p-dialog> -->
+  </p-footer>
+</p-dialog>

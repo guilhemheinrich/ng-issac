@@ -1,4 +1,4 @@
-import {Settable, settable} from './Settable'
+import {settable} from './Settable'
 import {SkosNode} from './SkosNode'
 import {APRelationship} from './APRelationship'
 

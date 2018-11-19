@@ -1,5 +1,5 @@
 
-import {Settable, settable, SettableC} from './Settable'
+import {settable, SettableC} from './Settable'
 import { hash32 } from 'src/app/configuration';
 
 

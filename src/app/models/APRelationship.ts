@@ -1,4 +1,4 @@
-import {Settable, settable} from './Settable'
+import { settable} from './Settable'
 import {UriBased} from './UriBased'
 import {Processus} from './Processus'
 import {SkosNode} from './SkosNode'

@@ -1,4 +1,4 @@
-import {Settable, settable} from './Settable'
+import { settable} from './Settable'
 import {UriBased} from './UriBased'
 import {SkosNode} from './SkosNode'
 import {APRelationship} from './APRelationship'
@@ -9,7 +9,7 @@ import {FoafAgent} from './FoafAgent'
 export class Processus extends UriBased {
 
     @settable
-    label: string = 'hello';
+    label: string;
     @settable
     slots: SkosNode[];
     @settable

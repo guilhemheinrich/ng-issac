@@ -15,9 +15,8 @@ export class UniqueIdentifier {
 export const GlobalVariables = Object.freeze({
     // Database relative informations
     TRIPLESTORE: {
-        'dsn': 'http://147.99.7.61:8890/sparql',
-        // 'dsn' : 'http://127.0.0.1:8890/sparql',
-        // 'dsn' : 'http://138.102.159.38:8080/sparql',
+        'dsn': 'http://138.102.159.59:4203/sparql',
+
     },
     ONTOLOGY_PREFIX: {
         // Prefix

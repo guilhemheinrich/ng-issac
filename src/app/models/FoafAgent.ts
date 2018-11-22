@@ -5,7 +5,7 @@ import {UriBased} from './UriBased'
 // @Settable
 export class FoafAgent extends UriBased {
     @settable
-    firstname: string = 'george';
+    firstname: string;
     @settable
     lastname: string;
     @settable

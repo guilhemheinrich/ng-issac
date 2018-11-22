@@ -22,7 +22,8 @@
   </form>
 
   <p-footer>
-    <button class="btn btn-success" type="submit" value="Validate Processus" (click)="onSubmitProcessus()">Validate
+    <button class="btn btn-success" type="submit" value="Validate Processus" (click)="onSubmitProcessus()"
+    [disabled]="!(processus && processus.label) ">Validate
       Processus</button>
     <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
     <div class="btn-group" role="group">

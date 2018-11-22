@@ -2,10 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular
 import { Canal } from 'src/app/communication';
 import { Agent } from 'src/app/models/Agent';
 import { Processus } from 'src/app/models/Processus';
-import { APRelationship } from 'src/app/models/APRelationship';
-// import { IssacProcessus } from 'src/app/issac-definitions/processus';
-// import { IssacAgent } from 'src/app/issac-definitions/agent';
-// import { IssacRelationship, IIssacRelationship } from 'src/app/issac-definitions/relationship';
+import { APRelationship,Processus_Agent_Impact } from 'src/app/models/APRelationship';
+import { issacNode, issacEdge } from './CustomVisClass'
 import * as vis from 'vis';
 @Component({
   selector: 'app-main',
@@ -16,21 +14,15 @@ export class MainComponent implements OnInit {
 
   // Displaying
   nodeDialogDisplay = false;
-
-  // Communications canal
+  selectedElement: Processus | Agent | APRelationship;
+  favorability_types = [
+    {label: 'Unfavorable', value: Processus_Agent_Impact.Negative, icon: 'fa fa-frown-o'},
+    {label: 'Neutral', value: Processus_Agent_Impact.None, icon: 'fa fa-meh-o'},
+    {label: 'Favorable', value: Processus_Agent_Impact.Positive, icon: 'fa fa-smile-o'}
+  ];
+  // Communications canals
   processusCanal = new Canal<Processus>();
   agentCanal = new Canal<Agent>();
-
-  // Data
-  agents: Agent[] = [];
-  processus: Processus[] = [];
-  relationships: { processusUri: string, agentUri: string, data: {} }[] = [];
-
-  // Data - visualisation bindings
-  private _usedIds: Set<number> = new Set();
-  private _agentsId: Set<{ id: any, data: Agent }> = new Set();
-  private _processusId: Set<{ id: any, data: Processus }> = new Set();
-  private _relationshipsId: Set<{ id: any, data: APRelationship }> = new Set();
 
 
   // Graph stuff
@@ -38,29 +30,23 @@ export class MainComponent implements OnInit {
   @ViewChild('visContainer')
   public container: ElementRef;
 
-  public nodes = new vis.DataSet<vis.Node>([
-    { id: "bdkljcfheriu", label: "one" },
-    { id: -2, label: "two" },
-    { id: -3, label: "three" },
-    { id: -4, label: "four" },
-    { id: -5, label: "fivr" },
-  ]);
+  public nodes = new vis.DataSet<issacNode>([]);
+  public edges = new vis.DataSet<issacEdge>([]);
 
-  public edges = new vis.DataSet<vis.Edge>([
-    // { from: 1, to: 3 },
-  ]);
+
+
 
 
   private _processusColor = {
-    border:"#b27608",
-    background:"#ffb01e",
-    highlight:{
-      border:"#b27608",
-      background:"#ffc251",
+    border: "#b27608",
+    background: "#ffb01e",
+    highlight: {
+      border: "#b27608",
+      background: "#ffc251",
     },
     hover: {
-      border:"#b27608",
-      background:"#ffb01e",
+      border: "#b27608",
+      background: "#ffb01e",
     }
 
   }
@@ -71,16 +57,16 @@ export class MainComponent implements OnInit {
       shape: 'box',
       borderWidth: 1
     },
-    edges: { 
+    edges: {
       smooth: false,
       color: {
         color: 'black'
       }
-       },
+    },
     physics: { enabled: false },
     interaction: {
-      zoomView: false,
-      dragView: false,
+      // zoomView: false,
+      // dragView: false,
       // navigationButtons: true
     }
   };
@@ -99,32 +85,28 @@ export class MainComponent implements OnInit {
   private _canvasPosition: { x: number, y: number } = { x: 0, y: 0 };
   // Used in drag event
   private _lastSelected: any;
-  private _nodeSelectedStart: number;
-  private _nodeSelectedEnd: number;
 
   constructor() {
 
   }
 
-  sendSomeProcessus() {
-    let processus = new Processus();
-    processus.label = 'awesome';
-    this.processusCanal.passIn(processus);
-
-  }
-
-
-
   ngOnInit() {
 
     this.processusCanal.flowOut$.subscribe((obj) => {
       if (!obj) return;
-      this.addProcessus(obj.data)
+      let new_id = this.addProcessus(obj.data)
+      // Auto select the newly created processus
+      this.network.selectNodes([new_id]);
     });
 
     this.agentCanal.flowOut$.subscribe((obj) => {
       if (!obj) return;
-      this.addAgent(obj.data);
+      let new_id = this.addAgent(obj.data);
+      // Auto select the newly created agent
+      if (new_id) {
+
+        this.network.selectNodes([new_id]);
+      }
     })
 
     // provide the data in the vis format
@@ -152,6 +134,26 @@ export class MainComponent implements OnInit {
       this._canvasPosition = params.pointer.canvas;
       this.nodeDialogDisplay = true;
     });
+    this.network.on("select", (params) => {
+      console.log(this.network.getSelectedNodes().length);
+            /* selectEdge is fired when a connected node is selected
+      Checking the size of actualy selectedNode seems a reliable way to determine 
+      if it's an edge or a node that is intended to be selected
+      */
+     let isMainSelectionEdge = this.network.getSelectedNodes().length === 0;
+     if (isMainSelectionEdge) {
+       let selectedEdge = this.edges.get(this.network.getSelectedEdges()[0]);
+       this.selectedElement = selectedEdge.data;
+     } else {
+      let selectedNode = this.nodes.get(this.network.getSelectedNodes()[0]);
+      this.selectedElement = selectedNode.data;
+     }
+    })
+    
+    this.nodes.on('*', function (event, properties, senderId) {
+      console.log('event', event, properties);
+    });
+
   }
 
   openAgentPanel() {
@@ -163,94 +165,56 @@ export class MainComponent implements OnInit {
   }
 
   addAgent(agent: Agent) {
-
     let _id = agent.uri;
-    
-    // Associate data to the id
-    this._agentsId.add({ id: _id, data: agent });
-    // Draw
-    this.nodes.add({ id: _id, label: agent.prefLabel, x: this._canvasPosition.x, y: this._canvasPosition.y });
+    this.nodes.add({ id: _id, label: agent.prefLabel, x: this._canvasPosition.x, y: this._canvasPosition.y, data: agent });
+    return _id;
   }
 
   addProcessus(processus: Processus) {
     // Find an available id
     let _id = processus.uri;
-    // Register it
-    // this._usedIds.add(_id);
-    // Associate data to the id
-    this._processusId.add({ id: _id, data: processus });
-    // Draw
-    this.nodes.add({ id: _id, label: processus.label, x: this._canvasPosition.x, y: this._canvasPosition.y, color: this._processusColor});
+    this.nodes.add({ id: _id, label: processus.label, x: this._canvasPosition.x, y: this._canvasPosition.y, color: this._processusColor, data: processus });
+    return _id;
   }
 
-
-  relationshipValidity(item1, item2) {
-    // Check if the grammar is correct : we want an agent and a processus
+  private _nodesToAgentsAndProcessus(item1: Agent | Processus, item2: Agent | Processus) {
     if (item1 instanceof Processus && item2 instanceof Agent ||
       item1 instanceof Agent && item2 instanceof Processus) {
-        return {
-          agent: item1 instanceof Agent ? item1 : item2,
-          processus: item2 instanceof Processus ? item2 : item1,
-        };
-      } else {
-        return false;
-      }
+      return {
+        agent: item1 instanceof Agent ? item1 : item2,
+        processus: item2 instanceof Processus ? item2 : item1,
+      };
+    } else {
+      return null;
+    }
   }
 
   addRelationship(node1Id: any, node2Id: any, options?: Object) {
-    let allNodes = new Set([...Array.from(this._processusId), ...Array.from(this._agentsId)]);
-    let subject = this.retrieveObjectFromId(node1Id, allNodes);
-    let object = this.retrieveObjectFromId(node2Id, allNodes);
-    let valid = this.relationshipValidity(subject.data, object.data)
-    if (valid) {
-      console.log(valid);
-      let relationship = new APRelationship(options = valid);
-      if (!Array.from(this._relationshipsId)
-                .map(ele => ele.id)
-                .some(id => id === relationship.uri)
-        ){
-          console.log(relationship.uri + ' in ' )
-          console.log(this._relationshipsId)
-          // Associate data to the id
-         let out = this.edges.add({ from: node1Id, to: node2Id }, relationship.uri);
-         this._relationshipsId.add({ id: relationship.uri, data: relationship });
-        } else {
-          console.log('Link already exits')
-        }
+
+    let item1 = this.nodes.get(<vis.IdType>node1Id).data
+    let item2 = this.nodes.get(<vis.IdType>node2Id).data
+    let agentAndProcessus = this._nodesToAgentsAndProcessus(item1, item2)
+
+    console.log(agentAndProcessus)
+    if (agentAndProcessus) {
+      let relationship = new APRelationship(options = agentAndProcessus)
+      // If no links exists we add a link
+      let edgeAlreadyExists = this.edges.getIds()
+        .some((id) => {
+          console.log(id)
+          return relationship.uri === id;
+        });
+      if (!edgeAlreadyExists) {
+        this.edges.add({ id: relationship.uri, from: node1Id, to: node2Id, data: relationship });
+      } else {
+        console.log('Link already exits')
+        return false;
+      }
     } else {
       console.log('Not a valide link');
+      return false;
     }
 
-  }
-
-
-  retrieveObjectFromPropriety<OBJ>(proprietyValue: any, set: Set<{ id: number, data: OBJ }>, propriety: keyof OBJ) {
-    return Array.from(set).reduce((previousValue, currentValue, currentIndex) => {
-      if (currentValue.data[propriety] === proprietyValue) {
-        return currentValue;
-      } else {
-        return previousValue;
-      }
-    }, undefined);
-  }
-
-  retrieveObjectFromId(id: any, set: Set<{ id: any, data: any }>) {
-    return Array.from(set).reduce((previousValue, currentValue, currentIndex) => {
-      if (currentValue.id === id) {
-        return currentValue;
-      } else {
-        return previousValue;
-      }
-    }, undefined);
-  }
-
-
-  getData() {
-    new Agent();
-    // new IssacRelationship();
-    console.log(this.nodes);
-    console.log(this.edges);
-    console.log(this.network.getSelection());
   }
 
 }

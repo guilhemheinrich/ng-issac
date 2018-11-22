@@ -2,8 +2,8 @@
  [maximizable]="'true'"  [minWidth]="700">
     <p-header>
         <h2>Agent selection </h2>
-        <div *ngIf="agent && agent.label && agent.uri"> 
-            <h3 style="display: inline; color: blueviolet">{{agent.label}}  </h3>
+        <div *ngIf="agent && agent.prefLabel && agent.uri"> 
+            <h3 style="display: inline; color: blueviolet">{{agent.prefLabel}}  </h3>
             <h5 style="display: inline; color: black; font-style:italic">{{agent.uri}}</h5>
 
         </div>
@@ -13,7 +13,8 @@
             #thesaurusComponent></app-thesaurus-display>
     </div>
     <p-footer>
-        <button class="btn btn-success" type="submit" value="Validate Agent" (click)="onSubmitAgent()">Validate
+        <button class="btn btn-success" type="submit" value="Validate Agent" [disabled]="!(agent && agent.prefLabel) "
+         (click)="onSubmitAgent()">Validate
             Agent</button>
             <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
                     <div class="btn-group" role="group">

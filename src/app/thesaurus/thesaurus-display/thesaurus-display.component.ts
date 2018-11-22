@@ -5,7 +5,7 @@ import { GlobalVariables, hash32 } from '../../configuration';
 import { ThesaurusEntry, SkosIdentifier, addRootRestriction, findRoots, findAllRoots } from '../thesaurusEntry';
 import { UniqueIdentifier } from '../../configuration';
 import { MermaidComponent } from '../../mermaid/mermaid.component';
-import { MatChipList } from '@angular/material';
+import {SkosNode} from 'src/app/models/SkosNode';
 // import { Input } from '../../processus/processus';
 // import { Output as pOutput } from '../../processus/processus';
 

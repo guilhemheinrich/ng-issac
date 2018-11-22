@@ -1,10 +1,75 @@
-    
 <app-processus-form [canal]='processusCanal'></app-processus-form>
 <app-agent-form [canal]="agentCanal" #actionComponent></app-agent-form>
-<div id='visContainer' style='height: 700px;' #visContainer>
+
+
+<div class="p-grid">
+        <div class="p-col-2 proprietyPanel">
+                <ng-container *ngIf="selectedElement">
+                        <h2>Propriety Overview</h2>
+                        <ng-container *ngIf="selectedElement.constructor.name === 'Processus'">
+                                <div class="form-group" >
+                                                <label>
+                                                  Name
+                                                </label>
+                                                <input [(ngModel)]="selectedElement.label" disabled="true" class="form-control" required #processusName="ngModel"
+                                                  name="processusName" />
+                                              </div>
+                                              <div class="form-group">
+                                                <label> 
+                                                  Description
+                                                </label>
+                                                <br />
+                                                <textarea style="height:100px; width:100%" [(ngModel)]="selectedElement.description" disabled="true"
+                                                  #processusDescription name="processusDescription"></textarea>
+                                              </div>
+                        </ng-container>
+                        <ng-container *ngIf="selectedElement.constructor.name === 'Agent'">
+                                Agent
+                                {{selectedElement.prefLabel}}
+                                <br/>
+                                {{selectedElement.altLabels | concatenate}}
+                                <br/>
+                                {{selectedElement.uri}}
+
+                                
+                        </ng-container>
+                        <ng-container *ngIf="selectedElement.constructor.name === 'APRelationship'">
+                                Relationship
+                                <form #processusForm="ngForm">
+                                                <div class="form-group">
+                                                        <label>
+                                                                Favorability
+                                                        </label>
+                    
+                                                        <p-selectButton [options]="favorability_types" [(ngModel)]="selectedElement.processusToAgentImpact"
+                                                                [ngModelOptions]="{standalone: true}"></p-selectButton>
+                                                </div>
+                    
+                                        </form>
+                        </ng-container>
+
+
+                </ng-container>
+                <!-- <ng-container *ngIf="displayer === 'link'">
+                    <form #processusForm="ngForm">
+
+                            <div class="form-group">
+                                    <label>
+                                            Favorability
+                                    </label>
+
+                                    <p-selectButton [options]="favorability_types" [(ngModel)]="_linkProprieties.favorability"
+                                            [ngModelOptions]="{standalone: true}"></p-selectButton>
+                            </div>
+
+                    </form>
+            </ng-container> -->
+        </div>
+        <div id='visContainer' class="p-col-10 workbenchPanel" style='height: 700px;' #visContainer>
+
+        </div>
 
 </div>
-
 
 <p-dialog header="Node creation" [(visible)]="nodeDialogDisplay" [modal]="true" [responsive]="true" [width]="350"
         [minWidth]="200" [minY]="70" [maximizable]="true" [baseZIndex]="10000">

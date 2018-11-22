@@ -13,9 +13,6 @@ export class HomeComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    console.log('h')
-    let p = new Processus()
-    console.log(p)
   }
 
 }

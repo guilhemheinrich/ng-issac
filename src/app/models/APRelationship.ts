@@ -12,10 +12,11 @@ export class APRelationship extends UriBased {
     @settable
     processus: Processus;
     @settable
-    processusToAgentImpact: 'positive' | 'none' | 'unknown' | 'negative' = 'unknown';
+    processusToAgentImpact: Processus_Agent_Impact = Processus_Agent_Impact.Unknown;
 
     constructor(options = {}) {
         super(options);
+
         this.uri = this.generateUri();
     }
 
@@ -26,7 +27,13 @@ export class APRelationship extends UriBased {
             return super.generateUri()
         }
     }
+}
 
+export enum Processus_Agent_Impact {
+    Positive = 1,
+    None = 0,
+    Negative = -1,
+    Unknown = undefined,
 }
 
 

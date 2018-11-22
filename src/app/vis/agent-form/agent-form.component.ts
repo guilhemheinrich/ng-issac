@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+
 import {Canal} from 'src/app/communication';
 // import { IssacAgent } from 'src/app/issac-definitions/agent';
 import { Agent } from 'src/app/models/Agent';
@@ -27,8 +28,11 @@ export class AgentFormComponent implements OnInit {
     })
   }
 
-  onThesaurusResult(thesaurusIdentifier: {name, uri}) {
+
+
+  onThesaurusResult(thesaurusIdentifier: {name, uri, synonyms}) {
     this.agent.prefLabel = thesaurusIdentifier.name;
+    this.agent.altLabels = thesaurusIdentifier.synonyms;
     this.agent.uri = thesaurusIdentifier.uri;
   }
 

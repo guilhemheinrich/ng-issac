@@ -12,7 +12,7 @@ export class APRelationship extends UriBased {
     @settable
     processus: Processus;
     @settable
-    processusToAgentImpact: Processus_Agent_Impact = Processus_Agent_Impact.Unknown;
+    processusToAgentImpact: Processus_Agent_Impact = Processus_Agent_Impact.None;
 
     constructor(options = {}) {
         super(options);

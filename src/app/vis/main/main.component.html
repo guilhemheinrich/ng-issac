@@ -3,52 +3,61 @@
 
 
 <div class="p-grid">
-        <div class="p-col-2 proprietyPanel">
-                <ng-container *ngIf="selectedElement">
+        <div class="p-col-2 proprietyPanel" style="position: relative">
+                <ng-container *ngIf="selectedElement && selectedElement.data">
                         <h2>Propriety Overview</h2>
-                        <ng-container *ngIf="selectedElement.constructor.name === 'Processus'">
-                                <div class="form-group" >
-                                                <label>
-                                                  Name
-                                                </label>
-                                                <input [(ngModel)]="selectedElement.label" disabled="true" class="form-control" required #processusName="ngModel"
-                                                  name="processusName" />
-                                              </div>
-                                              <div class="form-group">
-                                                <label> 
-                                                  Description
-                                                </label>
-                                                <br />
-                                                <textarea style="height:100px; width:100%" [(ngModel)]="selectedElement.description" disabled="true"
-                                                  #processusDescription name="processusDescription"></textarea>
-                                              </div>
+                        <h6>{{ selectedElement.data.uri }}</h6>
+                        <ng-container *ngIf="selectedElement.data.constructor.name === 'Processus'">
+                                <div class="form-group">
+                                        <label>
+                                                Name
+                                        </label>
+                                        <input [(ngModel)]="selectedElement.data.label" disabled="true" class="form-control"
+                                                required #processusName="ngModel" name="processusName" />
+                                </div>
+                                <div class="form-group">
+                                        <label>
+                                                Description
+                                        </label>
+                                        <br />
+                                        <textarea style="height:100px; width:100%" [(ngModel)]="selectedElement.data.description"
+                                                disabled="true" #processusDescription name="processusDescription"></textarea>
+                                </div>
                         </ng-container>
-                        <ng-container *ngIf="selectedElement.constructor.name === 'Agent'">
+                        <ng-container *ngIf="selectedElement.data.constructor.name === 'Agent'">
                                 Agent
-                                {{selectedElement.prefLabel}}
-                                <br/>
-                                {{selectedElement.altLabels | concatenate}}
-                                <br/>
-                                {{selectedElement.uri}}
+                                {{selectedElement.data.prefLabel}}
+                                <br />
+                                <ng-container *ngIf="selectedElement.data.altLabels !== undefined">
+                                        {{selectedElement.data.altLabels | concatenate}}
+                                </ng-container>
+                                <br />
+                                <button type="button" pButton icon="fa fa-edit" (click)="nodeDialogDisplay=false;openAgentPanel(selectedElement.data, {editable: true, node: selectedElement.id})"
+                                label="Edit"></button>
 
-                                
+
+
                         </ng-container>
-                        <ng-container *ngIf="selectedElement.constructor.name === 'APRelationship'">
+                        <ng-container *ngIf="selectedElement.data.constructor.name === 'APRelationship'">
                                 Relationship
                                 <form #processusForm="ngForm">
-                                                <div class="form-group">
-                                                        <label>
-                                                                Favorability
-                                                        </label>
-                    
-                                                        <p-selectButton [options]="favorability_types" [(ngModel)]="selectedElement.processusToAgentImpact"
-                                                                [ngModelOptions]="{standalone: true}"></p-selectButton>
-                                                </div>
-                    
-                                        </form>
+                                        <div class="form-group">
+                                                <label>
+                                                        Favorability
+                                                </label>
+
+                                                <p-selectButton [options]="favorability_types" [(ngModel)]="selectedElement.data.processusToAgentImpact"
+                                                        [ngModelOptions]="{standalone: true}" (click)='editElement(selectedElement.id, selectedElement.data)'></p-selectButton>
+                                        </div>
+
+                                </form>
                         </ng-container>
+                        <div style="position: absolute;
+                        bottom: 0;">
 
-
+                                <button type="button" pButton (click)="deleteElement(selectedElement.data.uri)"
+                                        label="Delete"></button>
+                        </div>
                 </ng-container>
                 <!-- <ng-container *ngIf="displayer === 'link'">
                     <form #processusForm="ngForm">

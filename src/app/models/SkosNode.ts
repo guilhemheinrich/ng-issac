@@ -8,11 +8,11 @@ export class SkosNode extends UriBased {
     @settable
     prefLabel: string;
     @settable
-    altLabels: string[];
+    altLabels: string[] = [];
     @settable
-    parents: SkosNode[] | string[];
+    parents: SkosNode[] | string[] = [];
     @settable
-    childs: SkosNode[] | string[];
+    childs: SkosNode[] | string[] = [];
 
     constructor(options?: {}) {
         super(options);

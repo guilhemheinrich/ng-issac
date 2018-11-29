@@ -12,6 +12,7 @@ export class AgentFormComponent implements OnInit {
 
   public editable = false;  
   public displayModal = false;
+  public options: {};
   public agent: Agent;
 
   @Input()
@@ -23,7 +24,9 @@ export class AgentFormComponent implements OnInit {
     this.canal.flowIn$.subscribe((agentAndOptions) => {
       if (!agentAndOptions) return;
       this.agent = agentAndOptions.data;
+      this.options = agentAndOptions.options;
       (<{editable}>agentAndOptions.options).editable ? this.editable = true : this.editable = false;
+
       this.displayModal = true;
     })
   }
@@ -38,7 +41,7 @@ export class AgentFormComponent implements OnInit {
 
   onSubmitAgent() {
     this.displayModal = false;
-    this.canal.passOut(this.agent);
+    this.canal.passOut(this.agent, {editedAgent: this.options});
   }
 
 }

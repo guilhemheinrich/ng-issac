@@ -22,16 +22,25 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit() {
     this.items = [
-{label: "Home", icon: 'fa fa-home', routerLink: "/home"},
+      {
+        label: "Home",
+        icon: 'fa fa-home',
+        routerLink: "/home"
+      },
       {
         label: 'Processus',
-        icon: 'fa fa-cogs',
+        icon: 'fa fa-cog',
         items: [
           { label: 'New', icon: 'fa fa-plus', routerLink: "/processus/edit" },
           { label: 'Browse', icon: 'fa fa-search', routerLink: "/processus/index" }
         ]
       },
-];
+      {
+        label: "Workbench",
+        icon: 'fa fa-cogs',
+        routerLink: "/workbench"
+      }
+    ];
   }
 
 

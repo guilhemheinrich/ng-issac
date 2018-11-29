@@ -72,7 +72,7 @@ export class LoginComponent implements OnInit {
           this.loggedUser.email = this.user.email;
           this.loggedUser.uri = GlobalVariables.ONTOLOGY_PREFIX.prefix_agent.uri + hashedEmail;
           this.logService.login(this.loggedUser);
-          this.router.navigate(['/processus/index']);
+          // this.router.navigate(['/processus/index']);
         }
       }));
   }

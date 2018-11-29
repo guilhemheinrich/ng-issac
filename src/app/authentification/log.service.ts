@@ -21,7 +21,9 @@ export class LogService {
   login(user){
     this.sessionSt.store('user', JSON.stringify(user));
     if (this.redirectUrl) {
-      this.router.navigate([this.redirectUrl]);
+      console.log('i am redirected to ')
+      console.log(this.redirectUrl)
+      this.router.navigateByUrl(this.redirectUrl);
     } else {
       // this.router.navigate([this.redirectUrl]);
     }

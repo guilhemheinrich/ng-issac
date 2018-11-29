@@ -123,7 +123,7 @@ export class MainComponent implements OnInit {
 
     // Set zoom level
     this.network.moveTo({
-      scale: 1.5
+      scale: 2
     })
 
     // Events

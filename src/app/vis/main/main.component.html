@@ -1,8 +1,12 @@
 <app-processus-form [canal]='processusCanal'></app-processus-form>
 <app-agent-form [canal]="agentCanal" #actionComponent></app-agent-form>
 
+<h2>
+        This is the workbench prototype tool.
+        Please try it out !
+</h2>
 
-<div class="p-grid">
+<div class="p-grid" style="margin: 5%">
         <div class="p-col-2 proprietyPanel" style="position: relative">
                 <ng-container *ngIf="selectedElement && selectedElement.data">
                         <h2>Propriety Overview</h2>
@@ -59,20 +63,6 @@
                                         label="Delete"></button>
                         </div>
                 </ng-container>
-                <!-- <ng-container *ngIf="displayer === 'link'">
-                    <form #processusForm="ngForm">
-
-                            <div class="form-group">
-                                    <label>
-                                            Favorability
-                                    </label>
-
-                                    <p-selectButton [options]="favorability_types" [(ngModel)]="_linkProprieties.favorability"
-                                            [ngModelOptions]="{standalone: true}"></p-selectButton>
-                            </div>
-
-                    </form>
-            </ng-container> -->
         </div>
         <div id='visContainer' class="p-col-10 workbenchPanel" style='height: 700px;' #visContainer>
 

@@ -21,7 +21,7 @@ const routes: Routes = [
   { path: 'processus/view/:id', component: ViewComponent, canActivate: [AuthGuard] },
   { path: 'home', component: HomeComponent},
   { path: 'test', component: CreateProcessusComponent},
-  { path: 'workbench', component: MainComponent},
+  { path: 'workbench', component: MainComponent, canActivate: [AuthGuard] },
   // { path: 'home', component: DisplayerComponent},
 
   

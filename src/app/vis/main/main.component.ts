@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { Canal } from 'src/app/communication';
-import { IssacProcessus } from 'src/app/issac-definitions/processus';
-declare let $jit: any;
+import { Agent } from 'src/app/models/Agent';
+import { Processus } from 'src/app/models/Processus';
+import { APRelationship, Processus_Agent_Impact } from 'src/app/models/APRelationship';
+import { issacNode, issacEdge,getData} from './CustomVisClass'
+import * as vis from 'vis';
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
@@ -9,670 +12,280 @@ declare let $jit: any;
 })
 export class MainComponent implements OnInit {
 
-  processusCanal = new Canal<IssacProcessus>();
-
-  public fd;
-  
-  constructor() {
-  
-  }
-
-  sendSomeProcessus() {
-    let processus = new IssacProcessus();
-    processus.label = 'awesome';
-    this.processusCanal.passIn(processus);
-  }
-
-  // init data
-  public json = [
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode1",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode3",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode2",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode4",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode10",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode6",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode11",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode12",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode13",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode14",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode15",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode16",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode17",
-          "nodeFrom": "graphnode0",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#83548B",
-        "$type": "circle"
-      },
-      "id": "graphnode0",
-      "name": "graphnode0"
-    },
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode2",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode3",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode4",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode5",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode6",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode7",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode8",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode9",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode10",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode11",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode12",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode13",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode14",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode15",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode16",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode17",
-          "nodeFrom": "graphnode1",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#83548B",
-        "$type": "star"
-      },
-      "id": "graphnode1",
-      "name": "graphnode1"
-    },
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode3",
-          "nodeFrom": "graphnode2",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode5",
-          "nodeFrom": "graphnode2",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode9",
-          "nodeFrom": "graphnode2",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode18",
-          "nodeFrom": "graphnode2",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#EBB056",
-        "$type": "circle"
-      },
-      "id": "graphnode2",
-      "name": "graphnode2"
-    },
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode5",
-          "nodeFrom": "graphnode3",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode9",
-          "nodeFrom": "graphnode3",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode10",
-          "nodeFrom": "graphnode3",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode6",
-          "nodeFrom": "graphnode3",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode11",
-          "nodeFrom": "graphnode3",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode12",
-          "nodeFrom": "graphnode3",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#70A35E",
-        "$type": "triangle"
-      },
-      "id": "graphnode3",
-      "name": "graphnode3"
-    },
-    {
-      "adjacencies": [],
-      "data": {
-        "$color": "#70A35E",
-        "$type": "star"
-      },
-      "id": "graphnode4",
-      "name": "graphnode4"
-    },
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode9",
-          "nodeFrom": "graphnode5",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#416D9C",
-        "$type": "star"
-      },
-      "id": "graphnode5",
-      "name": "graphnode5"
-    },
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode10",
-          "nodeFrom": "graphnode6",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode11",
-          "nodeFrom": "graphnode6",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#416D9C",
-        "$type": "star"
-      },
-      "id": "graphnode6",
-      "name": "graphnode6"
-    },
-    {
-      "adjacencies": [],
-      "data": {
-        "$color": "#416D9C",
-        "$type": "triangle"
-      },
-      "id": "graphnode7",
-      "name": "graphnode7"
-    },
-    {
-      "adjacencies": [],
-      "data": {
-        "$color": "#EBB056",
-        "$type": "star"
-      },
-      "id": "graphnode8",
-      "name": "graphnode8"
-    },
-    {
-      "adjacencies": [],
-      "data": {
-        "$color": "#70A35E",
-        "$type": "triangle"
-      },
-      "id": "graphnode9",
-      "name": "graphnode9"
-    },
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode11",
-          "nodeFrom": "graphnode10",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#83548B",
-        "$type": "triangle"
-      },
-      "id": "graphnode10",
-      "name": "graphnode10"
-    },
-    {
-      "adjacencies": [],
-      "data": {
-        "$color": "#416D9C",
-        "$type": "triangle"
-      },
-      "id": "graphnode11",
-      "name": "graphnode11"
-    },
-    {
-      "adjacencies": [],
-      "data": {
-        "$color": "#70A35E",
-        "$type": "square"
-      },
-      "id": "graphnode12",
-      "name": "graphnode12"
-    },
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode14",
-          "nodeFrom": "graphnode13",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#416D9C",
-        "$type": "square"
-      },
-      "id": "graphnode13",
-      "name": "graphnode13"
-    },
-    {
-      "adjacencies": [],
-      "data": {
-        "$color": "#70A35E",
-        "$type": "square"
-      },
-      "id": "graphnode14",
-      "name": "graphnode14"
-    },
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode16",
-          "nodeFrom": "graphnode15",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode17",
-          "nodeFrom": "graphnode15",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#C74243",
-        "$type": "circle"
-      },
-      "id": "graphnode15",
-      "name": "graphnode15"
-    },
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode17",
-          "nodeFrom": "graphnode16",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#EBB056",
-        "$type": "circle"
-      },
-      "id": "graphnode16",
-      "name": "graphnode16"
-    },
-    {
-      "adjacencies": [],
-      "data": {
-        "$color": "#83548B",
-        "$type": "triangle"
-      },
-      "id": "graphnode17",
-      "name": "graphnode17"
-    },
-    {
-      "adjacencies": [
-        {
-          "nodeTo": "graphnode19",
-          "nodeFrom": "graphnode18",
-          "data": {}
-        },
-        {
-          "nodeTo": "graphnode20",
-          "nodeFrom": "graphnode18",
-          "data": {}
-        }
-      ],
-      "data": {
-        "$color": "#C74243",
-        "$type": "circle"
-      },
-      "id": "graphnode18",
-      "name": "graphnode18"
-    },
-    {
-      "adjacencies": [],
-      "data": {
-        "$color": "#EBB056",
-        "$type": "star"
-      },
-      "id": "graphnode19",
-      "name": "graphnode19"
-    },
-    {
-      "adjacencies": [],
-      "data": {
-        "$color": "#416D9C",
-        "$type": "circle"
-      },
-      "id": "graphnode20",
-      "name": "graphnode20"
-    }
+  // Displaying
+  nodeDialogDisplay = false;
+  selectedElement: issacNode | issacEdge;
+  favorability_types = [
+    { label: 'Unfavorable', value: Processus_Agent_Impact.Negative, icon: 'fa fa-frown-o' },
+    { label: 'Neutral', value: Processus_Agent_Impact.None, icon: 'fa fa-meh-o' },
+    { label: 'Favorable', value: Processus_Agent_Impact.Positive, icon: 'fa fa-smile-o' }
   ];
+  // Communications canals
+  processusCanal = new Canal<Processus>();
+  agentCanal = new Canal<Agent>();
 
+
+  // Graph stuff
+  public network: vis.Network;
+  @ViewChild('visContainer')
+  public container: ElementRef;
+
+  public nodes = new vis.DataSet<issacNode>([]);
+  public edges = new vis.DataSet<issacEdge>([]);
+
+
+
+
+
+  private _processusColor = {
+    border: "#b27608",
+    background: "#ffb01e",
+    highlight: {
+      border: "#b27608",
+      background: "#ffc251",
+    },
+    hover: {
+      border: "#b27608",
+      background: "#ffb01e",
+    }
+
+  }
+
+  public options = {
+    // configure: {enabled: true},
+    nodes: {
+      shape: 'box',
+      borderWidth: 1
+    },
+    edges: {
+      smooth: false,
+      color: {
+        color: 'black',
+        highlight: '#848484'
+      }
+    },
+    physics: { enabled: false },
+    interaction: {
+      // zoomView: false,
+      // dragView: false,
+      // navigationButtons: true
+    }
+  };
+  private shiftPress = false;
+
+
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(ev: KeyboardEvent) {
+    this.shiftPress = ev.shiftKey;
+  }
+
+  @HostListener('document:keyup', ['$event'])
+  onKeyUp(ev: KeyboardEvent) {
+    this.shiftPress = ev.shiftKey;
+  }
+  private _canvasPosition: { x: number, y: number } = { x: 0, y: 0 };
+  // Used in drag event
+  private _lastSelected: any;
+
+  constructor() {
+
+  }
 
   ngOnInit() {
-  
-    this.processusCanal.flowIn$.subscribe((obj) => {
-      if (!obj) return;
-      console.log(obj.data.label);
-    })
 
-      
-    var fd = new $jit.ForceDirected({
-      //id of the visualization container
-      injectInto: 'infovis',
-      //Enable zooming and panning
-      //with scrolling and DnD
-      Navigation: {
-        enable: true,
-        type: 'Native',
-        //Enable panning events only if we're dragging the empty
-        //canvas (and not a node).
-        panning: 'avoid nodes',
-        zooming: 40 //zoom speed. higher is more sensible
-      },
-      // Change node and edge styles such as
-      // color and width.
-      // These properties are also set per node
-      // with dollar prefixed data-properties in the
-      // JSON structure.
-      Node: {
-        overridable: true,
-        dim: 7
-      },
-      Edge: {
-        overridable: true,
-        color: '#23A4FF',
-        lineWidth: 1
-      },
-      // Add node events
-      Events: {
-        enable: true,
-        enableForEdges: true,
-        type: 'Native',
-        onClick: (nodeOrEdge, eventInfo, e) => {
-          console.log (nodeOrEdge)
-          console.log (eventInfo)
-          console.log (e)
-          if (nodeOrEdge === false) {
-            // I am in the background
-            console.log ('I am the background')           
-          } else {
-            if (!nodeOrEdge.nodeFrom ) {
-              console.log ('I am a Node')
-            } else {
-              console.log ('I am an edge')
-            }
-          }
-        },
-        //Change cursor style when hovering a node
-        onMouseEnter: (node) => {
-          if (node.nodeFrom) return;
-          fd.canvas.getElement().style.cursor = 'move';
-        },
-        onMouseLeave: (node) => {
-          if (node.nodeFrom) return;
-          fd.canvas.getElement().style.cursor = '';
-        },
-        //Update node positions when dragged
-        onDragMove: (node, eventInfo, e) => {
-          // Add shift checking to draw new edge
-          if (node.nodeFrom) return;
-          var pos = eventInfo.getPos();
-          node.pos.setc(pos.x, pos.y);
-          fd.plot();
-        },
-        //Implement the same handler for touchscreens
-        // onTouchMove: (node, eventInfo, e) => {
-        //   if (node.nodeFrom) return;
-        //   $jit.util.event.stop(e); //stop default touchmove event
-        //   this.onDragMove(node, eventInfo, e);
-        // }
-      },
-      //Number of iterations for the FD algorithm
-      iterations: 200,
-      //Edge length
-      levelDistance: 130,
-      // This method is only triggered
-      // on label creation and only for DOM labels (not native canvas ones).
-      onCreateLabel: (domElement, node) => {
-        // Create a 'name' and 'close' buttons and add them
-        // to the main node label
-        var nameContainer = document.createElement('span'),
-          closeButton = document.createElement('span'),
-          style = nameContainer.style;
-        nameContainer.className = 'name';
-        nameContainer.innerHTML = node.name;
-        closeButton.className = 'close';
-        closeButton.innerHTML = 'x';
-        domElement.appendChild(nameContainer);
-        domElement.appendChild(closeButton);
-        style.fontSize = "0.8em";
-        style.color = "black";
-  
-        //Fade the node and its connections when
-        //clicking the close button
-        closeButton.onclick = () => {
-          node.setData('alpha', 0, 'end');
-          node.eachAdjacency(function (adj) {
-            adj.setData('alpha', 0, 'end');
-          });
-          fd.fx.animate({
-            modes: ['node-property:alpha',
-              'edge-property:alpha'],
-            duration: 500
-          });
-        };
-        //Toggle a node selection when clicking
-        //its name. This is done by animating some
-        //node styles like its dimension and the color
-        //and lineWidth of its adjacencies.
-        nameContainer.onclick = (thing) => {
-          //set final styles
-          fd.graph.eachNode(function (n) {
-            if (n.id != node.id) delete n.selected;
-            n.setData('dim', 7, 'end');
-            n.eachAdjacency(function (adj) {
-              adj.setDataset('end', {
-                lineWidth: 0.4,
-                color: '#23a4ff'
-              });
-            });
-          });
-          if (!node.selected) {
-            node.selected = true;
-            node.setData('dim', 17, 'end');
-            node.eachAdjacency(function (adj) {
-              adj.setDataset('end', {
-                lineWidth: 3,
-                color: '#36acfb'
-              });
-            });
-          } else {
-            delete node.selected;
-          }
-          //trigger animation to final styles
-          fd.fx.animate({
-            modes: ['node-property:dim',
-              'edge-property:lineWidth:color'],
-            duration: 500
-          });
-          // Build the right column relations list.
-          // This is done by traversing the clicked node connections.
-          var html = "<h4>" + node.name + "</h4><b> connections:</b><ul><li>",
-            list = [];
-          node.eachAdjacency(function (adj) {
-            if (adj.getData('alpha')) list.push(adj.nodeTo.name);
-          });
-          //append connections information
-          // $jit.id('inner-details').innerHTML = html + list.join("</li><li>") + "</li></ul>";
-        };
-      },
-      // Change node styles when DOM labels are placed
-      // or moved.
-      onPlaceLabel: function (domElement, node) {
-        var style = domElement.style;
-        var left = parseInt(style.left);
-        var top = parseInt(style.top);
-        var w = domElement.offsetWidth;
-        style.left = (left - w / 2) + 'px';
-        style.top = (top + 10) + 'px';
-        style.display = '';
-      }
+    this.processusCanal.flowOut$.subscribe((obj) => {
+      if (!obj) return;
+      let new_id = this.addProcessus(obj.data)
+      // Auto select the newly created processus
+      this.network.selectNodes([new_id]);
     });
 
+    this.agentCanal.flowOut$.subscribe((obj) => {
+      if (!obj) return;
+      if ((<{ node: vis.IdType }>obj.options).node !== undefined) {
+        this.editElement((<{ node: vis.IdType }>obj.options).node , obj.data)
+      } else {
+        let new_id = this.addAgent(obj.data);
+        // Auto select the newly created agent, false otherwise
+        if (new_id) {
+          this.network.selectNodes([new_id]);
+      }
+      }
+    })
 
-      // load JSON data.
-  fd.loadJSON(this.json);
-  // compute positions incrementally and animate.
-  fd.computeIncremental({
-    iter: 40,
-    property: 'end',
-    onStep: function (perc) {
-    },
-    onComplete:  () => {
+    // provide the data in the vis format
+    let data = {
+      nodes: this.nodes,
+      edges: this.edges
+    };
 
-      fd.animate({
-        modes: ['linear'],
-        transition: $jit.Trans.Elastic.easeOut,
-        duration: 2500
-      });
+    this.network = new vis.Network(this.container.nativeElement, data, this.options);
+
+    // Set zoom level
+    this.network.moveTo({
+      scale: 1.5
+    })
+
+    // Events
+    this.network.on("click", (params) => {
+      if (this.network.getSelectedNodes().length > 0) {
+        if (this._lastSelected && this.shiftPress) {
+          this.addRelationship(this._lastSelected, this.network.getSelectedNodes()[0]);
+          this.network.selectNodes([this._lastSelected]);
+        }
+        this._lastSelected = this.network.getSelectedNodes()[0];
+
+      } else {
+        this._lastSelected = undefined;
+      }
+    })
+    this.network.on("doubleClick", (params) => {
+      this._canvasPosition = params.pointer.canvas;
+      this.nodeDialogDisplay = true;
+    });
+    this.network.on("select", (params) => {
+      console.log(this.network.getSelectedNodes().length);
+      /* selectEdge is fired when a connected node is selected
+Checking the size of actualy selectedNode seems a reliable way to determine 
+if it's an edge or a node that is intended to be selected
+*/
+      let isMainSelectionEdge = this.network.getSelectedNodes().length === 0;
+      if (isMainSelectionEdge) {
+        let selectedEdge = this.edges.get(this.network.getSelectedEdges()[0]);
+        this.selectedElement = selectedEdge;
+      } else {
+        let selectedNode = this.nodes.get(this.network.getSelectedNodes()[0]);
+        this.selectedElement = selectedNode;
+      }
+    })
+
+    this.nodes.on('*', function (event, properties, senderId) {
+      console.log('event', event, properties);
+    });
+    this.edges.on('*', function (event, properties, senderId) {
+      console.log('event', event, properties);
+    });
+  }
+
+  openAgentPanel(agent = new Agent()) {
+    this.agentCanal.passIn(agent);
+  }
+
+  openProcessusPanel() {
+    this.processusCanal.passIn(new Processus());
+  }
+
+  addAgent(agent: Agent) {
+    let alreadyExist = getData(this.nodes, agent.uri)
+    if (!alreadyExist) {
+      let nodeId = this.nodes.add({label: agent.prefLabel, x: this._canvasPosition.x, y: this._canvasPosition.y, data: agent })[0]
+      return nodeId;
+    } else {
+      return false;
     }
-  });
-
-  this.fd = fd;
   }
 
-  ngAfterViewInit() {
-
-   
+  // From <https://stackoverflow.com/questions/34791265/visjs-get-number-of-edges-of-a-specific-node>
+  getEdgesOfNode(nodeId) {
+    return this.edges.get().filter(function (edge) {
+      return edge.from === nodeId || edge.to === nodeId;
+    });
   }
 
-  addNode() {
-    this.fd.graph.addNode({ id: "added", name: "addedNode", data: { "$color": "#557EAA"} })
+  addProcessus(processus: Processus) {
+    // Find an available id
+    let nodeId = this.nodes.add({ label: processus.label, x: this._canvasPosition.x, y: this._canvasPosition.y, color: this._processusColor, data: processus })[0];
+    return nodeId;
   }
+
+  private _nodesToAgentsAndProcessus(item1: Agent | Processus, item2: Agent | Processus) {
+    if (item1 instanceof Processus && item2 instanceof Agent ||
+      item1 instanceof Agent && item2 instanceof Processus) {
+      return {
+        agent: item1 instanceof Agent ? item1 : item2,
+        processus: item2 instanceof Processus ? item2 : item1,
+      };
+    } else {
+      return null;
+    }
+  }
+
+  addRelationship(node1Id: any, node2Id: any, options?: Object) {
+
+    let item1 = this.nodes.get(<vis.IdType>node1Id).data
+    let item2 = this.nodes.get(<vis.IdType>node2Id).data
+    let agentAndProcessus = this._nodesToAgentsAndProcessus(item1, item2)
+
+    console.log(agentAndProcessus)
+    if (agentAndProcessus) {
+      let relationship = new APRelationship(options = agentAndProcessus)
+      let edgeAlreadyExists = this.edges.get()
+        .some((item) => {
+          return relationship.uri === item.data.uri;
+        });
+      if (!edgeAlreadyExists) {
+        // From agent to processus
+        let fromId = getData(this.nodes, relationship.agent.uri).id
+        let toId = getData(this.nodes, relationship.processus.uri).id
+        this.edges.add({from: fromId, to: toId, data: relationship });
+      } else {
+        console.log('Link already exits between ' + item1.uri + ' and ' + item2.uri)
+        return false;
+      }
+    } else {
+      console.log('Not a valide link');
+      return false;
+    }
+  }
+
+  deleteElement(uri) {
+    let node = getData(this.nodes, uri);
+    let edge = getData(this.edges, uri);
+    let itemToRemove = {...node, ...edge}
+    if (itemToRemove.data instanceof APRelationship) {
+      this.edges.remove(itemToRemove.id);
+    } else {
+      this.nodes.remove(itemToRemove.id);
+    }
+  }
+
+  private _colorSwitch(intValue: Processus_Agent_Impact) {
+    switch (intValue) {
+      case Processus_Agent_Impact.Negative:
+      return {
+        color: 'red',
+        highlight: '#FBA7AB'
+      };
+      case Processus_Agent_Impact.None:
+      case Processus_Agent_Impact.Unknown:
+      return {
+        color: 'black',
+        highlight: '#848484'
+      };
+      case Processus_Agent_Impact.Positive:
+      return {
+        color: 'green',
+        highlight: '#90C645'
+      };
+    }
+  }
+  editElement(id: vis.IdType, newData: Agent | Processus | APRelationship) {
+    if (newData instanceof APRelationship) {
+      console.log('update edge')
+      this.edges.update({id: id, 
+        data: newData, 
+        color: this._colorSwitch(newData['processusToAgentImpact'] | Processus_Agent_Impact.Unknown)
+      });
+    } else {
+      if (newData instanceof Agent) {
+        this.nodes.update({id: id, data: newData, label: newData.prefLabel});
+      }else {
+        this.nodes.update({id: id, data: newData, label: newData.label});
+      }
+    }
+    this.network.redraw();
+  }
+
+
 
 }

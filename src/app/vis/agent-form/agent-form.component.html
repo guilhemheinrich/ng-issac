@@ -1,0 +1,24 @@
+<p-dialog [(visible)]="displayModal" [contentStyle]="{'max-height':'70%'}"
+ [maximizable]="'true'"  [minWidth]="700">
+    <p-header>
+        <h2>Agent selection </h2>
+        <div *ngIf="agent && agent.prefLabel && agent.uri"> 
+            <h3 style="display: inline; color: blueviolet">{{agent.prefLabel}}  </h3>
+            <h5 style="display: inline; color: black; font-style:italic">{{agent.uri}}</h5>
+
+        </div>
+    </p-header>
+    <div class="myCollapse" id="agentThesaurus">
+        <app-thesaurus-display (result)="onThesaurusResult($event)"
+            #thesaurusComponent></app-thesaurus-display>
+    </div>
+    <p-footer>
+        <button class="btn btn-success" type="submit" value="Validate Agent" [disabled]="!(agent && agent.prefLabel) "
+         (click)="onSubmitAgent()">Validate
+            Agent</button>
+            <button [hidden]="!editable" class="btn btn-danger" value="Delete" (click)="onDelete()">Delete</button>
+                    <div class="btn-group" role="group">
+        </div>
+
+    </p-footer>
+</p-dialog>

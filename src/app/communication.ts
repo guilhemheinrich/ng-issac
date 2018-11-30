@@ -5,13 +5,13 @@ export class Canal<DataType> {
     flowOut$ :BehaviorSubject<{data: DataType, options: Object}> = new BehaviorSubject(null);
 
     passIn(data:DataType, options: Object = {}) {
-        this.flowOut$.next({
+        this.flowIn$.next({
             data,
             options});
     };
 
     passOut(data:DataType, options: Object = {}) {
-        this.flowIn$.next({
+        this.flowOut$.next({
             data,
             options});
     };

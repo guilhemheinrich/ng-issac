@@ -224,7 +224,7 @@ export class SparqlClass {
         this[attribute] = [];
       }
 
-      let hasInitialValue = options && options[attribute];
+      let hasInitialValue = (options !== undefined) && (options[attribute] !== undefined);
 
 
       if (this._sparqlAttributes[attribute].type === SparqlType.OBJECT) {

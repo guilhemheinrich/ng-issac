@@ -8,6 +8,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AuthGuard } from './auth-guard.service';
 import { ViewComponent } from './processus/view/view.component';
 import { HomeComponent } from './home/home.component';
+import { MainComponent } from './vis/main/main.component';
 import {CreateProcessusComponent} from './issac-processus/create-processus/create-processus.component';
 import { DisplayerComponent } from './messages/displayer/displayer.component';
 
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'processus/view/:id', component: ViewComponent, canActivate: [AuthGuard] },
   { path: 'home', component: HomeComponent},
   { path: 'test', component: CreateProcessusComponent},
+  { path: 'workbench', component: MainComponent},
   // { path: 'home', component: DisplayerComponent},
 
   

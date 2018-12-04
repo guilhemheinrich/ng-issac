@@ -7,10 +7,18 @@ import { ContextDisplayerService } from '../context/context-displayer.service';
 import { Router,ActivatedRoute } from '@angular/router';
 import { SparqlParserService, GraphDefinition, QueryType } from '../../sparql-parser.service';
 import { SparqlClientService } from '../../sparql-client.service';
+
+
 import {IssacAgent, IIssacAgent} from 'src/app/issac-definitions/agent';
 import {IssacProcessus, IIssacProcessus} from 'src/app/issac-definitions/processus';
 import { IssacContext } from '../../issac-definitions/context';
 
+
+import { Agent } from 'src/app/models/Agent';
+import { APRelationship } from 'src/app/models/APRelationship';
+// import { Processus } from 'src/app/models/Processus';
+import { SkosNode } from 'src/app/models/SkosNode';
+import { FoafAgent } from 'src/app/models/FoafAgent';
 @Component({
   selector: 'app-view',
   templateUrl: './view.component.html',
